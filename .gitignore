@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.output/
+.nitro/
+.vercel/
+.tanstack/
+.wrangler/
+*.log
+.env
+.env.*
+!.env.example
+artifacts/
+screenshots/
+.DS_Store
+*.tsbuildinfo
+
+# Grok sandbox internals — keep only the auth flag the build reads
+.grok/*
+!.grok/app-env.json
