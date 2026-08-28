@@ -87,12 +87,15 @@ This repo is public. Fork, branch, open a pull request.
 
 Please keep the prototype *small*. A good change makes the paper feel more like paper, or the chrome quieter. A bad change adds a sidebar, markdown toolbar, cloud sync, or a settings screen.
 
+## iOS (Internal TestFlight)
+
+A Capacitor WKWebView shell in `ios/` hosts the **bundled** desk (`dist/client`), never the Vercel URL. Display name **Vellum Pad**, bundle ID `com.jamiematheson.vellumpad`. Archive steps, signing blockers, and TestFlight-only rules: [PUBLISH.md](PUBLISH.md).
+
 Suggested next slices (only if they stay in character):
 
-- Export a page as a plain `.txt` / print-to-PDF
 - Optional passcode lock (still local)
 - A second sample handwriting paper
-- iOS home-screen install polish
+- Files / iCloud for pages (still no accounts)
 
 Do **not** add: folders, tags, rich text, collaboration, accounts, or a web-app sidebar.
 

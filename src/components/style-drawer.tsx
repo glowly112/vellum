@@ -31,6 +31,7 @@ type StyleDrawerProps = {
   value: StyleValue;
   onChange: (patch: Partial<StyleValue>) => void;
   onDelete: () => void;
+  onExport: () => void;
   dark: boolean;
 };
 
@@ -40,6 +41,7 @@ export function StyleDrawer({
   value,
   onChange,
   onDelete,
+  onExport,
   dark,
 }: StyleDrawerProps) {
   const allowedInks = inksForPaper(value.paperId);
@@ -215,7 +217,15 @@ export function StyleDrawer({
               </div>
             </Section>
 
-            <div className="mt-6 border-t border-current/10 pt-3">
+            <div className="mt-6 space-y-2 border-t border-current/10 pt-3">
+              <Button
+                type="button"
+                variant={dark ? "chrome-dark" : "ghost"}
+                className="h-11 w-full"
+                onClick={onExport}
+              >
+                Export as text
+              </Button>
               <Button
                 type="button"
                 variant="danger"
