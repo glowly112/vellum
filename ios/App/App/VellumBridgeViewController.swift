@@ -74,7 +74,7 @@ public class VellumHostPlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "VellumHost"
     public let pluginMethods: [CAPPluginMethod] = []
 
-    @objc override func shouldOverrideLoad(_ navigationAction: WKNavigationAction) -> NSNumber? {
+    @objc public override func shouldOverrideLoad(_ navigationAction: WKNavigationAction) -> NSNumber? {
         guard let url = navigationAction.request.url else { return nil }
         if VellumBridgeViewController.isBlockedRemoteHost(url) {
             return true

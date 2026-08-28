@@ -56,7 +56,7 @@ describe("iOS project locks", () => {
       "utf8",
     );
     assert.match(swift, /vercel\.app/);
-    assert.match(swift, /shouldOverrideLoad/);
+    assert.match(swift, /@objc public override func shouldOverrideLoad/);
     assert.match(swift, /WKNavigationActionPolicy\.cancel/);
     assert.match(swift, /vellumShare/);
     assert.doesNotMatch(swift, /vellum-jamies-projects-b6f60a28\.vercel\.app/);
