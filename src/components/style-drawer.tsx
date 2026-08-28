@@ -3,6 +3,7 @@ import { Drawer } from "vaul";
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useKeyboardOffset } from "@/lib/keyboard";
 import {
   FONTS,
   PAPERS,
@@ -44,6 +45,7 @@ export function StyleDrawer({
   const allowedInks = inksForPaper(value.paperId);
   const ring = dark ? "var(--color-ink-cream)" : "var(--color-ink)";
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const keyboard = useKeyboardOffset();
 
   return (
     <Drawer.Root
@@ -58,19 +60,24 @@ export function StyleDrawer({
         <Drawer.Overlay className="fixed inset-0 z-40 bg-ink/35" />
         <Drawer.Content
           className={cn(
-            "fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[82dvh] max-w-sm flex-col rounded-t-2xl outline-none",
+            "fixed inset-x-0 z-50 mx-auto flex w-full max-w-sm flex-col rounded-t-2xl outline-none",
             dark ? "bg-paper-night text-ink-cream" : "bg-paper text-ink",
           )}
+          style={{
+            bottom: keyboard,
+            maxHeight: `min(82dvh, calc(100dvh - ${keyboard}px - 12px))`,
+            paddingBottom: "max(1.5rem, env(safe-area-inset-bottom, 0px))",
+          }}
         >
-          <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-current/20" />
-          <Drawer.Title className="px-5 pt-3 font-display text-xl tracking-tight">
+          <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-current/20" />
+          <Drawer.Title className="shrink-0 px-5 pt-3 font-display text-xl tracking-tight">
             Page
           </Drawer.Title>
           <Drawer.Description className="sr-only">
             Choose paper, typeface, size, and ink
           </Drawer.Description>
 
-          <div className="no-scrollbar mt-1 flex-1 overflow-y-auto px-5 pb-8">
+          <div className="no-scrollbar mt-1 min-h-0 flex-1 overflow-y-auto px-5 pb-4">
             <Section label="Paper">
               <div className="no-scrollbar -mx-1 flex gap-2.5 overflow-x-auto px-1 pb-1">
                 {PAPERS.map((p) => {
@@ -86,6 +93,7 @@ export function StyleDrawer({
                         paperId={p.id}
                         fontId="book"
                         size="s"
+                        compact
                         className={cn(
                           "h-[4.4rem] w-full overflow-hidden rounded-lg transition-[box-shadow,transform] duration-150 ease-out",
                           selected
@@ -129,7 +137,7 @@ export function StyleDrawer({
                       type="button"
                       onClick={() => onChange({ fontId: font.id })}
                       className={cn(
-                        "flex w-full items-center gap-3 px-3.5 py-2.5 text-left transition-colors duration-150",
+                        "flex min-h-11 w-full items-center gap-3 px-3.5 py-2.5 text-left transition-colors duration-150",
                         selected ? "bg-current/6" : "hover:bg-current/4",
                       )}
                     >
@@ -167,7 +175,7 @@ export function StyleDrawer({
                       type="button"
                       onClick={() => onChange({ size: s.id })}
                       className={cn(
-                        "h-10 rounded-full font-ui text-sm transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.96]",
+                        "h-11 rounded-full font-ui text-sm transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.96]",
                         selected
                           ? dark
                             ? "bg-ink-cream text-paper-night"
@@ -211,7 +219,7 @@ export function StyleDrawer({
               <Button
                 type="button"
                 variant="danger"
-                className="w-full"
+                className="h-11 w-full"
                 onClick={() => {
                   if (!confirmDelete) {
                     setConfirmDelete(true);

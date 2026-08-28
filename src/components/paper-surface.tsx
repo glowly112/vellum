@@ -10,6 +10,7 @@ type PaperSurfaceProps = {
   className?: string;
   children: ReactNode;
   ruledOffset?: string;
+  compact?: boolean;
 };
 
 export function PaperSurface({
@@ -20,6 +21,7 @@ export function PaperSurface({
   className,
   children,
   ruledOffset,
+  compact = false,
 }: PaperSurfaceProps) {
   const paper = getPaper(paperId);
   const font = getFont(fontId);
@@ -28,7 +30,8 @@ export function PaperSurface({
   return (
     <div
       className={cn(
-        "paper-sheet paper-gutter",
+        "paper-sheet",
+        compact ? "paper-sheet-compact" : "paper-gutter",
         paper.surface,
         font.className,
         ink.color,
@@ -43,11 +46,11 @@ export function PaperSurface({
       {paper.ruling === "lines" ? (
         <>
           <div className="paper-rules" aria-hidden />
-          <div className="paper-margin" aria-hidden />
+          {compact ? null : <div className="paper-margin" aria-hidden />}
         </>
       ) : null}
       {paper.ruling === "dots" ? <div className="paper-dots" aria-hidden /> : null}
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 flex h-full min-h-0 flex-col">{children}</div>
     </div>
   );
 }

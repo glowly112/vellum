@@ -210,9 +210,24 @@
   box-shadow: inset 18px 0 22px -18px rgb(44 36 25 / 0.12);
 }
 
-.paper-sheet[data-paper="night"] .paper-gutter {
+.paper-sheet[data-paper="night"].paper-gutter {
   box-shadow: inset 18px 0 22px -18px rgb(0 0 0 / 0.35);
 }
+
+.paper-sheet-compact::before {
+  opacity: 0.05;
+  mix-blend-mode: normal;
+}
+
+.paper-sheet-compact .paper-fiber {
+  opacity: 0.22;
+}
+
+.paper-sheet-compact .paper-rules,
+.paper-sheet-compact .paper-dots {
+  opacity: 0.38;
+}
+
 
 .paper-sheet[data-size="s"] {
   --title-size: 1.45rem;

@@ -32,6 +32,7 @@ export function LibraryCard({ page, index }: { page: Page; index: number }) {
         fontId={page.fontId}
         inkId={page.inkId}
         size="s"
+        compact
         className="h-44 overflow-hidden rounded-xl shadow-[var(--shadow-page)] transition-[transform,box-shadow] duration-150 ease-out active:scale-[0.96]"
       >
         <article className="flex h-44 flex-col px-5 py-4">
@@ -45,7 +46,7 @@ export function LibraryCard({ page, index }: { page: Page; index: number }) {
             {title}
           </h2>
           {preview && preview !== title ? (
-            <p className="mt-2 line-clamp-3 text-[0.95rem] leading-relaxed text-current/70">
+            <p className="mt-2 line-clamp-2 text-[0.95rem] leading-relaxed text-current/85">
               {preview}
             </p>
           ) : null}

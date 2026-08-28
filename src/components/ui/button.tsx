@@ -12,9 +12,9 @@ const buttonVariants = cva(
           "bg-ink text-paper shadow-[var(--shadow-chrome)] hover:bg-accent",
         ghost: "bg-transparent text-ink hover:bg-ink/6",
         chrome:
-          "bg-paper/88 text-ink shadow-[var(--shadow-chrome)] backdrop-blur-[2px] hover:bg-paper",
+          "bg-paper/92 text-ink shadow-[var(--shadow-chrome)] hover:bg-paper",
         "chrome-dark":
-          "bg-paper-night/70 text-ink-cream shadow-[var(--shadow-chrome)] hover:bg-paper-night/85",
+          "bg-paper-night/80 text-ink-cream shadow-[var(--shadow-chrome)] hover:bg-paper-night/90",
         danger: "bg-transparent text-danger hover:bg-danger/8",
       },
       size: {
