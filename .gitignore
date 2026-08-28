@@ -17,3 +17,8 @@ screenshots/
 # Grok sandbox internals — keep only the auth flag the build reads
 .grok/*
 !.grok/app-env.json
+
+# Xcode (native project lives in ios/; ignore local build products)
+ios/App/build
+ios/DerivedData
+**/xcuserdata/

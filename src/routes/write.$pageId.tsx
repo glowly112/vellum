@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getFont, getPaper } from "@/lib/catalog";
 import { scrollFocusedIntoView, useKeyboardOffset } from "@/lib/keyboard";
 import { useMounted } from "@/lib/hooks";
+import { exportPageAsTxt } from "@/lib/export-page";
 import { useWritingStore } from "@/lib/store";
 import { cn, wordCount } from "@/lib/utils";
 
@@ -224,6 +225,10 @@ function WritePage() {
         }}
         onChange={(patch) => setPageStyle(page.id, patch)}
         onDelete={handleDelete}
+        onExport={() => {
+          setStylesOpen(false);
+          void exportPageAsTxt(page.title, page.body);
+        }}
         dark={paper.dark}
       />
     </main>

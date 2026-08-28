@@ -1,0 +1,24 @@
+{
+	"appId": "com.jamiematheson.vellumpad",
+	"appName": "Vellum Pad",
+	"webDir": "dist/client",
+	"ios": {
+		"contentInset": "never",
+		"scrollEnabled": true,
+		"preferredContentMode": "mobile"
+	},
+	"plugins": {
+		"Keyboard": {
+			"resize": "none",
+			"resizeOnFullScreen": false
+		},
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#E6D7C0"
+		}
+	},
+	"packageClassList": [
+		"KeyboardPlugin",
+		"StatusBarPlugin"
+	]
+}
