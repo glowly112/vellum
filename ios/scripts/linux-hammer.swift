@@ -54,6 +54,14 @@ expect(Typeface.hand.familyName == "Caveat", "Hand is Caveat")
 expect(Typeface.typewriter.familyName == "Special Elite", "Typewriter is Special Elite")
 expect(Typeface.sans.familyName == "Source Sans 3", "Sans is Source Sans 3")
 expect(Typeface.mono.familyName == "IBM Plex Mono", "Mono is IBM Plex Mono")
+
+var grainSeen: Set<UInt64> = []
+var grainOK = true
+for paper in Paper.allCases {
+    let seed = PaperGrain.seed(for: paper)
+    if seed == 0 || !grainSeen.insert(seed).inserted { grainOK = false }
+}
+expect(grainOK, "paper grain seed is unsigned and distinct")
 expect(DeleteDecision.shouldDelete(confirmed: false) == false, "delete cancel")
 expect(DeleteDecision.shouldDelete(confirmed: true) == true, "delete confirm")
 

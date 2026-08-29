@@ -2,7 +2,7 @@
 
 SwiftUI app for iOS 26. Not Capacitor, not WKWebView, not a clone of the web desk chrome.
 
-Open `ios/VellumPad/VellumPad.xcodeproj` in **Xcode 26**. Deployment target is iOS 26. Bundle ID `com.jamiematheson.vellumpad`, version `1.0.0` (4). Team `M3V2YYMTV6` is set on the target. Catalogue faces are the OFL files in `VellumPad/Fonts/`.
+Open `ios/VellumPad/VellumPad.xcodeproj` in **Xcode 26**. Deployment target is iOS 26. Bundle ID `com.jamiematheson.vellumpad`, version `1.0.0` (5). Team `M3V2YYMTV6` is set on the target. Catalogue faces are the OFL files in `VellumPad/Fonts/`.
 
 Prove (Mac / Xcode 26):
 

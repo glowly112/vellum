@@ -23,7 +23,7 @@ struct PaperBackdrop: View {
 
             let grainOpacity = paper.isDark ? 0.10 : (compact ? 0.04 : 0.07)
             if size.width > 0, size.height > 0 {
-                var rng = SeededRandom(seed: UInt64(paper.rawValue.hashValue))
+                var rng = SeededRandom(seed: PaperGrain.seed(for: paper))
                 let count = Int((size.width * size.height) / (compact ? 140 : 90))
                 for _ in 0..<min(count, 900) {
                     let px = CGFloat(rng.next()) * size.width

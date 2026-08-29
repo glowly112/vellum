@@ -59,6 +59,15 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(HitTarget.minimum, 44)
     }
 
+    func testPaperGrainSeedDoesNotTrapOnEveryPaper() {
+        var seen: Set<UInt64> = []
+        for paper in Paper.allCases {
+            let seed = PaperGrain.seed(for: paper)
+            XCTAssertNotEqual(seed, 0, paper.rawValue)
+            XCTAssertTrue(seen.insert(seed).inserted, paper.rawValue)
+        }
+    }
+
     func testCatalogueTypefacesUseOFLFamilyNames() {
         let expected = [
             Typeface.book: "Literata",

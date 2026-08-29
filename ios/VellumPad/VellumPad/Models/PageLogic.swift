@@ -53,3 +53,16 @@ enum StyleSheetLayout {
 enum KeyboardAvoidance {
     static let guessedBottomPoints: Double? = nil
 }
+
+/// Stable grain seed. Do not use `UInt64(hashValue)` — `hashValue` is a signed
+/// `Int` and traps (`Negative value is not representable`) on a negative seed.
+enum PaperGrain {
+    static func seed(for paper: Paper) -> UInt64 {
+        var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+        for byte in paper.rawValue.utf8 {
+            hash ^= UInt64(byte)
+            hash &*= 0x0100_0000_01b3
+        }
+        return hash == 0 ? 0x9E37_79B9_7F4A_7C15 : hash
+    }
+}
