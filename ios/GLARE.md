@@ -25,5 +25,6 @@ These still need a phone-width watch:
 9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
 10. **Editor is paper.** The whole editor is paper, edge to edge (under the toolbar, down to the word-count inset, out to the screen edges). No desk-grain frame. No rounded sheet on grain. Date / title / body origin unchanged. Closed-keyboard shot is not a pass. Not watched.
 11. **Rule alignment.** Title and body baselines should sit on `PaperRuling` lines/dots (pitch 32). Cream + Book and Ruled + Typewriter. Not watched.
+12. **TEXT_OVERLAP (wrap-while-typing).** Keyboard open: wrapping lines must sit below the previous line, not paint on top. Dismiss-keyboard cleaning the page is the tell (phone 20). Mini cannot inject typing (`simctl ui send-text` hangs; osascript keystroke paste is blocked). A still of the sample page is not wrap proof. Phone check of 22 is extra, not a substitute for Mini pixels. Not watched.
 
-Until 1–2 are watched on a phone, the production pass bar stays **false**.
+Until 1–2 are watched on a phone, the production pass bar stays **false**. Phone 22 does not replace Mini pixels.

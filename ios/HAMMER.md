@@ -11,7 +11,7 @@ This Linux worker cannot run that. Logic cases are `VellumPadTests/HammerTests.s
 | 3 | Double tap compose | Second tap within 0.8s on a still-blank page opens the same page. |
 | 4 | First-run samples | Empty store + first launch seeds three sample pages. Later empty desk is empty. |
 | 5 | Empty search | “Nothing matches” + Clear search + Start a page. |
-| 6 | Keyboard cover | Editor uses `TextEditor` (not a nested `ScrollView`). Word-count is a `safeAreaInset` (no guessed 34pt/120pt). Opening Page dismisses the keyboard. Style sheet last row is **Size**. Fail if `KB_COVER`. Keyboard-open pixels are still undone. System editor scrolls — no per-keystroke park. |
+| 6 | Keyboard cover | Editor uses `TextEditor` (not a nested `ScrollView`). Word-count is a `safeAreaInset` (no guessed 34pt/120pt). Opening Page dismisses the keyboard. Style sheet last row is **Size**. Fail if `KB_COVER`. Fail `TEXT_OVERLAP`: wrapping lines with the keyboard open must sit below the previous line — dismiss-keyboard cleaning the page is the tell. Keyboard-open pixels are still undone. System editor scrolls — no per-keystroke park. |
 | 7 | Delete confirm | Cancel leaves the page. Confirm deletes and pops. |
 | 8 | Share `.txt` | System share sheet. Empty title → `Untitled page.txt`. |
 
@@ -43,7 +43,7 @@ Apple `safeAreaInset`: shows specified content beside the modified view and incr
 | 2 | Footer copy | `66 words` lives in a bottom **`safeAreaInset`**. No paper · typeface on the inset (Night · Book is gone). |
 | 3 | Focus | Eye stays on the system toolbar and turns Focus off. Nav bar is not hidden. Word-count hides in focus. |
 | 4 | Chrome | System back, system `.sheet` starting at **medium**, `textformat` — not a circular web back or custom T. |
-| 5 | KB_COVER | No guessed pad (not 34 / 42 / 44 / 120). Word-count is a caption on the keys. The **system TextEditor** fills the field and scrolls (not scrollTo(body) / a caret-rect nudge / a lagged measure height). New lines must sit below the previous line. Closed origin stays. Not pinned to the bottom. |
+| 5 | KB_COVER | No guessed pad (not 34 / 42 / 44 / 120). Word-count is a caption on the keys. The **system TextEditor** fills the field and scrolls (not scrollTo(body) / a caret-rect nudge / a lagged measure height). Fail `TEXT_OVERLAP`: type wrapping lines with the keyboard open; new glyphs must not paint on top of old lines. Dismiss-keyboard cleaning the page is the tell. Closed origin stays. Not pinned to the bottom. |
 | 6 | Desk grain | `PaperGrain.seed(forToken: "desk")` is unsigned and not the cream paper seed. |
 | 7 | Debug open-first | `VELLUM_OPEN_FIRST=1` opens the first page in Debug only. Release ignores the env. |
 | 8 | Debug focus-body | `VELLUM_FOCUS_BODY=1` focuses the body `TextEditor` in Debug only. Release never focuses. `keyboardOpenProven` stays false. |
