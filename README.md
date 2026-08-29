@@ -66,7 +66,7 @@ npm run build
 npm run preview
 ```
 
-Native iOS (Xcode 26, iOS 26 SDK) — open `ios/VellumPad/VellumPad.xcodeproj`. Display name **Vellum Pad**, bundle ID `com.jamiematheson.vellumpad`, version 1.0.0 (2). Screen map: [`ios/REFS.md`](ios/REFS.md).
+Native iOS (Xcode 26, iOS 26 SDK) — open `ios/VellumPad/VellumPad.xcodeproj`. Display name **Vellum Pad**, bundle ID `com.jamiematheson.vellumpad`, version 1.0.0 (3). Prove: `xcodebuild -project ios/VellumPad/VellumPad.xcodeproj -scheme VellumPad -destination 'generic/platform=iOS' -configuration Debug build`. Screen map: [`ios/REFS.md`](ios/REFS.md). The production pass bar is false until that build and a Simulator keyboard pass both succeed.
 
 ## Where to change things
 

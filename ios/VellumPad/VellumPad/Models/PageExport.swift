@@ -8,17 +8,8 @@ struct PageExport: Transferable {
     let text: String
 
     init(page: Page) {
-        let base = PageCopy.displayTitle(title: page.title, body: page.body)
-            .replacingOccurrences(of: "/", with: "-")
-            .replacingOccurrences(of: ":", with: "-")
-        fileName = "\(base).txt"
-        if page.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            text = page.body
-        } else if page.body.isEmpty {
-            text = page.title
-        } else {
-            text = "\(page.title)\n\n\(page.body)"
-        }
+        fileName = PagePlainText.fileName(title: page.title, body: page.body)
+        text = PagePlainText.contents(title: page.title, body: page.body)
     }
 
     static var transferRepresentation: some TransferRepresentation {

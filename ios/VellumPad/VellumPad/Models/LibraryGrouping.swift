@@ -11,6 +11,18 @@ enum LibrarySection: String, CaseIterable, Identifiable, Sendable {
     var title: String { rawValue }
 }
 
+protocol RecencyPage {
+    var title: String { get }
+    var body: String { get }
+    var updatedAt: Date { get }
+}
+
+struct PageRecord: RecencyPage, Equatable {
+    var title: String
+    var body: String
+    var updatedAt: Date
+}
+
 enum LibraryGrouping {
     static func matchesQuery(title: String, body: String, query: String) -> Bool {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -29,16 +41,16 @@ enum LibraryGrouping {
         return .earlier
     }
 
-    static func group(
-        pages: [Page],
+    static func group<P: RecencyPage>(
+        pages: [P],
         query: String,
         now: Date = .now
-    ) -> [(section: LibrarySection, pages: [Page])] {
+    ) -> [(section: LibrarySection, pages: [P])] {
         let filtered = pages
             .filter { matchesQuery(title: $0.title, body: $0.body, query: query) }
             .sorted { $0.updatedAt > $1.updatedAt }
 
-        var map: [LibrarySection: [Page]] = [:]
+        var map: [LibrarySection: [P]] = [:]
         for page in filtered {
             map[section(for: page.updatedAt, now: now), default: []].append(page)
         }

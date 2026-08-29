@@ -11,7 +11,7 @@ enum SamplePages {
         let existing = (try? context.fetch(descriptor)) ?? []
         let didLaunch = UserDefaults.standard.bool(forKey: didLaunchKey)
 
-        if existing.isEmpty && !didLaunch {
+        if SeedPolicy.shouldSeed(storeIsEmpty: existing.isEmpty, didLaunch: didLaunch) {
             for page in makeSamples(now: .now) {
                 context.insert(page)
             }

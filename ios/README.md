@@ -4,6 +4,11 @@ SwiftUI app for iOS 26. Not Capacitor, not WKWebView, not a clone of the web des
 
 Open `ios/VellumPad/VellumPad.xcodeproj` in **Xcode 26**. Deployment target is iOS 26. Bundle ID `com.jamiematheson.vellumpad`, version `1.0.0` (2). Team `M3V2YYMTV6` is set on the target.
 
-This Linux worker cannot run the Simulator. Build and run on a Mac with the iOS 26 SDK.
+Prove (Mac / Xcode 26):
 
-See [REFS.md](REFS.md) for the per-screen chrome map.
+```bash
+xcodebuild -project ios/VellumPad/VellumPad.xcodeproj -scheme VellumPad -destination 'generic/platform=iOS' -configuration Debug build
+xcodebuild -project ios/VellumPad/VellumPad.xcodeproj -scheme VellumPad -destination 'platform=iOS Simulator,name=iPhone 16' test
+```
+
+This Linux worker cannot run those. `ios/scripts/prove.sh` still invokes `xcodebuild` so the exit code is recorded. Hammer: [HAMMER.md](HAMMER.md). Unwatched glare: [GLARE.md](GLARE.md). Screen map: [REFS.md](REFS.md).

@@ -43,56 +43,61 @@ struct EditorView: View {
         let size = page.typeSize
         let editing = field != nil
 
-        return ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                if focusMode {
-                    Color.clear
-                        .frame(height: 28)
-                        .contentShape(Rectangle())
-                        .onTapGesture { focusMode = false }
-                        .accessibilityLabel("Exit focus")
-                        .accessibilityAddTraits(.isButton)
-                }
-
-                Text(PageCopy.longDate(page.createdAt))
-                    .font(VellumFonts.ui(.caption2, weight: .medium))
-                    .tracking(1.6)
-                    .foregroundStyle(ink.color.opacity(0.40))
-                    .padding(.top, focusMode ? 4 : 8)
-
-                TextField(
-                    "Title",
-                    text: titleBinding(page),
-                    prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
-                    axis: .vertical
-                )
-                    .font(VellumFonts.title(typeface, size: size))
-                    .foregroundStyle(ink.color)
-                    .tint(ink.color)
-                    .textInputAutocapitalization(.sentences)
-                    .submitLabel(.next)
-                    .focused($field, equals: .title)
-                    .onSubmit { field = .body }
-                    .padding(.top, 12)
-
-                TextField(
-                    "Begin writing…",
-                    text: bodyBinding(page),
-                    prompt: Text("Begin writing…").foregroundStyle(ink.color.opacity(0.38)),
-                    axis: .vertical
-                )
-                    .font(VellumFonts.body(typeface, size: size))
-                    .foregroundStyle(ink.color)
-                    .tint(ink.color)
-                    .lineSpacing(size.bodyPoints * (size.bodyLeading - 1))
-                    .textInputAutocapitalization(.sentences)
-                    .focused($field, equals: .body)
-                    .padding(.top, 16)
-                    .padding(.bottom, 32)
+        return VStack(alignment: .leading, spacing: 0) {
+            if focusMode {
+                Color.clear
+                    .frame(height: 28)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture { focusMode = false }
+                    .accessibilityLabel("Exit focus")
+                    .accessibilityAddTraits(.isButton)
             }
-            .padding(.leading, paper.ruling == .lines ? 56 : 24)
-            .padding(.trailing, 24)
+
+            Text(PageCopy.longDate(page.createdAt))
+                .font(VellumFonts.ui(.caption2, weight: .medium))
+                .tracking(1.6)
+                .foregroundStyle(ink.color.opacity(0.40))
+                .padding(.top, focusMode ? 4 : 8)
+
+            TextField(
+                "Title",
+                text: titleBinding(page),
+                prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
+                axis: .vertical
+            )
+            .font(VellumFonts.title(typeface, size: size))
+            .foregroundStyle(ink.color)
+            .tint(ink.color)
+            .textInputAutocapitalization(.sentences)
+            .submitLabel(.next)
+            .focused($field, equals: .title)
+            .onSubmit { field = .body }
+            .padding(.top, 12)
+
+            TextEditor(text: bodyBinding(page))
+                .font(VellumFonts.body(typeface, size: size))
+                .foregroundStyle(ink.color)
+                .tint(ink.color)
+                .scrollContentBackground(.hidden)
+                .lineSpacing(CGFloat(size.bodyPoints * (size.bodyLeading - 1)))
+                .textInputAutocapitalization(.sentences)
+                .focused($field, equals: .body)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .overlay(alignment: .topLeading) {
+                    if page.body.isEmpty && field != .body {
+                        Text("Begin writing…")
+                            .font(VellumFonts.body(typeface, size: size))
+                            .foregroundStyle(ink.color.opacity(0.38))
+                            .padding(.top, 16)
+                            .allowsHitTesting(false)
+                    }
+                }
         }
+        .padding(.leading, paper.ruling == .lines ? 56 : 24)
+        .padding(.trailing, 24)
         .scrollDismissesKeyboard(.interactively)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
@@ -126,7 +131,7 @@ struct EditorView: View {
                             focusMode = true
                         }
                         Button("Page style", systemImage: "textformat") {
-                            showStyles = true
+                            openStyles()
                         }
                         ShareLink(item: PageExport(page: page), preview: SharePreview(page.displayTitle)) {
                             Label("Share as Text", systemImage: "square.and.arrow.up")
@@ -160,6 +165,7 @@ struct EditorView: View {
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+            .presentationContentInteraction(.scrolls)
             .presentationBackground(paper.isDark ? VellumPalette.night : VellumPalette.paper)
         }
         .alert("Delete this page?", isPresented: $confirmDelete) {
@@ -172,7 +178,7 @@ struct EditorView: View {
 
     private func wordCountBar(_ page: Page) -> some View {
         Button {
-            showStyles = true
+            openStyles()
         } label: {
             HStack {
                 Text("\(page.words) \(page.words == 1 ? "word" : "words")")
@@ -184,11 +190,11 @@ struct EditorView: View {
             .tracking(0.4)
             .foregroundStyle(page.ink.color.opacity(0.55))
             .padding(.horizontal, 16)
-            .frame(height: 36)
+            .frame(minHeight: HitTarget.minimum)
         }
         .buttonStyle(.plain)
         .padding(.horizontal, 16)
-        .padding(.bottom, 10)
+        .padding(.bottom, 6)
         .accessibilityLabel("Page style, \(page.words) words, \(page.paper.name), \(page.typeface.name)")
     }
 
@@ -199,6 +205,7 @@ struct EditorView: View {
             Text("It may have been deleted, or the link is old.")
         } actions: {
             Button("Back to pages") { dismiss() }
+                .frame(minHeight: HitTarget.minimum)
         }
         .navigationTitle("Page")
         .navigationBarTitleDisplayMode(.inline)
@@ -216,6 +223,11 @@ struct EditorView: View {
             get: { page.body },
             set: { page.revise(body: $0) }
         )
+    }
+
+    private func openStyles() {
+        field = nil
+        showStyles = true
     }
 
     private func deletePage(_ page: Page) {

@@ -6,6 +6,7 @@ struct LibraryView: View {
     @Query(sort: \Page.updatedAt, order: .reverse) private var pages: [Page]
     @State private var query = ""
     @State private var path: [UUID] = []
+    @State private var composeLock = false
 
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
@@ -38,6 +39,9 @@ struct LibraryView: View {
                     .accessibilityLabel("New page")
                 }
             }
+            .onChange(of: path.count) { _, _ in
+                composeLock = false
+            }
         }
     }
 
@@ -56,7 +60,7 @@ struct LibraryView: View {
                         Button {
                             path.append(page.pageID)
                         } label: {
-                            PaperCard(page: page)
+                            PaperRow(page: page)
                         }
                         .buttonStyle(.plain)
                         .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
@@ -94,12 +98,28 @@ struct LibraryView: View {
         } actions: {
             if searching {
                 Button("Clear search") { query = "" }
+                    .frame(minHeight: HitTarget.minimum)
             }
             Button("Start a page") { startPage() }
+                .frame(minHeight: HitTarget.minimum)
         }
     }
 
     private func startPage() {
+        if composeLock { return }
+        if let newest = pages.first,
+           ComposePolicy.reuseBlankPage(
+            createdAt: newest.createdAt,
+            title: newest.title,
+            body: newest.body
+           ) {
+            if path.last != newest.pageID {
+                path.append(newest.pageID)
+            }
+            return
+        }
+
+        composeLock = true
         let style = StylePreferences.last
         let page = Page(
             title: "",

@@ -27,11 +27,11 @@ enum VellumFonts {
     }
 
     static func title(_ typeface: Typeface, size: TypeSize) -> Font {
-        page(typeface, size: size.titlePoints, relativeTo: .title)
+        page(typeface, size: CGFloat(size.titlePoints), relativeTo: .title)
     }
 
     static func body(_ typeface: Typeface, size: TypeSize) -> Font {
-        page(typeface, size: size.bodyPoints, relativeTo: .body)
+        page(typeface, size: CGFloat(size.bodyPoints), relativeTo: .body)
     }
 
     static func sample(_ typeface: Typeface) -> Font {

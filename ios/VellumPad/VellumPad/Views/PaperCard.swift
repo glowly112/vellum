@@ -1,6 +1,7 @@
 import SwiftUI
 
-struct PaperCard: View {
+/// Library row: a small paper stamp plus type, not a wall of identical cards.
+struct PaperRow: View {
     let page: Page
 
     var body: some View {
@@ -11,51 +12,62 @@ struct PaperCard: View {
         let preview = page.preview
         let showPreview = !preview.isEmpty && preview != title
 
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(PageCopy.whenLabel(page.updatedAt))
-                Spacer(minLength: 8)
-                Text(typeface.name.uppercased())
-            }
-            .font(VellumFonts.ui(.caption2, weight: .medium))
-            .tracking(1.2)
-            .foregroundStyle(ink.color.opacity(0.45))
+        HStack(alignment: .top, spacing: 14) {
+            PaperStamp(paper: paper, typeface: typeface, ink: ink)
 
-            Text(title)
-                .font(VellumFonts.page(typeface, size: 21.5, relativeTo: .title3))
-                .foregroundStyle(ink.color)
-                .lineLimit(2)
-                .multilineTextAlignment(.leading)
-                .padding(.top, 10)
-
-            if showPreview {
-                Text(preview)
-                    .font(VellumFonts.page(typeface, size: 15, relativeTo: .subheadline))
-                    .foregroundStyle(ink.color.opacity(0.85))
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(VellumFonts.page(typeface, size: 20, relativeTo: .headline))
+                    .foregroundStyle(VellumPalette.ink)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                    .padding(.top, 8)
+
+                if showPreview {
+                    Text(preview)
+                        .font(VellumFonts.ui(.subheadline))
+                        .foregroundStyle(VellumPalette.inkSoft)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+
+                Text(
+                    "\(PageCopy.whenLabel(page.updatedAt))  ·  \(page.words) \(page.words == 1 ? "word" : "words")  ·  \(paper.name)  ·  \(typeface.name)"
+                )
+                .font(VellumFonts.ui(.caption2, weight: .medium))
+                .foregroundStyle(VellumPalette.inkFaint)
+                .padding(.top, 2)
             }
-
-            Spacer(minLength: 8)
-
-            Text("\(page.words) \(page.words == 1 ? "word" : "words")  ·  \(paper.name)")
-                .font(VellumFonts.ui(.caption2))
-                .foregroundStyle(ink.color.opacity(0.40))
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
-        .frame(maxWidth: .infinity, minHeight: 168, alignment: .topLeading)
-        .background {
-            PaperBackdrop(paper: paper, compact: true)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .shadow(color: VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), radius: 14, x: 0, y: 8)
-        .overlay {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.18 : 0.06), lineWidth: 1)
-        }
+        .padding(.vertical, 8)
+        .frame(minHeight: HitTarget.minimum, alignment: .top)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title), \(paper.name), \(typeface.name)")
+    }
+}
+
+struct PaperStamp: View {
+    let paper: Paper
+    let typeface: Typeface
+    let ink: Ink
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            PaperBackdrop(paper: paper, compact: true)
+            Text("Aa")
+                .font(VellumFonts.page(typeface, size: 15, relativeTo: .caption))
+                .foregroundStyle(ink.color)
+                .padding(.top, paper.ruling == .lines ? 14 : 10)
+                .padding(.leading, paper.ruling == .lines ? 12 : 8)
+        }
+        .frame(width: 48, height: 64)
+        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
+        }
+        .shadow(color: VellumPalette.ink.opacity(0.10), radius: 3, y: 1)
+        .accessibilityHidden(true)
     }
 }

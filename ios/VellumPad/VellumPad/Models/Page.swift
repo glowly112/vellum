@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class Page {
+final class Page: RecencyPage {
     @Attribute(.unique) var pageID: UUID
     var title: String
     var body: String
@@ -50,6 +50,10 @@ final class Page {
         updatedAt = .now
     }
 
+    func snapshot() -> EditorSnapshot {
+        EditorSnapshot(pageID: pageID, title: title, body: body, updatedAt: updatedAt)
+    }
+
     func apply(style: PageStyle) {
         fontId = style.typeface.rawValue
         paperId = style.paper.rawValue
@@ -89,6 +93,20 @@ struct PageStyle: Equatable, Sendable {
             ink: page.ink,
             size: page.typeSize
         )
+    }
+}
+
+struct EditorSnapshot: Equatable {
+    let pageID: UUID
+    let title: String
+    let body: String
+    let updatedAt: Date
+
+    func matchesLive(_ page: Page) -> Bool {
+        page.pageID == pageID
+            && page.title == title
+            && page.body == body
+            && page.updatedAt == updatedAt
     }
 }
 

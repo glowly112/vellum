@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 /// Mirrors `src/lib/catalog.ts`. Keep ids and names in lockstep with the web desk.
 enum Typeface: String, CaseIterable, Identifiable, Codable, Sendable {
@@ -75,19 +75,6 @@ enum Paper: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var isDark: Bool { self == .night }
 
-    var fill: Color {
-        switch self {
-        case .cream: VellumPalette.paper
-        case .ivory: VellumPalette.ivory
-        case .ruled: VellumPalette.ruled
-        case .dotted: VellumPalette.fog
-        case .kraft: VellumPalette.kraft
-        case .sage: VellumPalette.sage
-        case .fog: VellumPalette.fog
-        case .night: VellumPalette.night
-        }
-    }
-
     var defaultInk: Ink {
         switch self {
         case .ruled, .fog: .navy
@@ -114,16 +101,6 @@ enum Ink: String, CaseIterable, Identifiable, Codable, Sendable {
         case .navy: "Navy"
         case .forest: "Forest"
         case .cream: "Cream"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .charcoal: VellumPalette.charcoal
-        case .sepia: VellumPalette.sepia
-        case .navy: VellumPalette.navy
-        case .forest: VellumPalette.forest
-        case .cream: VellumPalette.creamInk
         }
     }
 
@@ -155,7 +132,7 @@ enum TypeSize: String, CaseIterable, Identifiable, Codable, Sendable {
     }
 
     /// Matches `--title-size` / `--body-size` in `src/styles.css`.
-    var titlePoints: CGFloat {
+    var titlePoints: Double {
         switch self {
         case .s: 23
         case .m: 29
@@ -163,7 +140,7 @@ enum TypeSize: String, CaseIterable, Identifiable, Codable, Sendable {
         }
     }
 
-    var bodyPoints: CGFloat {
+    var bodyPoints: Double {
         switch self {
         case .s: 17
         case .m: 19

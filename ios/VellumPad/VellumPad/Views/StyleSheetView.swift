@@ -9,15 +9,16 @@ struct StyleSheetView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
+                    // Order locked to StyleSheetLayout.sections; Size last for keyboard reach.
                     paperSection
                     typeSection
-                    sizeSection
                     inkSection
+                    sizeSection
                     deleteSection
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 28)
+                .padding(.bottom, 120)
             }
             .background((style.paper.isDark ? VellumPalette.night : VellumPalette.paper).ignoresSafeArea())
             .navigationTitle("Page")
@@ -113,6 +114,7 @@ struct StyleSheetView: View {
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 10)
+                        .frame(minHeight: HitTarget.minimum)
                         .background(style.typeface == face ? labelColor.opacity(0.06) : Color.clear)
                     }
                     .buttonStyle(.plain)
@@ -133,6 +135,7 @@ struct StyleSheetView: View {
                 }
             }
             .pickerStyle(.segmented)
+            .frame(minHeight: HitTarget.minimum)
             .accessibilityLabel("Size")
         }
     }
@@ -169,7 +172,7 @@ struct StyleSheetView: View {
         Button("Delete page", role: .destructive) {
             confirmDelete = true
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, minHeight: HitTarget.minimum)
         .padding(.top, 8)
     }
 
