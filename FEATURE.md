@@ -1,14 +1,14 @@
 # Feature
-Job: Internal 1.0.0 (9) jank when the keyboard rises or falls. Text snaps at animation start. Keep paper filling keyboard gutters. Bump to build 10.
-Non-goals: White-gutter-only theory, guessing 34 / 120, desk-frame postcard, claiming Simulator proof, merging, archiving
-Touched: EditorView keyboard pad + KeyboardChrome + hammer + pbxproj build
-Reuse: Paper-full editor, word-count inset, type origin 24 / 56 / 24, ruled pitch, Velin display name
-Risk: Safe-area GeometryReader (jumps); paper that resizes with the keys
-Done: Bottom pad follows `keyboardLayoutGuide` so text travels with the keys. Paper ignores keyboard + container (gutter fill is paper). Build 10.
-Not done: Mini / Simulator pixels. `keyboardOpenProven` stays false on Linux.
+Job: Build 10 Mini sim — paper behind the keys is good. Word-count sits on a tall paper band above the keyboard. Sit it on the keys. Bump to build 11.
+Non-goals: Re-breaking gutters or layout-guide tracking, guessing 34 / 120, claiming Simulator proof, merging
+Touched: KeyboardAvoidance air + word-count align + column ignores keyboard + hammer + pbxproj build
+Reuse: Paper-full editor, layout-guide pad, type origin, Focus eye, Velin
+Risk: Second lift (pad + inset + 16pt air); label under the home indicator when the keys are down
+Done: Word-count sits on the keyboard / predictive bar (few points of air). Closed stays above the home indicator. Paper still fills gutters. Build 11.
+Not done: Mini / Simulator pixels on this worker. `keyboardOpenProven` stays false on Linux.
 Steps:
-1. Tests: keyboard-open gutters are paper; lift is layout-guide, not a safe-area jump
-2. Ignore keyboard on the column; pad from the layout guide; paper stays behind the keys
-3. prove.sh — linux-hammer green. Do not claim Simulator proof
-Status: keyboard jank this turn. Editor-done stays false.
+1. Tests: air is a few points (not 16); label sits on the keys; closed pad is resting
+2. Bottom-align the inset; ignore leftover keyboard safe area on the column
+3. prove.sh — linux-hammer green
+Status: word-count flush this turn. Editor-done stays false.
 Verified this turn: linux-hammer. No Simulator on this worker.

@@ -244,6 +244,7 @@ struct EditorView: View {
             }
         }
         .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(guidePad: Double(keyboardPad))))
+        .ignoresSafeArea(.keyboard)
         .ignoresSafeArea(.container, edges: .bottom)
     }
 
@@ -266,7 +267,7 @@ struct EditorView: View {
                 .font(VellumFonts.ui(.caption, weight: .medium))
                 .tracking(0.4)
                 .foregroundStyle(ink.color.opacity(0.55))
-                .frame(maxWidth: .infinity, minHeight: CGFloat(EditorLook.minimumHit), alignment: .leading)
+                .frame(maxWidth: .infinity, minHeight: CGFloat(EditorLook.minimumHit), alignment: .bottomLeading)
         }
         .accessibilityLabel(footer.words)
     }

@@ -56,8 +56,9 @@ enum StyleSheetLayout {
 /// A non-nil guessed pad is a just-works fail (KB_COVER).
 enum KeyboardAvoidance {
     static let guessedBottomPoints: Double? = nil
-    /// Extra air between word-count and the keyboard. Not a keyboard height (not 34 / 120).
-    static let wordCountAir: Double = 16
+    /// A few points above the keys / predictive bar. 16 was a tall paper band.
+    /// Not a keyboard height (not 34 / 120).
+    static let wordCountAir: Double = 4
 
     static func wordCountBottomPad(keyboardLift: Double) -> Double {
         keyboardLift > 0 ? wordCountAir : 0
@@ -78,6 +79,10 @@ enum KeyboardChrome {
     static let liftKind = "layout-guide"
     static let liftJumpsAtAnimationStart = false
     static let textTracksKeyboard = true
+    /// Label sits on the keys. A 44pt slab + 16pt air above the pad was the band.
+    static let wordCountSitsOnKeyboard = true
+    static let wordCountAlign = "bottom"
+    static let forbiddenWordCountAir: [Double] = [16, 34, 120]
 
     static func writingBottomPad(guidePad: Double) -> Double {
         max(0, guidePad)
