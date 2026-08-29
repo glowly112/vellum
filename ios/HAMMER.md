@@ -35,7 +35,7 @@ Logic in `EditorLook` / `EditorSheetCopy` / `PaperGrain.seed(forToken:)`.
 
 | # | Case | What must happen |
 | --- | --- | --- |
-| 1 | Sheet on desk | `sheet-on-desk`, not full-bleed. Side inset > 16, `sheetMaxHeightFraction` < 0.90, `sheetHeight` shorter than the field so desk shows below. Fail a 12pt gutter card. |
+| 1 | Sheet on desk | Large page, thin desk frame. Inset 8–20, bottom 8–24, fraction 0.88–1 (not 1). Fail a 0.76 postcard and a full-bleed Notes page. |
 | 2 | Footer copy | `66 words` and `Cream · Book` live **on-sheet**. |
 | 3 | Focus | Footer hides in focus. Toolbar Focus / styles stay system. |
 | 4 | Chrome | System back, system `.sheet`, `textformat` — not a circular web back or custom T. |

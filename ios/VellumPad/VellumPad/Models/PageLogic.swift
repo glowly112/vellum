@@ -149,13 +149,13 @@ enum EditorLook {
     static let stylesSystemImage = "textformat"
     static let bodyKind = "text-editor"
     static let cornerRadius: Double = 16
-    /// Side desk — more than a 12pt card gutter.
-    static let deskInset: Double = 24
-    static let deskTop: Double = 18
-    /// Desk below the sheet, above the home indicator.
-    static let deskBottom: Double = 40
-    /// Sheet is an object on the field, not a 100% card.
-    static let sheetMaxHeightFraction: Double = 0.76
+    /// Thin side reveal. 24pt read as a postcard; 0 is full-bleed Notes.
+    static let deskInset: Double = 14
+    static let deskTop: Double = 8
+    /// Thin desk below the sheet. 40pt floated the page.
+    static let deskBottom: Double = 14
+    /// Large page you write on. 0.76 was a postcard; 1.0 is Notes.
+    static let sheetMaxHeightFraction: Double = 0.92
     static let guessedKeyboardPad: Double? = nil
 
     /// Height of the paper in the current safe-area field (keyboard-aware).

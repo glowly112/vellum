@@ -63,16 +63,19 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(EditorLook.surfaceKind, "sheet-on-desk")
         XCTAssertNotEqual(EditorLook.surfaceKind, "full-bleed-notes")
         XCTAssertFalse(EditorLook.isFullBleed)
-        XCTAssertGreaterThan(EditorLook.deskInset, 16, "12pt gutter still reads as a full-screen card")
-        XCTAssertGreaterThan(EditorLook.deskBottom, 28)
-        XCTAssertLessThan(EditorLook.sheetMaxHeightFraction, 0.90)
+        XCTAssertGreaterThan(EditorLook.deskInset, 8, "some desk must peek at the sides")
+        XCTAssertLessThan(EditorLook.deskInset, 20, "24pt sides made a postcard")
+        XCTAssertGreaterThan(EditorLook.deskBottom, 8)
+        XCTAssertLessThan(EditorLook.deskBottom, 24, "40pt bottom made a floating card")
+        XCTAssertGreaterThanOrEqual(EditorLook.sheetMaxHeightFraction, 0.88)
+        XCTAssertLessThan(EditorLook.sheetMaxHeightFraction, 1, "1.0 is a full-bleed Notes page")
         XCTAssertGreaterThanOrEqual(EditorLook.cornerRadius, 12)
         XCTAssertEqual(EditorLook.wrap, "native")
         let field = 700.0
         let sheet = EditorLook.sheetHeight(inField: field)
+        XCTAssertGreaterThan(sheet, field * 0.85, "page must be the writing surface")
         XCTAssertLessThan(sheet, field)
-        XCTAssertLessThan(sheet, field * 0.90)
-        XCTAssertGreaterThan(field - sheet, EditorLook.deskBottom)
+        XCTAssertLessThan(field - sheet, field * 0.18, "leftover is a thin desk frame")
     }
 
     func testEditorFooterCopySitsOnTheSheet() {
