@@ -128,7 +128,19 @@ struct EditorView: View {
         } message: {
             Text("This page will be removed from this device. It cannot be undone.")
         }
+        #if DEBUG
+        .onAppear {
+            focusBodyIfRequested()
+        }
+        #endif
     }
+
+    #if DEBUG
+    private func focusBodyIfRequested() {
+        guard DebugFocusBody.shouldFocusBody() else { return }
+        field = .body
+    }
+    #endif
 
     /// Paper is the view background of this column: under back / share / Focus / Aa
     /// down to the word-count inset. Apple TextEditor is long-form and scrollable,

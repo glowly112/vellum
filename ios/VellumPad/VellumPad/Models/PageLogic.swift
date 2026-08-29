@@ -219,6 +219,35 @@ enum DebugOpenFirst {
     }
 }
 
+/// Debug-only launch: `VELLUM_FOCUS_BODY=1` focuses the body `TextEditor` on
+/// appear so the system keyboard comes up. Mini cannot tap (no assistive
+/// access). Release always returns false.
+enum DebugFocusBody {
+    static let environmentKey = "VELLUM_FOCUS_BODY"
+    static let field = "body"
+
+    #if DEBUG
+    static let compileGateEnabled = true
+    #else
+    static let compileGateEnabled = false
+    #endif
+
+    static func shouldFocusBody(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        debugBuild: Bool = compileGateEnabled
+    ) -> Bool {
+        debugBuild && environment[environmentKey] == "1"
+    }
+
+    /// Body only, and only when Debug + flag. Release never focuses.
+    static func fieldToFocus(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        debugBuild: Bool = compileGateEnabled
+    ) -> String? {
+        shouldFocusBody(environment: environment, debugBuild: debugBuild) ? field : nil
+    }
+}
+
 enum EditorSheetCopy {
     static func footer(wordCount: Int, paper: Paper, typeface: Typeface) -> EditorFooter {
         let noun = wordCount == 1 ? "word" : "words"

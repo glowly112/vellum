@@ -45,3 +45,4 @@ Apple `safeAreaInset`: shows specified content beside the modified view and incr
 | 5 | KB_COVER | No guessed pad (not 34 / 120). Body is `text-editor`. Style last section is **Size**. Layout contract is real; Mini pixels later. |
 | 6 | Desk grain | `PaperGrain.seed(forToken: "desk")` is unsigned and not the cream paper seed. |
 | 7 | Debug open-first | `VELLUM_OPEN_FIRST=1` opens the first page in Debug only. Release ignores the env. |
+| 8 | Debug focus-body | `VELLUM_FOCUS_BODY=1` focuses the body `TextEditor` in Debug only. Release never focuses. `keyboardOpenProven` stays false. |

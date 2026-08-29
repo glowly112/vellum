@@ -1,14 +1,14 @@
 # Feature
-Job: Stop the 92% / 14pt postcard (`86453bd`). Editor is a writing column, not a library card.
-Non-goals: Library changes, merging PR #4, custom chrome, web wrap, claiming the editor done
-Touched: EditorLook + EditorView + hammer/linux-hammer look tests + docs
-Reuse: System toolbar, StyleSheet `.sheet`, VELLUM_OPEN_FIRST, DeskBackdrop
-Risk: Another fraction card (0.76 / 0.92) or full-bleed Notes; guessed 34 / 120 keyboard pads
-Done: Paper fills toolbar-to-inset. Word-count is `safeAreaInset`. Grain is edge-only. Several paragraphs do not clip.
-Not done: Keyboard-open on a Mini. Do not call the editor done from a closed-keyboard shot.
+Job: DEBUG-only `VELLUM_FOCUS_BODY=1` so Mini can raise the system keyboard without a tap.
+Non-goals: Library changes, merging PR #4, claiming keyboard-open or the editor done, changing the writing column
+Touched: DebugFocusBody + EditorView onAppear + hammer/linux-hammer + launch docs
+Reuse: DebugOpenFirst gate, writing column, deskPeek 6, system chrome
+Risk: Shipping the flag in Release; `simctl launch --setenv` (Invalid device)
+Done: DEBUG true + flag focuses the body `TextEditor`. Release never focuses.
+Not done: Mini keyboard-open pixels. `keyboardOpenProven` stays false.
 Steps:
-1. Tests first: column-plus-inset, fills toolbar-to-inset, several paragraphs, grain edge-only, keyboard undone
-2. Discard `sheetMaxHeightFraction` / `sheetHeight`. EditorView is the column + inset
-3. prove.sh
-Status: writing-column logic this turn. Keyboard-open and editor-done stay false.
-Verified this turn: prove.sh after the column change.
+1. Tests first: DEBUG + flag focuses body; release never focuses; keyboardOpenProven false
+2. Same `#if DEBUG` + env gate as `VELLUM_OPEN_FIRST`. EditorView focuses `.body` on appear
+3. prove.sh. Docs use `SIMCTL_CHILD_*`, not `--setenv`
+Status: launch flag this turn. Keyboard-open and editor-done stay false.
+Verified this turn: prove.sh after the flag.

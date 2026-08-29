@@ -2,15 +2,15 @@
 
 Linux worker. No iOS Simulator. No screenshots invented. A Mini `xcodebuild` generic iOS Debug already succeeded on Jamie’s Mac (exit 0, iPhoneOS 26.5). That is not a visual pass.
 
-**Do not call the editor done.** Writing-column logic ran this turn (`linux-hammer`). Keyboard-open is still undone. Simulator pixels still need Jamie’s Mini.
+**Do not call the editor done.** Writing column is in. Keyboard-open is still undone. Simulator pixels still need Jamie’s Mini.
 
-**Editor pixels without a tap** (Debug only; Release ignores this). After a Debug install:
+**Editor + keyboard without a tap** (Debug only; Release ignores both flags). After a Debug install. Mini cannot tap (no assistive access). Do **not** use `simctl launch --setenv` — that errors `Invalid device`. Pass env with `SIMCTL_CHILD_*`:
 
 ```
-xcrun simctl launch --setenv VELLUM_OPEN_FIRST=1 <UDID> com.jamiematheson.vellumpad
+SIMCTL_CHILD_VELLUM_OPEN_FIRST=1 SIMCTL_CHILD_VELLUM_FOCUS_BODY=1 xcrun simctl launch <UDID> com.jamiematheson.vellumpad
 ```
 
-The library appears, then the first page is pushed onto the `NavigationStack` so `EditorView` shows immediately. Do not ship this in Release (`#if DEBUG`).
+`VELLUM_OPEN_FIRST=1` pushes the first page onto the `NavigationStack`. `VELLUM_FOCUS_BODY=1` focuses the body `TextEditor` on appear so the system keyboard comes up. Do not ship either in Release (`#if DEBUG`). `keyboardOpenProven` stays false until those Mini pixels exist.
 
 These still need a phone-width watch:
 

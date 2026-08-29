@@ -179,6 +179,29 @@ enum LinuxHammer {
         expect(DebugOpenFirst.pageToOpen(from: [1, 2]) == 1, "debug open-first takes the first page")
         expect(DebugOpenFirst.pageToOpen(from: [Int]()) == nil, "debug open-first no-ops on empty desk")
 
+        expect(DebugFocusBody.environmentKey == "VELLUM_FOCUS_BODY", "debug focus-body env key")
+        expect(DebugFocusBody.field == "body", "debug focus-body targets the body")
+        expect(!DebugFocusBody.shouldFocusBody(environment: [:], debugBuild: true), "debug focus-body off without env")
+        expect(
+            DebugFocusBody.shouldFocusBody(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: true),
+            "DEBUG true + flag focuses body"
+        )
+        expect(
+            DebugFocusBody.fieldToFocus(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: true) == "body",
+            "DEBUG true + flag field is body"
+        )
+        expect(
+            !DebugFocusBody.shouldFocusBody(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: false),
+            "release never focuses body"
+        )
+        expect(
+            DebugFocusBody.fieldToFocus(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: false) == nil,
+            "release fieldToFocus is nil"
+        )
+        expect(!EditorLook.keyboardOpenProven, "keyboard-open stays unproven without Mini pixels")
+        expect(EditorLook.deskPeek == 6, "deskPeek stays 6")
+        expect(EditorLook.layoutKind == "column-plus-inset", "writing column unchanged")
+
         expect(PagePlainText.fileName(title: "", body: "") == "Untitled page.txt", "share untitled filename")
         expect(PagePlainText.fileName(title: "UI/UX", body: "") == "UI-UX.txt", "share sanitizes slash")
         expect(PagePlainText.contents(title: "Title", body: "Body") == "Title\n\nBody", "share txt body")

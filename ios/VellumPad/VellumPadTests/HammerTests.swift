@@ -236,6 +236,31 @@ final class HammerTests: XCTestCase {
         XCTAssertNil(DebugOpenFirst.pageToOpen(from: [UUID]()))
     }
 
+    func testDebugFocusBodyIsDebugOnlyAndFocusesBody() {
+        XCTAssertEqual(DebugFocusBody.environmentKey, "VELLUM_FOCUS_BODY")
+        XCTAssertEqual(DebugFocusBody.field, "body")
+        XCTAssertFalse(DebugFocusBody.shouldFocusBody(environment: [:], debugBuild: true))
+        XCTAssertTrue(
+            DebugFocusBody.shouldFocusBody(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: true),
+            "DEBUG true + flag focuses body"
+        )
+        XCTAssertEqual(
+            DebugFocusBody.fieldToFocus(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: true),
+            "body"
+        )
+        XCTAssertFalse(
+            DebugFocusBody.shouldFocusBody(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: false),
+            "Release must ignore the env flag"
+        )
+        XCTAssertNil(
+            DebugFocusBody.fieldToFocus(environment: ["VELLUM_FOCUS_BODY": "1"], debugBuild: false),
+            "Release never focuses"
+        )
+        XCTAssertFalse(EditorLook.keyboardOpenProven, "Mini pixels do not exist yet")
+        XCTAssertEqual(EditorLook.deskPeek, 6)
+        XCTAssertEqual(EditorLook.layoutKind, "column-plus-inset")
+    }
+
     func testShareTxtUsesUntitledWhenEmpty() {
         XCTAssertEqual(PagePlainText.fileName(title: "", body: ""), "Untitled page.txt")
         XCTAssertEqual(PagePlainText.fileName(title: "UI/UX", body: ""), "UI-UX.txt")
