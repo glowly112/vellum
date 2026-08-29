@@ -18,9 +18,9 @@ struct StyleSheetView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
-                .padding(.bottom, 120)
             }
-            .background((style.paper.isDark ? VellumPalette.night : VellumPalette.paper).ignoresSafeArea())
+            .safeAreaPadding(.bottom)
+            .background((style.paper.isDark ? VellumPalette.night : VellumPalette.paper).ignoresSafeArea(.container))
             .navigationTitle("Page")
             .navigationBarTitleDisplayMode(.inline)
             .alert("Delete this page?", isPresented: $confirmDelete) {

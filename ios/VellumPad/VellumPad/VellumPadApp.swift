@@ -6,6 +6,7 @@ struct VellumPadApp: App {
     private let container: ModelContainer
 
     init() {
+        TypefaceRegistry.register()
         let schema = Schema([Page.self])
         let configuration = ModelConfiguration("vellum-pages", schema: schema)
         do {

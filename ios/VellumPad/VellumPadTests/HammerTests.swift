@@ -54,8 +54,32 @@ final class HammerTests: XCTestCase {
 
     func testKeyboardCoverContract_sizeIsLastStyleRowAndNightInks() {
         XCTAssertEqual(StyleSheetLayout.sections.last, "Size")
+        XCTAssertNil(KeyboardAvoidance.guessedBottomPoints, "KB_COVER: do not guess 34pt / 120pt")
         XCTAssertEqual(Ink.allowed(on: .night), [.cream, .sepia])
         XCTAssertEqual(HitTarget.minimum, 44)
+    }
+
+    func testCatalogueTypefacesUseOFLFamilyNames() {
+        let expected = [
+            Typeface.book: "Literata",
+            .editorial: "Fraunces",
+            .hand: "Caveat",
+            .typewriter: "Special Elite",
+            .sans: "Source Sans 3",
+            .mono: "IBM Plex Mono",
+        ]
+        for (face, family) in expected {
+            XCTAssertEqual(face.familyName, family)
+        }
+        let standIns: Set<String> = [
+            "Georgia", "Palatino", "Palatino-Roman", "Noteworthy",
+            "Noteworthy-Light", "American Typewriter", "AmericanTypewriter",
+            "SF Pro", "SF Mono",
+        ]
+        for face in Typeface.allCases {
+            XCTAssertFalse(standIns.contains(face.familyName), face.familyName)
+        }
+        XCTAssertEqual(TypefaceRegistry.files.count, 6)
     }
 
     func testDeleteConfirmCancelVsConfirm() {

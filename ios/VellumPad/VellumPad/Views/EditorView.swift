@@ -102,7 +102,7 @@ struct EditorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
             PaperBackdrop(paper: paper, ruleOffset: 118)
-                .ignoresSafeArea()
+                .ignoresSafeArea(.container)
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !focusMode {
@@ -114,7 +114,6 @@ struct EditorView: View {
         .navigationBarBackButtonHidden(focusMode)
         .toolbar(focusMode ? .hidden : .automatic, for: .navigationBar)
         .toolbar(focusMode ? .hidden : .automatic, for: .bottomBar)
-        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarColorScheme(paper.isDark ? .dark : .light, for: .navigationBar)
         .tint(paper.isDark ? VellumPalette.creamInk : nil)
         .toolbar {
@@ -194,7 +193,6 @@ struct EditorView: View {
         }
         .buttonStyle(.plain)
         .padding(.horizontal, 16)
-        .padding(.bottom, 6)
         .accessibilityLabel("Page style, \(page.words) words, \(page.paper.name), \(page.typeface.name)")
     }
 

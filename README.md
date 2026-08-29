@@ -66,7 +66,7 @@ npm run build
 npm run preview
 ```
 
-Native iOS (Xcode 26, iOS 26 SDK) — open `ios/VellumPad/VellumPad.xcodeproj`. Display name **Vellum Pad**, bundle ID `com.jamiematheson.vellumpad`, version 1.0.0 (3). Prove: `xcodebuild -project ios/VellumPad/VellumPad.xcodeproj -scheme VellumPad -destination 'generic/platform=iOS' -configuration Debug build`. Screen map: [`ios/REFS.md`](ios/REFS.md). The production pass bar is false until that build and a Simulator keyboard pass both succeed.
+Native iOS (Xcode 26, iOS 26 SDK) — open `ios/VellumPad/VellumPad.xcodeproj`. Display name **Vellum Pad**, bundle ID `com.jamiematheson.vellumpad`, version 1.0.0 (4). Catalogue type is the same OFL faces as the web desk (`ios/VellumPad/VellumPad/Fonts`). Prove: `xcodebuild -project ios/VellumPad/VellumPad.xcodeproj -scheme VellumPad -destination 'generic/platform=iOS' -configuration Debug build`. The production pass bar is false until a Simulator keyboard pass.
 
 ## Where to change things
 
@@ -103,4 +103,4 @@ Do **not** add: folders, tags, rich text, collaboration, accounts, or a web-app 
 
 ## Status
 
-Prototype. Built August 2026. The web desk is usable as a personal writing pad in the browser. A native SwiftUI iOS 26 app lives in `ios/` (library, editor, style sheet, local SwiftData). Not submitted to App Review. Not a shipping product.
+Prototype. Built August 2026. The web desk is usable in the browser. A native SwiftUI iOS 26 app lives in `ios/` but the production pass bar is **false** until `xcodebuild` and a Simulator keyboard pass succeed. Not submitted to App Review. Not a shipping product.

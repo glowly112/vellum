@@ -46,7 +46,14 @@ let keys = LibraryGrouping.group(pages: recency, query: "", now: now).map(\.sect
 expect(keys == [.today, .earlier], "recency buckets")
 
 expect(StyleSheetLayout.sections.last == "Size", "style sheet last row is Size")
+expect(KeyboardAvoidance.guessedBottomPoints == nil, "no guessed keyboard pad")
 expect(Ink.allowed(on: .night) == [.cream, .sepia], "night paper inks")
+expect(Typeface.book.familyName == "Literata", "Book is Literata")
+expect(Typeface.editorial.familyName == "Fraunces", "Editorial is Fraunces")
+expect(Typeface.hand.familyName == "Caveat", "Hand is Caveat")
+expect(Typeface.typewriter.familyName == "Special Elite", "Typewriter is Special Elite")
+expect(Typeface.sans.familyName == "Source Sans 3", "Sans is Source Sans 3")
+expect(Typeface.mono.familyName == "IBM Plex Mono", "Mono is IBM Plex Mono")
 expect(DeleteDecision.shouldDelete(confirmed: false) == false, "delete cancel")
 expect(DeleteDecision.shouldDelete(confirmed: true) == true, "delete confirm")
 

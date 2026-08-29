@@ -47,3 +47,9 @@ enum SeedPolicy {
 enum StyleSheetLayout {
     static let sections: [String] = ["Paper", "Type", "Ink", "Size"]
 }
+
+/// Keyboard inset is SwiftUI's safe area (includes the system keyboard).
+/// A non-nil guessed pad is a just-works fail (KB_COVER).
+enum KeyboardAvoidance {
+    static let guessedBottomPoints: Double? = nil
+}

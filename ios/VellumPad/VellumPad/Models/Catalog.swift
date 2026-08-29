@@ -32,6 +32,18 @@ enum Typeface: String, CaseIterable, Identifiable, Codable, Sendable {
         case .mono: "draft.txt — keep going"
         }
     }
+
+    /// PostScript-family names of the bundled OFL faces (same as the web desk).
+    var familyName: String {
+        switch self {
+        case .book: "Literata"
+        case .editorial: "Fraunces"
+        case .hand: "Caveat"
+        case .typewriter: "Special Elite"
+        case .sans: "Source Sans 3"
+        case .mono: "IBM Plex Mono"
+        }
+    }
 }
 
 enum Paper: String, CaseIterable, Identifiable, Codable, Sendable {
