@@ -12,7 +12,7 @@ struct EditorView: View {
     @State private var focusMode = false
     @State private var showStyles = false
     @State private var confirmDelete = false
-    @State private var styleDetent: PresentationDetent = .large
+    @State private var styleDetent: PresentationDetent = .medium
     @State private var keyboardLift: CGFloat = 0
     @FocusState private var field: Field?
 
@@ -69,9 +69,6 @@ struct EditorView: View {
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(focusMode)
-        .toolbar(focusMode ? .hidden : .automatic, for: .navigationBar)
-        .toolbar(focusMode ? .hidden : .automatic, for: .bottomBar)
         .toolbarColorScheme(paper.isDark ? .dark : .light, for: .navigationBar)
         .tint(paper.isDark ? VellumPalette.creamInk : nil)
         .toolbar {
@@ -79,12 +76,6 @@ struct EditorView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     ShareLink(item: PageExport(page: page), preview: SharePreview(page.displayTitle)) {
                         Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Focus", systemImage: "eye") {
-                        field = nil
-                        focusMode = true
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -111,6 +102,16 @@ struct EditorView: View {
                         Button("Done", systemImage: "checkmark") {
                             field = nil
                         }
+                    }
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(focusMode ? "Exit Focus" : "Focus", systemImage: focusMode ? "eye.slash" : "eye") {
+                    if focusMode {
+                        focusMode = false
+                    } else {
+                        field = nil
+                        focusMode = true
                     }
                 }
             }
@@ -161,16 +162,6 @@ struct EditorView: View {
         footer: EditorFooter
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            if focusMode {
-                Color.clear
-                    .frame(height: 28)
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture { focusMode = false }
-                    .accessibilityLabel("Exit focus")
-                    .accessibilityAddTraits(.isButton)
-            }
-
             Text(PageCopy.longDate(page.createdAt))
                 .font(VellumFonts.ui(.caption2, weight: .medium))
                 .tracking(1.6)
@@ -248,27 +239,18 @@ struct EditorView: View {
     /// Apple `safeAreaInset`: content sits beside the column and grows the safe
     /// area. Keyboard rides the system keyboard safe area. Not a guessed pad.
     private func wordCountInset(footer: EditorFooter, ink: Ink) -> some View {
-        Button {
-            openStyles()
-        } label: {
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(ink.color.opacity(0.12))
-                    .frame(height: 0.5)
-                HStack {
-                    Text(footer.words)
-                        .monospacedDigit()
-                    Spacer()
-                    Text(footer.style)
-                }
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(ink.color.opacity(0.12))
+                .frame(height: 0.5)
+            Text(footer.words)
+                .monospacedDigit()
                 .font(VellumFonts.ui(.caption, weight: .medium))
                 .tracking(0.4)
                 .foregroundStyle(ink.color.opacity(0.55))
-                .frame(minHeight: CGFloat(EditorLook.minimumHit))
-            }
+                .frame(maxWidth: .infinity, minHeight: CGFloat(EditorLook.minimumHit), alignment: .leading)
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Page style, \(footer.words), \(footer.style)")
+        .accessibilityLabel(footer.words)
     }
 
     private var missing: some View {
@@ -300,7 +282,7 @@ struct EditorView: View {
 
     private func openStyles() {
         field = nil
-        styleDetent = .large
+        styleDetent = .medium
         showStyles = true
     }
 

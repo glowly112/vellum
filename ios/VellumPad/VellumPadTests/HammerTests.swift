@@ -91,7 +91,8 @@ final class HammerTests: XCTestCase {
     func testEditorFooterCopyUsesSafeAreaInset() {
         let footer = EditorSheetCopy.footer(wordCount: 66, paper: .cream, typeface: .book)
         XCTAssertEqual(footer.words, "66 words")
-        XCTAssertEqual(footer.style, "Cream · Book")
+        XCTAssertTrue(footer.style.isEmpty, "paper · typeface is not on the word-count inset")
+        XCTAssertFalse(EditorLook.footerShowsStyle)
         XCTAssertEqual(footer.placement, "safeAreaInset")
         XCTAssertTrue(EditorSheetCopy.showsFooter(focus: false))
         XCTAssertFalse(EditorSheetCopy.showsFooter(focus: true))
@@ -100,8 +101,11 @@ final class HammerTests: XCTestCase {
     func testEditorChromeIsSystemNotWebPills() {
         XCTAssertEqual(EditorLook.backKind, "system")
         XCTAssertEqual(EditorLook.focusKind, "system-toolbar")
+        XCTAssertTrue(EditorLook.focusEyeStays)
+        XCTAssertFalse(EditorLook.focusHidesNavBar)
         XCTAssertEqual(EditorLook.stylesKind, "system-sheet")
         XCTAssertEqual(EditorLook.stylesSystemImage, "textformat")
+        XCTAssertEqual(EditorLook.stylesDetentStart, "medium")
         XCTAssertNotEqual(EditorLook.stylesSystemImage, "custom-T")
         XCTAssertNotEqual(EditorLook.backKind, "circular-web")
     }
@@ -157,7 +161,7 @@ final class HammerTests: XCTestCase {
     func testStyleSheetLastRowsAreReachable() {
         XCTAssertEqual(StyleSheetLayout.sections.last, "Size")
         XCTAssertTrue(StyleSheetLayout.lastSectionReachable)
-        XCTAssertEqual(StyleSheetLayout.detentKind, "large-first")
+        XCTAssertEqual(StyleSheetLayout.detentKind, "medium-first")
         XCTAssertGreaterThanOrEqual(StyleSheetLayout.scrollBottomPad, 44)
         XCTAssertTrue(Typeface.allCases.map(\.name).contains("Typewriter"))
         XCTAssertEqual(Typeface.allCases.last?.name, "Mono")
@@ -214,6 +218,34 @@ final class HammerTests: XCTestCase {
         XCTAssertNotEqual(LibraryLook.composeKind, "custom-pill")
         XCTAssertEqual(LibraryLook.greetingFamily, "Fraunces")
         XCTAssertNotEqual(LibraryLook.greetingFamily, "SF Pro")
+        XCTAssertEqual(LibraryLook.deleteKind, "swipe-and-menu")
+        XCTAssertEqual(LibraryLook.pinKind, "swipe-and-menu")
+    }
+
+    func testLibraryPinLeadsAndDeleteNeedsConfirm() {
+        let pinned = LibraryPage(
+            title: "Kept",
+            body: "pin me",
+            updatedAt: now.addingTimeInterval(-20 * 24 * 60 * 60),
+            paper: .cream,
+            typeface: .book,
+            isPinned: true
+        )
+        let today = LibraryPage(
+            title: "Today",
+            body: "desk",
+            updatedAt: now,
+            paper: .cream,
+            typeface: .book,
+            isPinned: false
+        )
+        let groups = LibraryGrouping.group(pages: [pinned, today], query: "", now: now)
+        XCTAssertEqual(groups.map(\.section), [.pinned, .today])
+        XCTAssertEqual(groups[0].pages.first?.title, "Kept")
+        XCTAssertTrue(LibraryPin.isPinnedAfterToggle(false))
+        XCTAssertFalse(LibraryPin.isPinnedAfterToggle(true))
+        XCTAssertFalse(DeleteDecision.shouldDelete(confirmed: false))
+        XCTAssertTrue(DeleteDecision.shouldDelete(confirmed: true))
     }
 
     func testLibrarySheetCarriesPaperAndTypeface() {

@@ -2,6 +2,7 @@ import Foundation
 
 /// Recency buckets from `src/lib/library.ts`. The only organisation.
 enum LibrarySection: String, CaseIterable, Identifiable, Sendable {
+    case pinned = "Pinned"
     case today = "Today"
     case yesterday = "Yesterday"
     case thisWeek = "This week"
@@ -15,12 +16,14 @@ protocol RecencyPage {
     var title: String { get }
     var body: String { get }
     var updatedAt: Date { get }
+    var isPinned: Bool { get }
 }
 
 struct PageRecord: RecencyPage, Equatable {
     var title: String
     var body: String
     var updatedAt: Date
+    var isPinned: Bool = false
 }
 
 enum LibraryGrouping {
@@ -52,7 +55,8 @@ enum LibraryGrouping {
 
         var map: [LibrarySection: [P]] = [:]
         for page in filtered {
-            map[section(for: page.updatedAt, now: now), default: []].append(page)
+            let key = page.isPinned ? LibrarySection.pinned : section(for: page.updatedAt, now: now)
+            map[key, default: []].append(page)
         }
         return LibrarySection.allCases.compactMap { key in
             guard let list = map[key], !list.isEmpty else { return nil }

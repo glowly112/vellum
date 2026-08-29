@@ -12,6 +12,7 @@ final class Page: RecencyPage {
     var paperId: String
     var inkId: String
     var sizeId: String
+    var isPinned: Bool
 
     init(
         pageID: UUID = UUID(),
@@ -22,7 +23,8 @@ final class Page: RecencyPage {
         fontId: String = Typeface.book.rawValue,
         paperId: String = Paper.cream.rawValue,
         inkId: String = Ink.charcoal.rawValue,
-        sizeId: String = TypeSize.m.rawValue
+        sizeId: String = TypeSize.m.rawValue,
+        isPinned: Bool = false
     ) {
         self.pageID = pageID
         self.title = title
@@ -33,6 +35,7 @@ final class Page: RecencyPage {
         self.paperId = paperId
         self.inkId = inkId
         self.sizeId = sizeId
+        self.isPinned = isPinned
     }
 
     var typeface: Typeface { Catalog.typeface(fontId) }

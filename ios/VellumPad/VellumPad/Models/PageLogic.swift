@@ -48,7 +48,7 @@ enum StyleSheetLayout {
     static let sections: [String] = ["Paper", "Type", "Ink", "Size"]
     static let lastSectionReachable = true
     /// Open large so Typewriter and Size are not clipped on a medium detent.
-    static let detentKind = "large-first"
+    static let detentKind = "medium-first"
     static let scrollBottomPad: Double = 56
 }
 
@@ -73,6 +73,12 @@ enum LibraryLook {
     static let searchablePrompt = "Search pages"
     static let sheetMinHeight: Double = 176
     static let sheetCornerRadius: Double = 12
+    static let deleteKind = "swipe-and-menu"
+    static let pinKind = "swipe-and-menu"
+}
+
+enum LibraryPin {
+    static func isPinnedAfterToggle(_ current: Bool) -> Bool { !current }
 }
 
 struct LibraryPage: RecencyPage, Equatable, Sendable {
@@ -81,6 +87,7 @@ struct LibraryPage: RecencyPage, Equatable, Sendable {
     var updatedAt: Date
     var paper: Paper
     var typeface: Typeface
+    var isPinned: Bool = false
 }
 
 struct LibrarySheet: Equatable, Sendable {
@@ -168,8 +175,14 @@ enum EditorLook {
     static let wrap = "native"
     static let backKind = "system"
     static let focusKind = "system-toolbar"
+    /// Focus keeps the nav bar so the eye stays tappable. No invisible top tap.
+    static let focusEyeStays = true
+    static let focusHidesNavBar = false
     static let stylesKind = "system-sheet"
     static let stylesSystemImage = "textformat"
+    static let stylesDetentStart = "medium"
+    /// Paper · typeface lives on the top Page style control, not the word-count inset.
+    static let footerShowsStyle = false
     static let bodyKind = "text-editor"
     /// No rounded sheet sitting on grain.
     static let cornerRadius: Double = 0
@@ -272,7 +285,7 @@ enum EditorSheetCopy {
         let noun = wordCount == 1 ? "word" : "words"
         return EditorFooter(
             words: "\(wordCount) \(noun)",
-            style: "\(paper.name) · \(typeface.name)",
+            style: "",
             placement: "safeAreaInset"
         )
     }

@@ -89,6 +89,27 @@ enum LinuxHammer {
         expect(LibraryLook.searchablePrompt == "Search pages", "5 searchable prompt")
         expect(LibraryLook.composeKind != "custom-pill", "5 forbid custom + New page pill")
         expect(LibraryLook.greetingFamily == "Fraunces", "5 greeting is Fraunces not SF")
+        expect(LibraryLook.deleteKind == "swipe-and-menu", "5 library delete is swipe and menu")
+        expect(LibraryLook.pinKind == "swipe-and-menu", "5 library pin is swipe and menu")
+
+        let pinned = LibraryPage(
+            title: "Kept",
+            body: "pin me",
+            updatedAt: now.addingTimeInterval(-20 * 24 * 60 * 60),
+            paper: .cream,
+            typeface: .book,
+            isPinned: true
+        )
+        let todayPage = LibraryPage(
+            title: "Today",
+            body: "desk",
+            updatedAt: now,
+            paper: .cream,
+            typeface: .book
+        )
+        let pinKeys = LibraryGrouping.group(pages: [pinned, todayPage], query: "", now: now).map(\.section)
+        expect(pinKeys == [.pinned, .today], "5 pinned section leads")
+        expect(LibraryPin.isPinnedAfterToggle(false) && !LibraryPin.isPinnedAfterToggle(true), "5 pin toggles")
 
         let sageHand = LibrarySheetCopy.cell(
             title: "things I noticed",
@@ -142,13 +163,17 @@ enum LinuxHammer {
 
         let editorFooter = EditorSheetCopy.footer(wordCount: 66, paper: .cream, typeface: .book)
         expect(editorFooter.words == "66 words", "E2 footer word count")
-        expect(editorFooter.style == "Cream · Book", "E2 footer Cream · Book")
+        expect(editorFooter.style.isEmpty, "E2 footer has no paper · typeface")
+        expect(!EditorLook.footerShowsStyle, "E2 word-count does not print Night · Book")
         expect(editorFooter.placement == "safeAreaInset", "E2 footer uses safeAreaInset")
         expect(EditorSheetCopy.showsFooter(focus: false), "E3 footer shows when not focused")
         expect(!EditorSheetCopy.showsFooter(focus: true), "E3 focus hides footer")
 
         expect(EditorLook.backKind == "system", "E4 system back")
         expect(EditorLook.focusKind == "system-toolbar", "E4 toolbar Focus")
+        expect(EditorLook.focusEyeStays, "E4 focus eye stays visible")
+        expect(!EditorLook.focusHidesNavBar, "E4 focus does not hide the nav bar")
+        expect(EditorLook.stylesDetentStart == "medium", "E4 Page style starts at medium")
         expect(EditorLook.stylesKind == "system-sheet", "E4 styles is system .sheet")
         expect(EditorLook.stylesSystemImage == "textformat", "E4 system textformat not custom T")
         expect(EditorLook.backKind != "circular-web", "E4 forbid circular web back")
@@ -167,7 +192,7 @@ enum LinuxHammer {
         expect(KeyboardAvoidance.wordCountBottomPad(keyboardLift: 0) == 0, "E5 no extra air when keyboard is down")
         expect(KeyboardAvoidance.wordCountBottomPad(keyboardLift: 280) == KeyboardAvoidance.wordCountAir, "E5 air when keyboard lift is real")
         expect(StyleSheetLayout.lastSectionReachable, "E5 last sheet section reachable")
-        expect(StyleSheetLayout.detentKind == "large-first", "E5 Page sheet opens large")
+        expect(StyleSheetLayout.detentKind == "medium-first", "E5 Page sheet opens medium")
         expect(StyleSheetLayout.scrollBottomPad >= 44, "E5 sheet scroll pad lets Typewriter/Size through")
         expect(Typeface.allCases.map(\.name).contains("Typewriter"), "E5 Typewriter is in the catalogue")
 

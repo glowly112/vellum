@@ -20,6 +20,10 @@ struct PaperSheet: View {
             HStack(alignment: .firstTextBaseline) {
                 Text(sheet.when)
                 Spacer(minLength: 8)
+                if page.isPinned {
+                    Image(systemName: "pin.fill")
+                        .font(.caption2)
+                }
                 Text(sheet.face)
             }
             .font(VellumFonts.ui(.caption2, weight: .medium))

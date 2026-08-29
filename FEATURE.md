@@ -1,14 +1,14 @@
 # Feature
-Job: Fix Jamie’s TestFlight 1.0.0 (6) fails — rules, keyboard air, Page sheet clip. Build 7.
-Non-goals: Library changes, desk-frame postcard, merging PR #4, claiming the editor done
-Touched: PaperRuling + EditorView + PaperBackdrop + StyleSheetView + hammer + build 7
-Reuse: Paper-full editor, word-count `safeAreaInset`, system chrome, debug flags
-Risk: Guessed 34 / 120 pads; shifting library cards; calling keyboard-open proven
-Done: Shared rule pitch 32 for backdrop + title/body. Word-count air when keyboard lift > 0. Page sheet opens large with scroll pad. Tests for all three.
+Job: Four chrome fixes Jamie asked for after using the native pad — library delete/pin, drop Night · Book on the word-count, Focus eye stays, Page style opens half.
+Non-goals: Renaming the app, store listing, web, desk-frame postcard, claiming the editor done
+Touched: LibraryView + LibraryGrouping + Page.isPinned + EditorView chrome + hammer
+Reuse: Paper sheets, paper-full editor, word-count inset, system toolbar, Page style sheet
+Risk: Notes-clone chrome; hiding the eye again; opening the style sheet at large
+Done: Swipe + context menu delete (confirm) and pin with a Pinned section. Word-count is words only. Focus keeps a tappable eye. Style sheet starts at medium and still scrolls.
 Not done: Mini keyboard-open pixels. `keyboardOpenProven` stays false on Linux.
 Steps:
-1. Tests first: rule alignment, word-count above keyboard, last sheet row reachable
-2. Shared `PaperRuling` token; keyboard air from system keyboard safe area; large-first detent
-3. prove.sh. Bump CURRENT_PROJECT_VERSION to 7
-Status: TestFlight fixes this turn. Editor-done stays false.
-Verified this turn: prove.sh after the three fixes.
+1. Tests first: focus eye stays, sheet starts medium, library delete/pin, footer has no paper · typeface
+2. Implement swipe/menu + stored pin, keep nav bar in Focus, detent medium, inset words only
+3. prove.sh
+Status: chrome this turn. Editor-done stays false.
+Verified this turn: prove.sh after the four fixes.

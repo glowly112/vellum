@@ -28,6 +28,7 @@ Logic in `LibrarySheetCopy` / `LibraryEmpty` / `PaperGrain`. Run: `ios/scripts/p
 | 5 | Compose | System `square.and.pencil`, prompt **Search pages**. Fail a custom `+ New page` pill. Greeting family is Fraunces. |
 | 6 | Paper / type | Sage + Hand sheet carries those, face **Hand**, footer `N words · Sage`, Caveat family. |
 | 7 | Grain seed | `PaperGrain.seed` is unsigned and distinct per paper. Fail `UInt64(hashValue)`. |
+| 8 | Delete / pin | Swipe + context menu. Delete confirms. Pin toggles a stored flag and a **Pinned** section. |
 
 ## Editor writing column (this turn)
 
@@ -39,10 +40,10 @@ Apple `safeAreaInset`: shows specified content beside the modified view and incr
 | # | Case | What must happen |
 | --- | --- | --- |
 | 1 | Writing column | `surfaceKind == paper-full`. `grainReveal == none` (not edge-only). `deskPeek == 0`. Paper edge to edge. Type origin 24 / 56 lined / 24, date top 8. Fail a desk-grain frame or rounded sheet on grain. Keyboard-open remains undone. |
-| 2 | Footer copy | `66 words` and `Cream · Book` live in a bottom **`safeAreaInset`**, not glued inside a short card. |
-| 3 | Focus | Inset hides in focus. Toolbar Focus / styles stay system. |
-| 4 | Chrome | System back, system `.sheet`, `textformat` — not a circular web back or custom T. |
-| 5 | KB_COVER | No guessed pad (not 34 / 120). Word-count air only when keyboard lift > 0. Body is `text-editor`. Style last section is **Size**, detent `large-first`, scroll pad ≥ 44. |
+| 2 | Footer copy | `66 words` lives in a bottom **`safeAreaInset`**. No paper · typeface on the inset (Night · Book is gone). |
+| 3 | Focus | Eye stays on the system toolbar and turns Focus off. Nav bar is not hidden. Word-count hides in focus. |
+| 4 | Chrome | System back, system `.sheet` starting at **medium**, `textformat` — not a circular web back or custom T. |
+| 5 | KB_COVER | No guessed pad (not 34 / 120). Word-count air only when keyboard lift > 0. Body is `text-editor`. Style last section is **Size**, detent `medium-first`, scroll pad ≥ 44. |
 | 6 | Desk grain | `PaperGrain.seed(forToken: "desk")` is unsigned and not the cream paper seed. |
 | 7 | Debug open-first | `VELLUM_OPEN_FIRST=1` opens the first page in Debug only. Release ignores the env. |
 | 8 | Debug focus-body | `VELLUM_FOCUS_BODY=1` focuses the body `TextEditor` in Debug only. Release never focuses. `keyboardOpenProven` stays false. |

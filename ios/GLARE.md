@@ -18,7 +18,7 @@ These still need a phone-width watch:
 2. **KB_COVER (style sheet).** Page sheet opens large. Typewriter and Size must scroll into view. Size last. Not watched on device.
 3. **Liquid Glass.** `.toolbarBackground(.hidden)` is gone. Toolbar / search / compose / Done are system controls. Not seen on device glass.
 4. **OFL faces.** Literata / Fraunces / Caveat / Special Elite / Source Sans 3 / IBM Plex Mono are bundled and registered. Rendering not seen.
-5. **Focus.** Hides the system nav bar. Tap the top of the sheet to return. Not tapped.
+5. **Focus.** Eye stays on the system toolbar and turns Focus off. Not tapped.
 6. **Thumb hits.** 44pt minimum on style rows, ink, delete, word-count. Not measured.
 7. **Share sheet.** `FileRepresentation` writes a `.txt`. Not presented.
 8. **Delete alerts.** Cancel vs confirm not tapped.

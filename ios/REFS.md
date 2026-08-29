@@ -14,7 +14,7 @@ Product shots of the current web desk (feel, not chrome):
 | Product feel | Image | Keep |
 | --- | --- | --- |
 | Library cards, greeting, recency | `vellum-library.png` | The page itself is the object: cream/sage/ruled sheet, time + face stamp, title in the page’s type, snippet, word count. Greeting is a loud italic serif (Fraunces). Recency: Today / Yesterday / This week / Earlier |
-| Title + body on paper | `vellum-editor.png` | Writing-surface charm: cream paper, date, title, body. Native: the whole editor is that paper, edge to edge. `N words` / `Cream · Book` is a bottom `safeAreaInset`. Type origin stays. |
+| Title + body on paper | `vellum-editor.png` | Writing-surface charm: cream paper, date, title, body. Native: the whole editor is that paper, edge to edge. Word-count is a bottom `safeAreaInset`. Paper · typeface is the top Page style control, not the inset. |
 | Paper / type / ink / size picker | `vellum-styles.png` | Catalogue from `src/lib/catalog.ts`, visual swatches, type samples |
 
 Attached filenames live with the brief (`refs/vellum-ios/` in the agent workspace). They are not required in the app bundle.

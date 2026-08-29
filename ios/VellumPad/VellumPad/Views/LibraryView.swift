@@ -7,6 +7,7 @@ struct LibraryView: View {
     @State private var query = ""
     @State private var path: [UUID] = []
     @State private var composeLock = false
+    @State private var pagePendingDelete: Page?
 
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
@@ -52,6 +53,21 @@ struct LibraryView: View {
             .onChange(of: path.count) { _, _ in
                 composeLock = false
             }
+            .alert("Delete this page?", isPresented: Binding(
+                get: { pagePendingDelete != nil },
+                set: { if !$0 { pagePendingDelete = nil } }
+            )) {
+                Button("Delete page", role: .destructive) {
+                    if let page = pagePendingDelete {
+                        deletePage(page)
+                    }
+                }
+                Button("Cancel", role: .cancel) {
+                    pagePendingDelete = nil
+                }
+            } message: {
+                Text("This page will be removed from this device. It cannot be undone.")
+            }
             #if DEBUG
             .onAppear {
                 openFirstPageIfRequested()
@@ -90,6 +106,25 @@ struct LibraryView: View {
                             PaperSheet(page: page)
                         }
                         .buttonStyle(PaperSheetButtonStyle())
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button("Delete", systemImage: "trash", role: .destructive) {
+                                pagePendingDelete = page
+                            }
+                        }
+                        .swipeActions(edge: .leading) {
+                            Button(page.isPinned ? "Unpin" : "Pin", systemImage: page.isPinned ? "pin.slash" : "pin") {
+                                togglePin(page)
+                            }
+                            .tint(VellumPalette.inkSoft)
+                        }
+                        .contextMenu {
+                            Button(page.isPinned ? "Unpin" : "Pin", systemImage: page.isPinned ? "pin.slash" : "pin") {
+                                togglePin(page)
+                            }
+                            Button("Delete page", systemImage: "trash", role: .destructive) {
+                                pagePendingDelete = page
+                            }
+                        }
                         .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -157,6 +192,20 @@ struct LibraryView: View {
         modelContext.insert(page)
         try? modelContext.save()
         path.append(page.pageID)
+    }
+
+    private func togglePin(_ page: Page) {
+        page.isPinned.toggle()
+        try? modelContext.save()
+    }
+
+    private func deletePage(_ page: Page) {
+        if path.last == page.pageID {
+            path.removeLast()
+        }
+        modelContext.delete(page)
+        try? modelContext.save()
+        pagePendingDelete = nil
     }
 }
 
