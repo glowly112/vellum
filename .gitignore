@@ -14,6 +14,16 @@ screenshots/
 .DS_Store
 *.tsbuildinfo
 
+# Xcode
+xcuserdata/
+DerivedData/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM
+*.dSYM.zip
+
 # Grok sandbox internals — keep only the auth flag the build reads
 .grok/*
 !.grok/app-env.json

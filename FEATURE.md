@@ -1,13 +1,13 @@
 # Feature
-Job: Library shows the paper mark, not the word “Vellum”. iPhone home-screen icon is the same mark (not the Grok G).
-Non-goals: logo on the editor, splash, watermark on paper, resume last page, settings
-Touched: index (library header), mark component, apple-touch-icon, FEATURE/STATE
-Reuse: existing favicon (cream sheet, red margin, serif V)
-Risk: stamp competing with the greeting; home-screen still serving __grok/icon-180.png
-Done: Phone-width library — date, greeting, stamp (no word “Vellum”), search, cards, New page. Add-to-home uses the paper mark.
+Job: Fix skill-stage fails on glowly112/vellum#3 — OFL typefaces, Liquid Glass, KB_COVER.
+Non-goals: Capacitor, Vercel wrap, App Review, Simulator screenshots from Linux
+Touched: Fonts/, VellumFonts, TypefaceRegistry, EditorView, StyleSheetView, Info.plist, hammer tests
+Reuse: web catalogue (Literata, Fraunces, Caveat, Special Elite, Source Sans 3, IBM Plex Mono)
+Risk: Linux cannot watch keyboard. Family names must match bundled TTF name tables.
+Done: Faces bundled + registered. toolbarBackground hidden removed. Guessed 120pt sheet pad removed; system safeAreaPadding / safeAreaInset only.
 Steps:
-1. Small Mark under the greeting, left, 32px, decorative + sr-only name.
-2. Raster 180px paper icon. Point apple-touch-icon at it.
-3. Hammer 390×844.
-Status: accepted
-Verified this turn: library stamp 32px under greeting (no word “Vellum”); sr-only name; apple-touch-icon is the paper mark; editor has no logo; New page still full-width.
+1. Copy OFL TTFs, register UIAppFonts + CTFontManager
+2. VellumFonts.page uses family names
+3. Drop hidden toolbar background; keyboard safe area only
+Status: prototype — production bar false until KB_COVER is watched
+Verified this turn: no Georgia/Palatino/Noteworthy stand-ins in ios/. No toolbarBackground(.hidden). No 120pt keyboard pad.

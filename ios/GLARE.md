@@ -1,0 +1,16 @@
+# Glare — not visually proven this turn
+
+Linux worker. No iOS Simulator. No screenshots invented. A Mini `xcodebuild` generic iOS Debug already succeeded on Jamie’s Mac (exit 0, iPhoneOS 26.5). That is not a visual pass.
+
+These still need a phone-width watch:
+
+1. **KB_COVER (editor).** `TextEditor` fills the column. Word-count is a `safeAreaInset` in the **system** keyboard safe area (no 34pt / 120pt guess). Not watched with a keyboard up.
+2. **KB_COVER (style sheet).** Keyboard dismissed before present. Size last. Scroll uses `.safeAreaPadding(.bottom)`. Not watched with a leftover keyboard.
+3. **Liquid Glass.** `.toolbarBackground(.hidden)` is gone. Toolbar / search / compose / Done are system controls. Not seen on device glass.
+4. **OFL faces.** Literata / Fraunces / Caveat / Special Elite / Source Sans 3 / IBM Plex Mono are bundled and registered. Rendering not seen.
+5. **Focus.** Hides the system nav bar. Tap the top of the sheet to return. Not tapped.
+6. **Thumb hits.** 44pt minimum on style rows, ink, delete, word-count. Not measured.
+7. **Share sheet.** `FileRepresentation` writes a `.txt`. Not presented.
+8. **Delete alerts.** Cancel vs confirm not tapped.
+
+Until 1–2 are watched on a phone, the production pass bar stays **false**.

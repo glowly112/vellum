@@ -1,4 +1,5 @@
 # STATE
-Shipped: Vellum just-works pass, quiet paper motion, then library stamp (word “Vellum” gone) + home-screen paper icon.
-This turn: library shows the cream mark under the greeting. iOS apple-touch-icon is the same mark, not the Grok G. Editor unbranded.
-Still a prototype: local only. Real iPhone Safari keyboard not in this preview. Live: https://vellum-ib7s.vercel.app/ (this stamp not on that build until a push).
+Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 5). Not Capacitor. Not App Review.
+This turn: launch crash on iPhone 17 Pro Sim — `UInt64(hashValue)` in PaperBackdrop trapped on a negative Int. Grain seed is now an unsigned FNV of the paper id.
+Production bar: false until a phone watches KB_COVER. Mini xcodebuild generic iOS Debug already succeeded on a Mac (exit 0, iPhoneOS 26.5); that is not a visual pass. This Linux worker has no Simulator.
+Live web: https://vellum-ib7s.vercel.app/
