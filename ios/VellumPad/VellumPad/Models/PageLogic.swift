@@ -54,6 +54,15 @@ enum KeyboardAvoidance {
     static let guessedBottomPoints: Double? = nil
 }
 
+/// Library merge: paper sheet is the object; chrome stays system iOS 26.
+enum LibraryLook {
+    static let cellKind = "paper-sheet"
+    static let greetingFamily = Typeface.editorial.familyName
+    static let composeKind = "system"
+    static let sheetMinHeight: Double = 176
+    static let sheetCornerRadius: Double = 12
+}
+
 /// Stable grain seed. Do not use `UInt64(hashValue)` — `hashValue` is a signed
 /// `Int` and traps (`Negative value is not representable`) on a negative seed.
 enum PaperGrain {

@@ -1,13 +1,13 @@
 # Feature
-Job: Fix skill-stage fails on glowly112/vellum#3 — OFL typefaces, Liquid Glass, KB_COVER.
-Non-goals: Capacitor, Vercel wrap, App Review, Simulator screenshots from Linux
-Touched: Fonts/, VellumFonts, TypefaceRegistry, EditorView, StyleSheetView, Info.plist, hammer tests
-Reuse: web catalogue (Literata, Fraunces, Caveat, Special Elite, Source Sans 3, IBM Plex Mono)
-Risk: Linux cannot watch keyboard. Family names must match bundled TTF name tables.
-Done: Faces bundled + registered. toolbarBackground hidden removed. Guessed 120pt sheet pad removed; system safeAreaPadding / safeAreaInset only.
+Job: Merge web-desk paper-sheet charm into the native iOS 26 library chrome.
+Non-goals: Capacitor, WKWebView, wrapping the web app, custom brown “+ New page” pill, hiding nav/search
+Touched: LibraryView, PaperCard (PaperSheet), VellumFonts.display, LibraryLook, hammer tests
+Reuse: PaperBackdrop, PaperGrain.seed, bundled OFL faces, system .searchable + compose
+Risk: UINavigationBarAppearance would flatten Liquid Glass; large title type is a ToolbarItem. Grain must stay PaperGrain.seed (unsigned).
+Done: Library cells are cream/sage/ruled sheets (time + face stamp, page type, snippet, word count). Greeting is Fraunces italic. Search + compose stay system.
 Steps:
-1. Copy OFL TTFs, register UIAppFonts + CTFontManager
-2. VellumFonts.page uses family names
-3. Drop hidden toolbar background; keyboard safe area only
-Status: prototype — production bar false until KB_COVER is watched
-Verified this turn: no Georgia/Palatino/Noteworthy stand-ins in ios/. No toolbarBackground(.hidden). No 120pt keyboard pad.
+1. Replace PaperRow thumbnail+Notes row with PaperSheet on PaperBackdrop
+2. Style large title via ToolbarItem(.largeTitle) + VellumFonts.display (Fraunces italic)
+3. Leave editor as-is; keep compose / searchable / recency sections
+Status: prototype — production bar false until a phone watches the library
+Verified this turn: PaperRow/PaperStamp gone; PaperSheet uses PaperBackdrop + PaperGrain.seed; compose is still system searchable + square.and.pencil. linux-hammer/xcodebuild absent on this Linux worker (no swiftc).

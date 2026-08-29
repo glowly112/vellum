@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Library row: a small paper stamp plus type, not a wall of identical cards.
-struct PaperRow: View {
+/// Library cell: the page is a paper sheet, not a Notes thumbnail beside a row.
+struct PaperSheet: View {
     let page: Page
 
     var body: some View {
@@ -11,63 +11,78 @@ struct PaperRow: View {
         let title = page.displayTitle
         let preview = page.preview
         let showPreview = !preview.isEmpty && preview != title
+        let titleSize: CGFloat = typeface == .hand ? 24 : 22
+        let snippetSize: CGFloat = typeface == .hand ? 17 : 15
 
-        HStack(alignment: .top, spacing: 14) {
-            PaperStamp(paper: paper, typeface: typeface, ink: ink)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(PageCopy.whenLabel(page.updatedAt))
+                Spacer(minLength: 8)
+                Text(typeface.name)
+            }
+            .font(VellumFonts.ui(.caption2, weight: .medium))
+            .tracking(1.4)
+            .textCase(.uppercase)
+            .foregroundStyle(ink.color.opacity(0.45))
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(VellumFonts.page(typeface, size: 20, relativeTo: .headline))
-                    .foregroundStyle(VellumPalette.ink)
+            Text(title)
+                .font(VellumFonts.page(typeface, size: titleSize, relativeTo: .title3))
+                .foregroundStyle(ink.color)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+                .padding(.top, 12)
+
+            if showPreview {
+                Text(preview)
+                    .font(VellumFonts.page(typeface, size: snippetSize, relativeTo: .subheadline))
+                    .foregroundStyle(ink.color.opacity(0.85))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-
-                if showPreview {
-                    Text(preview)
-                        .font(VellumFonts.ui(.subheadline))
-                        .foregroundStyle(VellumPalette.inkSoft)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                }
-
-                Text(
-                    "\(PageCopy.whenLabel(page.updatedAt))  ·  \(page.words) \(page.words == 1 ? "word" : "words")  ·  \(paper.name)  ·  \(typeface.name)"
-                )
-                .font(VellumFonts.ui(.caption2, weight: .medium))
-                .foregroundStyle(VellumPalette.inkFaint)
-                .padding(.top, 2)
+                    .padding(.top, 8)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Spacer(minLength: 10)
+
+            Text("\(page.words) \(page.words == 1 ? "word" : "words")  ·  \(paper.name)")
+                .font(VellumFonts.ui(.caption2, weight: .medium))
+                .tracking(0.4)
+                .foregroundStyle(ink.color.opacity(0.40))
         }
-        .padding(.vertical, 8)
-        .frame(minHeight: HitTarget.minimum, alignment: .top)
-        .contentShape(Rectangle())
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity, minHeight: CGFloat(LibraryLook.sheetMinHeight), alignment: .topLeading)
+        .background {
+            PaperBackdrop(paper: paper, compact: true)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous)
+                .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
+        }
+        .shadow(color: VellumPalette.ink.opacity(0.12), radius: 8, y: 3)
+        .contentShape(RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title), \(paper.name), \(typeface.name)")
     }
 }
 
-struct PaperStamp: View {
-    let paper: Paper
-    let typeface: Typeface
-    let ink: Ink
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            PaperBackdrop(paper: paper, compact: true)
-            Text("Aa")
-                .font(VellumFonts.page(typeface, size: 15, relativeTo: .caption))
-                .foregroundStyle(ink.color)
-                .padding(.top, paper.ruling == .lines ? 14 : 10)
-                .padding(.leading, paper.ruling == .lines ? 12 : 8)
-        }
-        .frame(width: 48, height: 64)
-        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
-        }
-        .shadow(color: VellumPalette.ink.opacity(0.10), radius: 3, y: 1)
-        .accessibilityHidden(true)
+struct PaperSheetButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
+}
+
+#Preview {
+    PaperSheet(
+        page: Page(
+            title: "Late light on the river",
+            body: "The Thames is the colour of pewter this evening.",
+            fontId: Typeface.book.rawValue,
+            paperId: Paper.cream.rawValue
+        )
+    )
+    .padding()
+    .background(VellumPalette.desk)
 }

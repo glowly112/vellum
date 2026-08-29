@@ -22,4 +22,10 @@ enum VellumFonts {
     static func sample(_ typeface: Typeface) -> Font {
         page(typeface, size: 20, relativeTo: .title3)
     }
+
+    /// Library greeting — Fraunces italic, same display face as the web desk.
+    static func display(size: CGFloat = 34) -> Font {
+        .custom(Typeface.editorial.familyName, size: size, relativeTo: .largeTitle)
+            .italic()
+    }
 }

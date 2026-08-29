@@ -59,6 +59,14 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(HitTarget.minimum, 44)
     }
 
+    func testLibraryLookIsPaperSheetWithSerifGreetingAndSystemCompose() {
+        XCTAssertEqual(LibraryLook.cellKind, "paper-sheet")
+        XCTAssertEqual(LibraryLook.greetingFamily, "Fraunces")
+        XCTAssertNotEqual(LibraryLook.greetingFamily, "SF Pro")
+        XCTAssertEqual(LibraryLook.composeKind, "system")
+        XCTAssertGreaterThanOrEqual(LibraryLook.sheetMinHeight, 160)
+    }
+
     func testPaperGrainSeedDoesNotTrapOnEveryPaper() {
         var seen: Set<UInt64> = []
         for paper in Paper.allCases {

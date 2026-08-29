@@ -1,5 +1,5 @@
 # STATE
 Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 5). Not Capacitor. Not App Review.
-This turn: launch crash on iPhone 17 Pro Sim — `UInt64(hashValue)` in PaperBackdrop trapped on a negative Int. Grain seed is now an unsigned FNV of the paper id.
-Production bar: false until a phone watches KB_COVER. Mini xcodebuild generic iOS Debug already succeeded on a Mac (exit 0, iPhoneOS 26.5); that is not a visual pass. This Linux worker has no Simulator.
+This turn: library cells are paper sheets (web-desk charm) inside the existing iOS 26 NavigationStack / searchable / compose chrome. Greeting is Fraunces italic, not SF-only. Grain seed stays PaperGrain.seed (unsigned).
+Production bar: false until a phone watches the library sheets and KB_COVER. This Linux worker has no Simulator.
 Live web: https://vellum-ib7s.vercel.app/

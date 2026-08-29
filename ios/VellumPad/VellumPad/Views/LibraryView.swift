@@ -25,11 +25,21 @@ struct LibraryView: View {
             .navigationTitle(PageCopy.greeting())
             .navigationSubtitle(subtitle)
             .navigationBarTitleDisplayMode(.large)
+            .toolbarTitleDisplayMode(.large)
             .navigationDestination(for: UUID.self) { id in
                 EditorView(pageID: id)
             }
             .searchable(text: $query, placement: .automatic, prompt: "Search pages")
             .toolbar {
+                // Fraunces italic greeting without UINavigationBarAppearance
+                // (that flatten iOS 26 glass on search + compose).
+                ToolbarItem(placement: .largeTitle) {
+                    Text(PageCopy.greeting())
+                        .font(VellumFonts.display())
+                        .foregroundStyle(VellumPalette.ink)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityHidden(true)
+                }
                 DefaultToolbarItem(kind: .search, placement: .bottomBar)
                 ToolbarSpacer(.flexible, placement: .bottomBar)
                 ToolbarItem(placement: .bottomBar) {
@@ -60,10 +70,10 @@ struct LibraryView: View {
                         Button {
                             path.append(page.pageID)
                         } label: {
-                            PaperRow(page: page)
+                            PaperSheet(page: page)
                         }
-                        .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
+                        .buttonStyle(PaperSheetButtonStyle())
+                        .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                     }

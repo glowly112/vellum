@@ -12,5 +12,6 @@ These still need a phone-width watch:
 6. **Thumb hits.** 44pt minimum on style rows, ink, delete, word-count. Not measured.
 7. **Share sheet.** `FileRepresentation` writes a `.txt`. Not presented.
 8. **Delete alerts.** Cancel vs confirm not tapped.
+9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**.
