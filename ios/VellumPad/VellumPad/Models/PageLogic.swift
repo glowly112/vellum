@@ -86,14 +86,16 @@ enum KeyboardChrome {
     static let forbiddenWordCountAir: [Double] = [16, 34, 120]
     /// Open pad is guide minus resting. Full guide is one home-indicator too tall.
     static let openPadIsKeyboardOnly = true
-    /// Keyboard open: caret / last line sits on the word-count, like Notes.
-    /// Extra room is under the body (not a top inset — that shifts origin).
-    /// Not pinning the page to the bottom. Origin stays 24 / 56 / 24, date top 8.
-    static let caretFollowsWordCount = true
+    /// Per-keystroke park froze TextEditor’s offset (phone 20: glyphs stacked).
+    /// The system editor scrolls. Last-line flush is secondary.
+    static let caretFollowsWordCount = false
+    static let caretParksPerKeystroke = false
     static let pinsPageToBottom = false
     static let caretRoomEdge = "bottom"
-    /// Park the live caret rect on the hairline. `body` / field-size was a Mini no-op.
-    static let caretScrollTarget = "caret"
+    /// System editor keeps the caret visible. Not scrollTo(body) / caret-rect.
+    static let caretScrollTarget = "system"
+    /// Phone 20: `frame(height:)` lagged one keystroke behind wrap.
+    static let capsBodyToMeasuredHeight = false
     /// Build 16 sliced glyphs. Build 17 added a full pitch inside `"body"` on
     /// top of leftover slack and overshot (~3 rulings). A few points, not a pitch.
     static let caretClearanceLines = 0.0
@@ -102,8 +104,8 @@ enum KeyboardChrome {
     static let leftoverPad = 8.0
     /// Caret field follows the live layout guide, not a Mini-sized ScrollView.
     static let caretUsesLiveGuide = true
-    /// Mini 19–20: field-size left last_ink 42pt high. Nudge the caret rect.
-    static let caretUsesCaretRect = true
+    /// Phone 20/21: caret-rect nudge stacked glyphs. System editor scrolls.
+    static let caretUsesCaretRect = false
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
@@ -399,6 +401,7 @@ enum EditorLook {
     static let stylesDetentStart = "medium"
     /// Paper · typeface lives on the top Page style control, not the word-count inset.
     static let footerShowsStyle = false
+    /// One system TextEditor. Not a ScrollView wrapping a height-capped editor.
     static let bodyKind = "text-editor"
     /// No rounded sheet sitting on grain.
     static let cornerRadius: Double = 0
