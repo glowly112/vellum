@@ -92,6 +92,8 @@ enum KeyboardChrome {
     static let caretFollowsWordCount = true
     static let pinsPageToBottom = false
     static let caretRoomEdge = "bottom"
+    /// Park the body on the inset. `floor` as the scroll target filled the field with paper.
+    static let caretScrollTarget = "body"
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
@@ -113,11 +115,12 @@ enum KeyboardChrome {
         return max(0, guidePad - restingPad)
     }
 
-    /// Scroll room so the caret line can sit at the bottom of the field.
-    /// Derived from the visible editor, not a guessed 34 / 120.
-    static func caretScrollPad(visibleHeight: Double, lineHeight: Double) -> Double {
-        guard visibleHeight > 0, lineHeight > 0 else { return 0 }
-        return max(0, visibleHeight - lineHeight)
+    /// Slack under the column so the last line can reach the inset.
+    /// Not `visible - one line` — that floor filled the field (~308pt) and
+    /// `scrollTo(floor)` parked empty paper on the keys. Unmeasured column → 0.
+    static func caretFloor(visibleHeight: Double, columnHeight: Double) -> Double {
+        guard visibleHeight > 0, columnHeight > 0 else { return 0 }
+        return max(0, visibleHeight - columnHeight)
     }
 }
 

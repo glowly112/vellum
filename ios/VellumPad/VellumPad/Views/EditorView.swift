@@ -17,6 +17,7 @@ struct EditorView: View {
     @State private var restingPad: CGFloat = 0
     @State private var bodyHeight: CGFloat = 0
     @State private var fieldHeight: CGFloat = 0
+    @State private var columnHeight: CGFloat = 0
     @FocusState private var field: Field?
 
     private enum Field: Hashable {
@@ -182,15 +183,21 @@ struct EditorView: View {
         let followCaret = field == .body && lift > 0
         let lineHeight = CGFloat(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints))
         let floor = followCaret
-            ? CGFloat(KeyboardChrome.caretScrollPad(visibleHeight: Double(fieldHeight), lineHeight: Double(lineHeight)))
+            ? CGFloat(KeyboardChrome.caretFloor(
+                visibleHeight: Double(fieldHeight),
+                columnHeight: Double(columnHeight)
+            ))
             : 0
-        let editorHeight = page.body.isEmpty
-            ? CGFloat(EditorLook.bodyMinHeight)
-            : max(bodyHeight, lineHeight)
+        let editorHeight: CGFloat = {
+            if page.body.isEmpty { return CGFloat(EditorLook.bodyMinHeight) }
+            if bodyHeight > lineHeight { return bodyHeight }
+            return CGFloat(EditorLook.bodyMinHeight)
+        }()
 
         return ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 0) {
                     Text(PageCopy.longDate(page.createdAt))
                         .font(VellumFonts.ui(.caption2, weight: .medium))
                         .tracking(1.6)
@@ -214,48 +221,56 @@ struct EditorView: View {
                     .onSubmit { field = .body }
                     .padding(.top, 12)
 
-                    TextEditor(text: bodyBinding(page))
-                        .font(VellumFonts.body(typeface, size: size))
-                        .foregroundStyle(ink.color)
-                        .tint(ink.color)
-                        .scrollContentBackground(.hidden)
-                        .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
-                        .contentMargins(.top, 0, for: .scrollContent)
-                        .textInputAutocapitalization(.sentences)
-                        .focused($field, equals: .body)
-                        .padding(.top, 8)
-                        .padding(.bottom, 8)
-                        .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .frame(height: editorHeight)
-                        .background(alignment: .top) {
-                            Text(page.body.isEmpty ? " " : page.body)
-                                .font(VellumFonts.body(typeface, size: size))
-                                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
-                                .padding(.top, 8)
-                                .padding(.bottom, 8)
-                                .frame(maxWidth: .infinity, alignment: .topLeading)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .opacity(0)
-                                .allowsHitTesting(false)
-                                .accessibilityHidden(true)
-                                .background {
-                                    GeometryReader { geo in
-                                        Color.clear.preference(
-                                            key: BodyHeightKey.self,
-                                            value: geo.size.height
-                                        )
-                                    }
+                    ZStack(alignment: .topLeading) {
+                        Text(page.body.isEmpty ? " " : page.body)
+                            .font(VellumFonts.body(typeface, size: size))
+                            .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                            .padding(.top, 8)
+                            .padding(.bottom, 8)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .opacity(0)
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                            .background {
+                                GeometryReader { geo in
+                                    Color.clear.preference(
+                                        key: BodyHeightKey.self,
+                                        value: geo.size.height
+                                    )
                                 }
-                        }
-                        .overlay(alignment: .topLeading) {
-                            if page.body.isEmpty && field != .body {
-                                Text("Begin writing…")
-                                    .font(VellumFonts.body(typeface, size: size))
-                                    .foregroundStyle(ink.color.opacity(0.38))
-                                    .padding(.top, 16)
-                                    .allowsHitTesting(false)
                             }
+
+                        TextEditor(text: bodyBinding(page))
+                            .font(VellumFonts.body(typeface, size: size))
+                            .foregroundStyle(ink.color)
+                            .tint(ink.color)
+                            .scrollContentBackground(.hidden)
+                            .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                            .contentMargins(.top, 0, for: .scrollContent)
+                            .textInputAutocapitalization(.sentences)
+                            .focused($field, equals: .body)
+                            .padding(.top, 8)
+                            .padding(.bottom, 8)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .frame(height: editorHeight)
+                            .overlay(alignment: .topLeading) {
+                                if page.body.isEmpty && field != .body {
+                                    Text("Begin writing…")
+                                        .font(VellumFonts.body(typeface, size: size))
+                                        .foregroundStyle(ink.color.opacity(0.38))
+                                        .padding(.top, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            }
+                    }
+                    .id("body")
+                    }
+                    .background {
+                        GeometryReader { geo in
+                            Color.clear.preference(key: ColumnHeightKey.self, value: geo.size.height)
                         }
+                    }
 
                     Color.clear
                         .frame(height: floor)
@@ -283,6 +298,7 @@ struct EditorView: View {
             }
             .onPreferenceChange(BodyHeightKey.self) { bodyHeight = $0 }
             .onPreferenceChange(FieldHeightKey.self) { fieldHeight = $0 }
+            .onPreferenceChange(ColumnHeightKey.self) { columnHeight = $0 }
             .onChange(of: followCaret) { _, on in
                 scrollCaret(proxy, follow: on)
             }
@@ -312,7 +328,7 @@ struct EditorView: View {
     private func scrollCaret(_ proxy: ScrollViewProxy, follow: Bool) {
         DispatchQueue.main.async {
             if follow {
-                proxy.scrollTo("caret-floor", anchor: .bottom)
+                proxy.scrollTo("body", anchor: .bottom)
             } else {
                 proxy.scrollTo("page-top", anchor: .top)
             }
@@ -500,6 +516,13 @@ private struct BodyHeightKey: PreferenceKey {
 }
 
 private struct FieldHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct ColumnHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
