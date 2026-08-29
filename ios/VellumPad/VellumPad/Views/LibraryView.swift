@@ -112,13 +112,13 @@ struct LibraryView: View {
                             }
                         }
                         .swipeActions(edge: .leading) {
-                            Button(page.isPinned ? "Unpin" : "Pin", systemImage: page.isPinned ? "pin.slash" : "pin") {
+                            Button(page.pinOn ? "Unpin" : "Pin", systemImage: page.pinOn ? "pin.slash" : "pin") {
                                 togglePin(page)
                             }
                             .tint(VellumPalette.inkSoft)
                         }
                         .contextMenu {
-                            Button(page.isPinned ? "Unpin" : "Pin", systemImage: page.isPinned ? "pin.slash" : "pin") {
+                            Button(page.pinOn ? "Unpin" : "Pin", systemImage: page.pinOn ? "pin.slash" : "pin") {
                                 togglePin(page)
                             }
                             Button("Delete page", systemImage: "trash", role: .destructive) {
@@ -195,7 +195,7 @@ struct LibraryView: View {
     }
 
     private func togglePin(_ page: Page) {
-        page.isPinned.toggle()
+        page.pinOn.toggle()
         try? modelContext.save()
     }
 

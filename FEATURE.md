@@ -1,14 +1,14 @@
 # Feature
-Job: Four chrome fixes Jamie asked for after using the native pad — library delete/pin, drop Night · Book on the word-count, Focus eye stays, Page style opens half.
-Non-goals: Renaming the app, store listing, web, desk-frame postcard, claiming the editor done
-Touched: LibraryView + LibraryGrouping + Page.isPinned + EditorView chrome + hammer
-Reuse: Paper sheets, paper-full editor, word-count inset, system toolbar, Page style sheet
-Risk: Notes-clone chrome; hiding the eye again; opening the style sheet at large
-Done: Swipe + context menu delete (confirm) and pin with a Pinned section. Word-count is words only. Focus keeps a tappable eye. Style sheet starts at medium and still scrolls.
-Not done: Mini keyboard-open pixels. `keyboardOpenProven` stays false on Linux.
+Job: 1.0.0 (8) crashes on phones that already had 7. Jamie also expected the home-screen name Velin. Fix the store and the display name on PR #4. Bump to build 9.
+Non-goals: Wiping pages, changing the bundle id, store listing, web, claiming Simulator proof
+Touched: Page.isPinned → optional + PageStoreOpen + pbxproj display name / build + hammer
+Reuse: Swipe pin/delete, Focus eye, Page style medium, words-only inset, paper sheets
+Risk: In-memory fallback that hides the desk; VersionedSchema that cannot open an unversioned store
+Done: Optional pin so a build-7 `vellum-pages` row opens and stays. Display name Velin. Build 9. Pre-pin store test fails on required Bool, passes on optional.
+Not done: Mini / Simulator pixels. `keyboardOpenProven` stays false on Linux.
 Steps:
-1. Tests first: focus eye stays, sheet starts medium, library delete/pin, footer has no paper · typeface
-2. Implement swipe/menu + stored pin, keep nav bar in Focus, detent medium, inset words only
-3. prove.sh
-Status: chrome this turn. Editor-done stays false.
-Verified this turn: prove.sh after the four fixes.
+1. Test that a pre-pin store (no isPinned) opens and keeps the page
+2. Store pin as optional Bool (nil → unpinned). Display name Velin. Build 9
+3. prove.sh — linux-hammer green. Do not claim Simulator proof
+Status: crash + name this turn. Editor-done stays false.
+Verified this turn: linux-hammer. No Simulator on this worker.

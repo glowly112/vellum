@@ -1,6 +1,6 @@
 # STATE
-Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 7). Not Capacitor. Not App Review.
-This turn: library cards swipe/long-press to pin or delete (confirm). Editor Focus keeps a visible eye. Page style opens at medium. Word-count no longer prints Night · Book — top Page style stays. Paper-full editor and ruled pitch stay. PR #4 not merged. `keyboardOpenProven` stays false on Linux.
+Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 9, display name Velin). Not Capacitor. Not App Review.
+This turn: phones on 7 crash on 8 because Page gained a required `isPinned` and ModelContainer `fatalError`s. Pin is optional so a pre-pin store opens and pages stay. Home screen / App Store display name is Velin. Bundle id stays `com.jamiematheson.vellumpad`. Build is 9. Swipe pin/delete, Focus eye, Page style medium, words-only inset stay. PR #4 not merged. `keyboardOpenProven` stays false on Linux.
 Launch (Debug install):
 `SIMCTL_CHILD_VELLUM_OPEN_FIRST=1 SIMCTL_CHILD_VELLUM_FOCUS_BODY=1 xcrun simctl launch <UDID> com.jamiematheson.vellumpad`
 Do not use `simctl launch --setenv` (Invalid device).

@@ -81,6 +81,68 @@ enum LibraryPin {
     static func isPinnedAfterToggle(_ current: Bool) -> Bool { !current }
 }
 
+/// How a `vellum-pages` row must be shaped so a phone on build 7 can open build 9.
+///
+/// Build 7 stored pageID…sizeId and no pin. Build 8 added a required `isPinned: Bool`
+/// and `VellumPadApp` `fatalError`s if ModelContainer fails. SwiftData cannot
+/// lightweight-migrate a missing column onto a required Bool — that is the crash.
+/// An optional pin (`nil` → unpinned) is a default SwiftData can apply. Do not
+/// wipe the store or fall back to in-memory.
+enum PageStoreOpen {
+    /// Live stored pin. Must stay optional. Required Bool is the 1.0.0 (8) crash.
+    struct CurrentRow: Codable, Equatable, Sendable {
+        var pageID: UUID
+        var title: String
+        var body: String
+        var createdAt: Date
+        var updatedAt: Date
+        var fontId: String
+        var paperId: String
+        var inkId: String
+        var sizeId: String
+        var isPinned: Bool?
+
+        var pinOn: Bool { isPinned ?? false }
+    }
+
+    /// What 1.0.0 (8) shipped. Decoding a build-7 row must fail.
+    struct RequiredPinRow: Codable, Sendable {
+        var pageID: UUID
+        var title: String
+        var body: String
+        var createdAt: Date
+        var updatedAt: Date
+        var fontId: String
+        var paperId: String
+        var inkId: String
+        var sizeId: String
+        var isPinned: Bool
+    }
+
+    /// Build-7 fixture: the live keys, no `isPinned`.
+    static let prePinStoreJSON = """
+    {"pageID":"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA","title":"Kept from seven","body":"still here","createdAt":0,"updatedAt":0,"fontId":"book","paperId":"cream","inkId":"charcoal","sizeId":"m"}
+    """
+
+    private static var decoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        return decoder
+    }
+
+    /// Opens a pre-pin store payload with the current row schema.
+    /// Must not throw, must keep the page, pin defaults off.
+    /// Fails if `CurrentRow.isPinned` is a required `Bool` — that is the fix.
+    static func openPrePinStore(_ json: String = prePinStoreJSON) throws -> CurrentRow {
+        try decoder.decode(CurrentRow.self, from: Data(json.utf8))
+    }
+
+    /// Required `isPinned` cannot read a build-7 row. Documents the crash.
+    static func requiredPinCrashesOnPrePinRow(_ json: String = prePinStoreJSON) -> Bool {
+        (try? decoder.decode(RequiredPinRow.self, from: Data(json.utf8))) == nil
+    }
+}
+
 struct LibraryPage: RecencyPage, Equatable, Sendable {
     var title: String
     var body: String
@@ -88,6 +150,7 @@ struct LibraryPage: RecencyPage, Equatable, Sendable {
     var paper: Paper
     var typeface: Typeface
     var isPinned: Bool = false
+    var pinOn: Bool { isPinned }
 }
 
 struct LibrarySheet: Equatable, Sendable {

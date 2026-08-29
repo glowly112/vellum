@@ -12,7 +12,9 @@ final class Page: RecencyPage {
     var paperId: String
     var inkId: String
     var sizeId: String
-    var isPinned: Bool
+    /// Optional so a build-7 `vellum-pages` store (no column) can open.
+    /// Required `Bool` is what `fatalError`'d ModelContainer on 1.0.0 (8).
+    var isPinned: Bool?
 
     init(
         pageID: UUID = UUID(),
@@ -36,6 +38,12 @@ final class Page: RecencyPage {
         self.inkId = inkId
         self.sizeId = sizeId
         self.isPinned = isPinned
+    }
+
+    /// Missing column (build 7) and nil both read as unpinned.
+    var pinOn: Bool {
+        get { isPinned ?? false }
+        set { isPinned = newValue }
     }
 
     var typeface: Typeface { Catalog.typeface(fontId) }

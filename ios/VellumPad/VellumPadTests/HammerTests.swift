@@ -248,6 +248,19 @@ final class HammerTests: XCTestCase {
         XCTAssertTrue(DeleteDecision.shouldDelete(confirmed: true))
     }
 
+    func testPrePinStoreOpensWithoutCrashing() throws {
+        XCTAssertTrue(
+            PageStoreOpen.requiredPinCrashesOnPrePinRow(),
+            "required isPinned is the 1.0.0 (8) crash — a build-7 row has no that column"
+        )
+        let row = try PageStoreOpen.openPrePinStore()
+        XCTAssertEqual(row.title, "Kept from seven")
+        XCTAssertEqual(row.body, "still here")
+        XCTAssertNil(row.isPinned)
+        XCTAssertFalse(row.pinOn)
+        XCTAssertEqual(row.pageID.uuidString, "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")
+    }
+
     func testLibrarySheetCarriesPaperAndTypeface() {
         let sheet = LibrarySheetCopy.cell(
             title: "things I noticed",

@@ -111,6 +111,18 @@ enum LinuxHammer {
         expect(pinKeys == [.pinned, .today], "5 pinned section leads")
         expect(LibraryPin.isPinnedAfterToggle(false) && !LibraryPin.isPinnedAfterToggle(true), "5 pin toggles")
 
+        expect(PageStoreOpen.requiredPinCrashesOnPrePinRow(), "8 required isPinned cannot open a build-7 row")
+        do {
+            let legacy = try PageStoreOpen.openPrePinStore()
+            expect(legacy.title == "Kept from seven", "8 pre-pin store keeps the page title")
+            expect(legacy.body == "still here", "8 pre-pin store keeps the page body")
+            expect(legacy.isPinned == nil, "8 missing pin column decodes as nil")
+            expect(!legacy.pinOn, "8 missing pin defaults off")
+            expect(legacy.pageID.uuidString == "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA", "8 pre-pin store keeps pageID")
+        } catch {
+            expect(false, "8 pre-pin store opens without crashing")
+        }
+
         let sageHand = LibrarySheetCopy.cell(
             title: "things I noticed",
             body: "rain on warm pavement",

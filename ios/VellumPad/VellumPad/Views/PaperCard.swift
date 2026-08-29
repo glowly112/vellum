@@ -20,7 +20,7 @@ struct PaperSheet: View {
             HStack(alignment: .firstTextBaseline) {
                 Text(sheet.when)
                 Spacer(minLength: 8)
-                if page.isPinned {
+                if page.pinOn {
                     Image(systemName: "pin.fill")
                         .font(.caption2)
                 }

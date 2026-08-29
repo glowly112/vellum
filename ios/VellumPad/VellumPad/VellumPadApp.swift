@@ -12,6 +12,7 @@ struct VellumPadApp: App {
         do {
             container = try ModelContainer(for: schema, configurations: [configuration])
         } catch {
+            // Do not fall back to an in-memory store — that hides the user's pages.
             fatalError("SwiftData container failed: \(error)")
         }
         SamplePages.seedIfNeeded(in: container)

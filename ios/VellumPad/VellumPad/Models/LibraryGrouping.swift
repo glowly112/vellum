@@ -16,7 +16,7 @@ protocol RecencyPage {
     var title: String { get }
     var body: String { get }
     var updatedAt: Date { get }
-    var isPinned: Bool { get }
+    var pinOn: Bool { get }
 }
 
 struct PageRecord: RecencyPage, Equatable {
@@ -24,6 +24,7 @@ struct PageRecord: RecencyPage, Equatable {
     var body: String
     var updatedAt: Date
     var isPinned: Bool = false
+    var pinOn: Bool { isPinned }
 }
 
 enum LibraryGrouping {
@@ -55,7 +56,7 @@ enum LibraryGrouping {
 
         var map: [LibrarySection: [P]] = [:]
         for page in filtered {
-            let key = page.isPinned ? LibrarySection.pinned : section(for: page.updatedAt, now: now)
+            let key = page.pinOn ? LibrarySection.pinned : section(for: page.updatedAt, now: now)
             map[key, default: []].append(page)
         }
         return LibrarySection.allCases.compactMap { key in
