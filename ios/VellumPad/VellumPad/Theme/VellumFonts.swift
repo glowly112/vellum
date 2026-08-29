@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Catalogue faces — the same OFL families as `src/routes/__root.tsx`.
 /// Registered from `Fonts/*.ttf` via `UIAppFonts` and `TypefaceRegistry`.
@@ -23,9 +24,30 @@ enum VellumFonts {
         page(typeface, size: 20, relativeTo: .title3)
     }
 
-    /// Library greeting — Fraunces italic, same display face as the web desk.
-    static func display(size: CGFloat = 34) -> Font {
-        .custom(Typeface.editorial.familyName, size: size, relativeTo: .largeTitle)
+    /// Library greeting — Fraunces italic at the **system large-title** size.
+    /// Not a guessed 34. `relativeTo: .largeTitle` tracks Dynamic Type.
+    static func display(size: CGFloat? = nil) -> Font {
+        let points = size ?? UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
+        return .custom(Typeface.editorial.familyName, size: points, relativeTo: .largeTitle)
             .italic()
+    }
+
+    /// How far italic Fraunces overshoots the system large-title ascender.
+    static func greetingTopAir() -> CGFloat {
+        let system = UIFont.preferredFont(forTextStyle: .largeTitle)
+        guard let face = UIFont(name: Typeface.editorial.familyName, size: system.pointSize) else {
+            return 0
+        }
+        var descriptor = face.fontDescriptor
+        if let italic = descriptor.withSymbolicTraits([descriptor.symbolicTraits, .traitItalic]) {
+            descriptor = italic
+        }
+        let italicFace = UIFont(descriptor: descriptor, size: system.pointSize)
+        return CGFloat(
+            LibraryGreeting.italicOvershoot(
+                systemAscender: Double(system.ascender),
+                faceAscender: Double(italicFace.ascender)
+            )
+        )
     }
 }

@@ -18,7 +18,7 @@ struct LibraryView: View {
         NavigationStack(path: $path) {
             Group {
                 if groups.isEmpty {
-                    emptyState
+                    emptyDesk
                 } else {
                     pageList
                 }
@@ -33,12 +33,16 @@ struct LibraryView: View {
             }
             .searchable(text: $query, placement: .automatic, prompt: "Search pages")
             .toolbar {
-                // Fraunces italic greeting without UINavigationBarAppearance
-                // (that flatten iOS 26 glass on search + compose).
+                // Fraunces on the stock large-title slot. Do not hide the
+                // nav bar. UINavigationBarAppearance flattens Liquid Glass.
+                // Size is system largeTitle (not 34). Italic overshoot is
+                // font metrics, not a guessed pad. Fail GREETING_CLIP.
                 ToolbarItem(placement: .largeTitle) {
                     Text(PageCopy.greeting())
                         .font(VellumFonts.display())
                         .foregroundStyle(VellumPalette.ink)
+                        .padding(.top, VellumFonts.greetingTopAir())
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .accessibilityHidden(true)
                 }
@@ -141,6 +145,18 @@ struct LibraryView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .listSectionSpacing(22)
+    }
+
+    /// WWDC25: large titles live at the top of the content scroll view.
+    /// Empty desk had no scroll view, so Fraunces sat in the bar slot and
+    /// was sliced by the status bar (GREETING_CLIP, phone 23).
+    private var emptyDesk: some View {
+        ScrollView {
+            emptyState
+                .containerRelativeFrame(.vertical)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollContentBackground(.hidden)
     }
 
     /// Journal composition: mark, title, one line. Compose stays in chrome.

@@ -27,4 +27,6 @@ These still need a phone-width watch:
 11. **Rule alignment.** Title and body baselines should sit on `PaperRuling` lines/dots (pitch 32). Cream + Book and Ruled + Typewriter. Not watched.
 12. **TEXT_OVERLAP (wrap-while-typing).** Keyboard open: wrapping lines must sit below the previous line, not paint on top. Dismiss-keyboard cleaning the page is the tell (phone 20). Mini cannot inject typing (`simctl ui send-text` hangs; osascript keystroke paste is blocked). A still of the sample page is not wrap proof. Phone check of 22 is extra, not a substitute for Mini pixels. Not watched.
 
-Until 1–2 are watched on a phone, the production pass bar stays **false**. Phone 22 does not replace Mini pixels.
+13. **GREETING_CLIP.** First paint of the library (empty and with pages): the full Fraunces italic greeting is visible — no slice by the status bar / Dynamic Island (phone 23). Stock large title; not a homemade draw; not a guessed 34pt pad. Not watched.
+
+Until 1–2 are watched on a phone, the production pass bar stays **false**. Phone 22 / 23 do not replace Mini pixels.

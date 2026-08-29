@@ -242,6 +242,35 @@ enum KeyboardChrome {
 }
 
 /// Library merge: paper sheet is the object; chrome stays system iOS 26.
+/// First-paint greeting. Fail `GREETING_CLIP` if Fraunces is sliced.
+///
+/// Apple (WWDC25): large titles sit at the top of the **content scroll view**
+/// and scroll under the bar. Keep the scroll view extended under the bar;
+/// do not homemade-draw the title. `ToolbarItem(.largeTitle)` takes
+/// precedence over `navigationTitle` (SwiftUI `ToolbarItemPlacement.largeTitle`).
+/// Size is the system large-title text style, not a guessed 34.
+enum LibraryGreeting {
+    static let clipFail = "GREETING_CLIP"
+    static let usesStockLargeTitle = true
+    static let hidesNavBar = false
+    static let homemadeDraw = false
+    static let family = Typeface.editorial.familyName
+    static let sizeKind = "largeTitle"
+    static let guessedPoints: Double? = nil
+    static let forbiddenGuessedPads: [Double] = [34]
+    static let firstPaintVisible = true
+    static let emptyUsesScrollView = true
+    static let greetingIgnoresSafeArea = false
+    static let deskFillIgnoresSafeArea = true
+
+    /// Extra top air so italic Fraunces ascenders clear the system line box.
+    /// Unmeasured → 0. Not a guessed 34.
+    static func italicOvershoot(systemAscender: Double, faceAscender: Double) -> Double {
+        guard systemAscender > 0, faceAscender > 0 else { return 0 }
+        return max(0, faceAscender - systemAscender)
+    }
+}
+
 enum LibraryLook {
     static let cellKind = "paper-sheet"
     static let greetingFamily = Typeface.editorial.familyName
