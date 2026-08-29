@@ -14,7 +14,7 @@ SIMCTL_CHILD_VELLUM_OPEN_FIRST=1 SIMCTL_CHILD_VELLUM_FOCUS_BODY=1 xcrun simctl l
 
 These still need a phone-width watch:
 
-1. **KB_COVER (editor).** Word-count should sit on the keyboard / predictive bar (a few points of air, not a tall paper band). Closed: above the home indicator. Text should travel with the keys. Gutters stay paper. Not watched here. `keyboardOpenProven` stays false.
+1. **KB_COVER (editor).** Word-count should sit on the keyboard / predictive bar. Caret / last line should sit just above the count. Closed: above the home indicator. Type origin stays. Gutters stay paper. Not watched here. `keyboardOpenProven` stays false.
 2. **KB_COVER (style sheet).** Page sheet opens large. Typewriter and Size must scroll into view. Size last. Not watched on device.
 3. **Liquid Glass.** `.toolbarBackground(.hidden)` is gone. Toolbar / search / compose / Done are system controls. Not seen on device glass.
 4. **OFL faces.** Literata / Fraunces / Caveat / Special Elite / Source Sans 3 / IBM Plex Mono are bundled and registered. Rendering not seen.
