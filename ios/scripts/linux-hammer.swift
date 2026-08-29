@@ -265,6 +265,31 @@ enum LinuxHammer {
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: true) == 400, "E5 follow fills the field")
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false) == 0, "E5 closed does not fill the field")
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true) == 0, "E5 unmeasured field does not fill")
+        expect(KeyboardChrome.caretUsesLiveGuide, "E5 caret field follows the live layout guide")
+        expect(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 20) == 534,
+            "E5 visible field is container minus live pad minus inset"
+        )
+        expect(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 340, restingPad: 34, insetHeight: 20) == 474,
+            "E5 taller phone keyboard shrinks the caret field"
+        )
+        expect(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 340, restingPad: 34, insetHeight: 20)
+                < KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 20),
+            "E5 phone keyboard is not Mini-sized"
+        )
+        expect(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 0) == 554,
+            "E5 do not invent a 44pt inset"
+        )
+        expect(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 0, guidePad: 280, restingPad: 34, insetHeight: 20) == 0,
+            "E5 unmeasured container does not invent a field"
+        )
+        expect(KeyboardChrome.caretScrollOverlap(fieldHeight: 554, visibleHeight: 534) == 20, "E5 overlap is ScrollView behind the hairline")
+        expect(KeyboardChrome.caretScrollOverlap(fieldHeight: 534, visibleHeight: 534) == 0, "E5 no overlap when the field matches")
+        expect(KeyboardChrome.caretScrollOverlap(fieldHeight: 0, visibleHeight: 534) == 0, "E5 unmeasured field has no overlap")
         expect(EditorLook.bodyEditorHeight(measured: 208, empty: false) == 208, "E5 editor hugs the measured body")
         expect(EditorLook.bodyEditorHeight(measured: 208, empty: false) != EditorLook.bodyMinHeight, "E5 280 inside body was Mini 18 empty paper")
         expect(EditorLook.bodyEditorHeight(measured: 0, empty: false) == EditorLook.bodyMinHeight, "E5 unmeasured body keeps the min")

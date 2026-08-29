@@ -231,6 +231,29 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: true), 400)
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false), 0, "closed origin stays")
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true), 0)
+        XCTAssertTrue(KeyboardChrome.caretUsesLiveGuide)
+        XCTAssertEqual(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 20),
+            534
+        )
+        XCTAssertEqual(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 340, restingPad: 34, insetHeight: 20),
+            474,
+            "taller phone keyboard + suggestion bar shrinks the field"
+        )
+        XCTAssertLessThan(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 340, restingPad: 34, insetHeight: 20),
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 20)
+        )
+        XCTAssertEqual(
+            KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 0),
+            554,
+            "do not invent a 44pt inset"
+        )
+        XCTAssertEqual(KeyboardChrome.caretVisibleHeight(containerHeight: 0, guidePad: 280, restingPad: 34, insetHeight: 20), 0)
+        XCTAssertEqual(KeyboardChrome.caretScrollOverlap(fieldHeight: 554, visibleHeight: 534), 20)
+        XCTAssertEqual(KeyboardChrome.caretScrollOverlap(fieldHeight: 534, visibleHeight: 534), 0)
+        XCTAssertEqual(KeyboardChrome.caretScrollOverlap(fieldHeight: 0, visibleHeight: 534), 0)
         XCTAssertEqual(EditorLook.bodyEditorHeight(measured: 208, empty: false), 208)
         XCTAssertNotEqual(EditorLook.bodyEditorHeight(measured: 208, empty: false), EditorLook.bodyMinHeight)
         XCTAssertEqual(EditorLook.bodyEditorHeight(measured: 0, empty: false), EditorLook.bodyMinHeight)

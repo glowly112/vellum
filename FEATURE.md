@@ -1,14 +1,14 @@
 # Feature
-Job: Build 18 Mini — last ink 72pt / 2.25 rules above “66 words”. Leftover still under the column. Bump to build 19.
+Job: Phone 18 slices the last line through the word-count. Mini 19 still 43pt high. Live keyboard guide for the caret field. Bump to build 20.
 Non-goals: Guessing 34 / 120, pinning at rest, merging, a 44pt caption, another pitch, moving caption/keyboard y
-Touched: caretSlackAbove + bodyEditorHeight hug + onGeometryChange measure + hammer + pbxproj build
-Reuse: Few-points clearance, scrollTo(body), caption on the keys, paper-full, Velin
-Risk: Re-clipping the caret line (build 16). Filling the field when unmeasured (build 15). Shifting closed origin.
-Done: Leftover sits above the column while following. Editor hugs the measured body (280 is not parked under the last line). Closed origin stays. Build 19.
-Not done: Mini / Simulator pixels on this worker. `keyboardOpenProven` stays false on Linux.
+Touched: caretVisibleHeight(guide) + scroll overlap + inset measure + hammer + pbxproj build
+Reuse: Slack above, hug body, few-points clearance, caption on the keys, paper-full, Velin
+Risk: Re-clipping on the phone. Opening a Mini-sized gap again. Shifting closed origin.
+Done: Caret field is container − live layout-guide pad − measured inset. Taller phone keyboard shrinks the field. Scroll overlap is not parked under the hairline. Closed origin stays. Build 20.
+Not done: Mini / phone pixels on this worker. `keyboardOpenProven` stays false on Linux.
 Steps:
-1. Tests: slack(400, 328, follow) == 72 above; floor is 0; hug measured 208; empty/unmeasured keep 280; clearance still a few points
-2. Spacer above the column. TextEditor height is bodyEditorHeight. Measure via onGeometryChange.
+1. Tests: Mini-ish guide 280 → 534; phone-ish 340 → 474; no invented 44; overlap is field − visible
+2. Slack and rules use caretVisibleHeight. ScrollView content margin is the overlap. Re-scroll when the guide changes.
 3. prove.sh — linux-hammer green
-Status: leftover-above-column this turn. Editor-done stays false.
-Verified this turn: linux-hammer. No Simulator on this worker. Jamie’s Mini is the launch pass.
+Status: live-guide-caret-field this turn. Editor-done stays false.
+Verified this turn: linux-hammer. No Simulator on this worker. Jamie’s Mini / phone is the launch pass.

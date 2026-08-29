@@ -18,6 +18,8 @@ struct EditorView: View {
     @State private var bodyHeight: CGFloat = 0
     @State private var fieldHeight: CGFloat = 0
     @State private var columnHeight: CGFloat = 0
+    @State private var containerHeight: CGFloat = 0
+    @State private var insetHeight: CGFloat = 0
     @FocusState private var field: Field?
 
     private enum Field: Hashable {
@@ -167,8 +169,9 @@ struct EditorView: View {
     /// screen edges, and behind / beside the keys. No desk-grain frame. Type
     /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
     /// Extra room for the caret is *inside* the body scroll target — a few
-    /// points, not a pitch. Leftover slack sits *above* the column while
-    /// following so the last line can sit on the hairline. Not pinned at rest.
+    /// points, not a pitch. The field above the hairline follows the live
+    /// keyboard layout guide (phone keyboard + suggestion bar), not a
+    /// Mini-sized ScrollView. Not pinned at rest.
     private func writingColumn(
         page: Page,
         paper: Paper,
@@ -183,20 +186,30 @@ struct EditorView: View {
         )
         let followCaret = field == .body && lift > 0
         let lineHeight = CGFloat(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints))
+        let visibleHeight = CGFloat(KeyboardChrome.caretVisibleHeight(
+            containerHeight: Double(containerHeight),
+            guidePad: Double(keyboardPad),
+            restingPad: Double(restingPad),
+            insetHeight: Double(insetHeight)
+        ))
+        let overlap = CGFloat(KeyboardChrome.caretScrollOverlap(
+            fieldHeight: Double(fieldHeight),
+            visibleHeight: Double(visibleHeight)
+        ))
         let floor = followCaret
             ? CGFloat(KeyboardChrome.caretFloor(
-                visibleHeight: Double(fieldHeight),
+                visibleHeight: Double(visibleHeight),
                 columnHeight: Double(columnHeight)
             ))
             : 0
         let slackAbove = CGFloat(KeyboardChrome.caretSlackAbove(
-            visibleHeight: Double(fieldHeight),
+            visibleHeight: Double(visibleHeight),
             columnHeight: Double(columnHeight),
             following: followCaret
         ))
         let ruleOffset = CGFloat(KeyboardChrome.caretRuleOffset(
             base: PaperRuling.firstRuleOffset,
-            visibleHeight: Double(fieldHeight),
+            visibleHeight: Double(visibleHeight),
             columnHeight: Double(columnHeight),
             following: followCaret
         ))
@@ -314,6 +327,7 @@ struct EditorView: View {
                 }
             }
             .scrollContentBackground(.hidden)
+            .contentMargins(.bottom, overlap, for: .scrollContent)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background {
                 GeometryReader { geo in
@@ -328,6 +342,9 @@ struct EditorView: View {
             .onChange(of: slackAbove) { _, _ in
                 scrollCaret(proxy, follow: followCaret)
             }
+            .onChange(of: keyboardPad) { _, _ in
+                scrollCaret(proxy, follow: followCaret)
+            }
             .onChange(of: page.body) { _, _ in
                 scrollCaret(proxy, follow: followCaret)
             }
@@ -338,14 +355,28 @@ struct EditorView: View {
                     .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
                     .padding(.trailing, CGFloat(EditorLook.typeTrailing))
                     .padding(.bottom, CGFloat(KeyboardAvoidance.wordCountBottomPad(keyboardLift: lift)))
+                    .onGeometryChange(for: CGFloat.self) { proxy in
+                        proxy.size.height
+                    } action: { height in
+                        insetHeight = height
+                    }
             }
         }
         .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(
             guidePad: Double(keyboardPad),
             restingPad: Double(restingPad)
         )))
+        .onChange(of: focusMode) { _, on in
+            if !EditorSheetCopy.showsFooter(focus: on) { insetHeight = 0 }
+        }
         .ignoresSafeArea(.keyboard)
         .ignoresSafeArea(.container, edges: .bottom)
+        .background {
+            GeometryReader { geo in
+                Color.clear.preference(key: ContainerHeightKey.self, value: geo.size.height)
+            }
+        }
+        .onPreferenceChange(ContainerHeightKey.self) { containerHeight = $0 }
     }
 
     private func scrollCaret(_ proxy: ScrollViewProxy, follow: Bool) {
@@ -539,6 +570,13 @@ private struct FieldHeightKey: PreferenceKey {
 }
 
 private struct ColumnHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct ContainerHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()

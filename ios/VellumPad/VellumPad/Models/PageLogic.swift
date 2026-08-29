@@ -100,6 +100,8 @@ enum KeyboardChrome {
     static let caretClearanceInsideTarget = true
     /// Leftover under the last glyphs (TextEditor bottom pad). Not 34 / 120.
     static let leftoverPad = 8.0
+    /// Caret field follows the live layout guide, not a Mini-sized ScrollView.
+    static let caretUsesLiveGuide = true
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
@@ -119,6 +121,28 @@ enum KeyboardChrome {
     static func keyboardOnlyLift(guidePad: Double, restingPad: Double) -> Double {
         guard restingPad > 0 else { return 0 }
         return max(0, guidePad - restingPad)
+    }
+
+    /// Field above the hairline. Uses the live `keyboardLayoutGuide` pad
+    /// (same as the caption). A ScrollView measure can miss a taller phone
+    /// keyboard + suggestion bar and park the caret line under the count.
+    /// Unmeasured container → 0. Do not invent a 44pt inset.
+    static func caretVisibleHeight(
+        containerHeight: Double,
+        guidePad: Double,
+        restingPad: Double,
+        insetHeight: Double
+    ) -> Double {
+        guard containerHeight > 0 else { return 0 }
+        let pad = writingBottomPad(guidePad: guidePad, restingPad: restingPad)
+        return max(0, containerHeight - pad - max(0, insetHeight))
+    }
+
+    /// How far the ScrollView extends behind the hairline. `scrollTo(.bottom)`
+    /// on that extra parks glyphs under the count (phone 18).
+    static func caretScrollOverlap(fieldHeight: Double, visibleHeight: Double) -> Double {
+        guard fieldHeight > 0, visibleHeight > 0 else { return 0 }
+        return max(0, fieldHeight - visibleHeight)
     }
 
     /// Slack *under* the column is leftover empty paper (Mini 16–18:
