@@ -92,8 +92,13 @@ enum KeyboardChrome {
     static let caretFollowsWordCount = true
     static let pinsPageToBottom = false
     static let caretRoomEdge = "bottom"
-    /// Park the body on the inset. `floor` as the scroll target filled the field with paper.
+    /// Park the body on the inset. `floor` as the target filled the field with paper.
     static let caretScrollTarget = "body"
+    /// Build 16 sliced the caret line: clearance sat *after* `"body"`, so
+    /// `scrollTo("body")` still parked glyphs on the hairline. It lives inside
+    /// the body target — one ruling line box, not a guessed 34 / 120.
+    static let caretClearanceLines = 1.0
+    static let caretClearanceInsideTarget = true
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
@@ -121,6 +126,13 @@ enum KeyboardChrome {
     static func caretFloor(visibleHeight: Double, columnHeight: Double) -> Double {
         guard visibleHeight > 0, columnHeight > 0 else { return 0 }
         return max(0, visibleHeight - columnHeight)
+    }
+
+    /// One body line under the last glyphs so the hairline does not slice them.
+    /// Uses the ruling line box, not a guessed 34 / 120.
+    static func caretClearance(lineHeight: Double) -> Double {
+        guard lineHeight > 0 else { return 0 }
+        return lineHeight * caretClearanceLines
     }
 }
 

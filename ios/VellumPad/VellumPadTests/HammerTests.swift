@@ -192,6 +192,17 @@ final class HammerTests: XCTestCase {
         XCTAssertNotEqual(KeyboardChrome.caretRoomEdge, "top")
         XCTAssertEqual(KeyboardChrome.caretScrollTarget, "body")
         XCTAssertNotEqual(KeyboardChrome.caretScrollTarget, "floor")
+        XCTAssertTrue(KeyboardChrome.caretClearanceInsideTarget, "sibling after body is ignored by scrollTo")
+        XCTAssertEqual(KeyboardChrome.caretClearanceLines, 1.0)
+        XCTAssertEqual(
+            KeyboardChrome.caretClearance(lineHeight: PaperRuling.bodyLineHeight(bodyPoints: TypeSize.m.bodyPoints)),
+            PaperRuling.pitch
+        )
+        XCTAssertEqual(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), PaperRuling.pitch)
+        XCTAssertEqual(KeyboardChrome.caretClearance(lineHeight: 0), 0)
+        XCTAssertNotEqual(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), 34)
+        XCTAssertNotEqual(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), 120)
+        XCTAssertTrue(PaperRuling.sitsOnRule(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch)))
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 300), 100)
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 500), 0)
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 0), 0)

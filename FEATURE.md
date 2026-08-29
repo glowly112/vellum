@@ -1,14 +1,14 @@
 # Feature
-Job: Build 15 Mini sim — last line clipped under the title, ~308pt paper band to the count. scrollTo(floor) was wrong. Park the body on the inset. Bump to build 16.
-Non-goals: Guessing 34 / 120, pinning at rest, merging
-Touched: caretFloor(visible, column) + scrollTo(body) + unconstrained body measure + hammer + pbxproj build
-Reuse: Keyboard-only pad, caption on the keys, paper-full, Velin
-Risk: Clipping the body to one line; a floor that fills the field
-Done: Floor is slack under the measured column (0 if unmeasured). Scroll parks the body, not the floor. Closed origin stays. Build 16.
+Job: Build 16 phone — current line sliced by the word-count hairline. One extra body line inside the scroll target. Bump to build 17.
+Non-goals: Guessing 34 / 120, pinning at rest, merging, scrolling to the floor
+Touched: caretClearance(lineHeight) inside `"body"` + hammer + pbxproj build
+Reuse: Slack floor, scrollTo(body), caption on the keys, paper-full, Velin
+Risk: Clearance as a sibling after `"body"` (build 16 fail). A guessed pad.
+Done: One ruling line of room lives inside the body target so the caret line sits fully above the divider. Closed origin stays. Build 17.
 Not done: Mini / Simulator pixels on this worker. `keyboardOpenProven` stays false on Linux.
 Steps:
-1. Tests: floor is visible − column; unmeasured → 0; target is body, not floor
-2. Measure body beside the editor (not inside a 32pt frame). scrollTo("body")
+1. Tests: clearance == body line height; sits on a rule; not 34 / 120; still scrollTo(body); unmeasured floor is 0
+2. Extra Color.clear inside `.id("body")`. Height is `caretClearance(lineHeight)` only while following the caret.
 3. prove.sh — linux-hammer green
-Status: body-on-inset this turn. Editor-done stays false.
+Status: caret-above-hairline this turn. Editor-done stays false.
 Verified this turn: linux-hammer. No Simulator on this worker.

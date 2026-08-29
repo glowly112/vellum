@@ -166,8 +166,9 @@ struct EditorView: View {
     /// The whole editor is paper: under back / share / Focus / Aa, out to the
     /// screen edges, and behind / beside the keys. No desk-grain frame. Type
     /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
-    /// Extra room for the caret is under the body so it can travel to the
-    /// word-count. A top inset would shift origin. Not pinned to the bottom.
+    /// Extra room for the caret is *inside* the body scroll target so the
+    /// current line sits fully above the word-count hairline. A sibling after
+    /// `"body"` is ignored. A top inset would shift origin. Not pinned.
     private func writingColumn(
         page: Page,
         paper: Paper,
@@ -221,48 +222,58 @@ struct EditorView: View {
                     .onSubmit { field = .body }
                     .padding(.top, 12)
 
-                    ZStack(alignment: .topLeading) {
-                        Text(page.body.isEmpty ? " " : page.body)
-                            .font(VellumFonts.body(typeface, size: size))
-                            .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
-                            .padding(.top, 8)
-                            .padding(.bottom, 8)
-                            .frame(maxWidth: .infinity, alignment: .topLeading)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .opacity(0)
-                            .allowsHitTesting(false)
-                            .accessibilityHidden(true)
-                            .background {
-                                GeometryReader { geo in
-                                    Color.clear.preference(
-                                        key: BodyHeightKey.self,
-                                        value: geo.size.height
-                                    )
+                    VStack(spacing: 0) {
+                        ZStack(alignment: .topLeading) {
+                            Text(page.body.isEmpty ? " " : page.body)
+                                .font(VellumFonts.body(typeface, size: size))
+                                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                                .padding(.top, 8)
+                                .padding(.bottom, 8)
+                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .opacity(0)
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
+                                .background {
+                                    GeometryReader { geo in
+                                        Color.clear.preference(
+                                            key: BodyHeightKey.self,
+                                            value: geo.size.height
+                                        )
+                                    }
                                 }
-                            }
 
-                        TextEditor(text: bodyBinding(page))
-                            .font(VellumFonts.body(typeface, size: size))
-                            .foregroundStyle(ink.color)
-                            .tint(ink.color)
-                            .scrollContentBackground(.hidden)
-                            .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
-                            .contentMargins(.top, 0, for: .scrollContent)
-                            .textInputAutocapitalization(.sentences)
-                            .focused($field, equals: .body)
-                            .padding(.top, 8)
-                            .padding(.bottom, 8)
-                            .frame(maxWidth: .infinity, alignment: .topLeading)
-                            .frame(height: editorHeight)
-                            .overlay(alignment: .topLeading) {
-                                if page.body.isEmpty && field != .body {
-                                    Text("Begin writing…")
-                                        .font(VellumFonts.body(typeface, size: size))
-                                        .foregroundStyle(ink.color.opacity(0.38))
-                                        .padding(.top, 16)
-                                        .allowsHitTesting(false)
+                            TextEditor(text: bodyBinding(page))
+                                .font(VellumFonts.body(typeface, size: size))
+                                .foregroundStyle(ink.color)
+                                .tint(ink.color)
+                                .scrollContentBackground(.hidden)
+                                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                                .contentMargins(.top, 0, for: .scrollContent)
+                                .textInputAutocapitalization(.sentences)
+                                .focused($field, equals: .body)
+                                .padding(.top, 8)
+                                .padding(.bottom, 8)
+                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                                .frame(height: editorHeight)
+                                .overlay(alignment: .topLeading) {
+                                    if page.body.isEmpty && field != .body {
+                                        Text("Begin writing…")
+                                            .font(VellumFonts.body(typeface, size: size))
+                                            .foregroundStyle(ink.color.opacity(0.38))
+                                            .padding(.top, 16)
+                                            .allowsHitTesting(false)
+                                    }
                                 }
-                            }
+                        }
+                        // One body line *inside* the scroll target. A sibling
+                        // after `.id("body")` is ignored by scrollTo("body").
+                        Color.clear
+                            .frame(height: followCaret
+                                ? CGFloat(KeyboardChrome.caretClearance(lineHeight: Double(lineHeight)))
+                                : 0)
+                            .accessibilityHidden(true)
+                            .allowsHitTesting(false)
                     }
                     .id("body")
                     }

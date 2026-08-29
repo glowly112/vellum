@@ -234,6 +234,18 @@ enum LinuxHammer {
         expect(KeyboardChrome.caretRoomEdge != "top", "E5 a top inset would shift origin")
         expect(KeyboardChrome.caretScrollTarget == "body", "E5 scroll parks the body, not the floor")
         expect(KeyboardChrome.caretScrollTarget != "floor", "E5 scrollTo(floor) tucked the last line under the title")
+        expect(KeyboardChrome.caretClearanceInsideTarget, "E5 clearance lives inside the body target")
+        expect(KeyboardChrome.caretClearanceLines == 1.0, "E5 one extra body line above the hairline")
+        expect(
+            KeyboardChrome.caretClearance(lineHeight: PaperRuling.bodyLineHeight(bodyPoints: TypeSize.m.bodyPoints))
+                == PaperRuling.pitch,
+            "E5 clearance is the ruling line box"
+        )
+        expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) == PaperRuling.pitch, "E5 clearance equals line height")
+        expect(KeyboardChrome.caretClearance(lineHeight: 0) == 0, "E5 no clearance without a line height")
+        expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) != 34, "E5 clearance is not a 34 guess")
+        expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) != 120, "E5 clearance is not a 120 guess")
+        expect(PaperRuling.sitsOnRule(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch)), "E5 clearance sits on a rule")
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 300) == 100, "E5 floor is slack under the column")
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 500) == 0, "E5 no floor when the column is taller than the field")
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 0) == 0, "E5 unmeasured column does not fill the field")
