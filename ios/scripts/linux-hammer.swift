@@ -150,6 +150,19 @@ enum LinuxHammer {
         expect(DeleteDecision.shouldDelete(confirmed: false) == false, "delete cancel")
         expect(DeleteDecision.shouldDelete(confirmed: true) == true, "delete confirm")
 
+        expect(DebugOpenFirst.environmentKey == "VELLUM_OPEN_FIRST", "debug open-first env key")
+        expect(!DebugOpenFirst.shouldOpenFirstPage(environment: [:], debugBuild: true), "debug open-first off without env")
+        expect(
+            DebugOpenFirst.shouldOpenFirstPage(environment: ["VELLUM_OPEN_FIRST": "1"], debugBuild: true),
+            "debug open-first on when env is 1"
+        )
+        expect(
+            !DebugOpenFirst.shouldOpenFirstPage(environment: ["VELLUM_OPEN_FIRST": "1"], debugBuild: false),
+            "release ignores VELLUM_OPEN_FIRST"
+        )
+        expect(DebugOpenFirst.pageToOpen(from: [1, 2]) == 1, "debug open-first takes the first page")
+        expect(DebugOpenFirst.pageToOpen(from: [Int]()) == nil, "debug open-first no-ops on empty desk")
+
         expect(PagePlainText.fileName(title: "", body: "") == "Untitled page.txt", "share untitled filename")
         expect(PagePlainText.fileName(title: "UI/UX", body: "") == "UI-UX.txt", "share sanitizes slash")
         expect(PagePlainText.contents(title: "Title", body: "Body") == "Title\n\nBody", "share txt body")

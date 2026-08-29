@@ -4,6 +4,14 @@ Linux worker. No iOS Simulator. No screenshots invented. A Mini `xcodebuild` gen
 
 Library and editor sheet logic was run this turn (`linux-hammer`). Simulator pixels still need Jamie’s Mini.
 
+**Editor pixels without a tap** (Debug only; Release ignores this). After a Debug install:
+
+```
+xcrun simctl launch --setenv VELLUM_OPEN_FIRST=1 <UDID> com.jamiematheson.vellumpad
+```
+
+The library appears, then the first page is pushed onto the `NavigationStack` so `EditorView` shows immediately. Do not ship this in Release (`#if DEBUG`).
+
 These still need a phone-width watch:
 
 1. **KB_COVER (editor).** `TextEditor` fills the column. Word-count is a `safeAreaInset` in the **system** keyboard safe area (no 34pt / 120pt guess). Not watched with a keyboard up.

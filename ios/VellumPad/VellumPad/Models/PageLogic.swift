@@ -158,6 +158,29 @@ struct EditorFooter: Equatable, Sendable {
     var placement: String
 }
 
+/// Debug-only launch: `VELLUM_OPEN_FIRST=1` pushes the first page so Mini
+/// can photograph the editor without a tap. Release always returns false.
+enum DebugOpenFirst {
+    static let environmentKey = "VELLUM_OPEN_FIRST"
+
+    #if DEBUG
+    static let compileGateEnabled = true
+    #else
+    static let compileGateEnabled = false
+    #endif
+
+    static func shouldOpenFirstPage(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        debugBuild: Bool = compileGateEnabled
+    ) -> Bool {
+        debugBuild && environment[environmentKey] == "1"
+    }
+
+    static func pageToOpen<ID>(from ids: [ID]) -> ID? {
+        ids.first
+    }
+}
+
 enum EditorSheetCopy {
     static func footer(wordCount: Int, paper: Paper, typeface: Typeface) -> EditorFooter {
         let noun = wordCount == 1 ? "word" : "words"

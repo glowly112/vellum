@@ -52,8 +52,25 @@ struct LibraryView: View {
             .onChange(of: path.count) { _, _ in
                 composeLock = false
             }
+            #if DEBUG
+            .onAppear {
+                openFirstPageIfRequested()
+            }
+            .onChange(of: pages.count) { _, _ in
+                openFirstPageIfRequested()
+            }
+            #endif
         }
     }
+
+    #if DEBUG
+    private func openFirstPageIfRequested() {
+        guard DebugOpenFirst.shouldOpenFirstPage() else { return }
+        guard path.isEmpty else { return }
+        guard let id = DebugOpenFirst.pageToOpen(from: pages.map(\.pageID)) else { return }
+        path.append(id)
+    }
+    #endif
 
     private var subtitle: String {
         let count = pages.count

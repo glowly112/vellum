@@ -205,6 +205,19 @@ final class HammerTests: XCTestCase {
         XCTAssertTrue(DeleteDecision.shouldDelete(confirmed: true))
     }
 
+    func testDebugOpenFirstIsDebugOnlyAndReadsEnv() {
+        XCTAssertEqual(DebugOpenFirst.environmentKey, "VELLUM_OPEN_FIRST")
+        XCTAssertFalse(DebugOpenFirst.shouldOpenFirstPage(environment: [:], debugBuild: true))
+        XCTAssertTrue(DebugOpenFirst.shouldOpenFirstPage(environment: ["VELLUM_OPEN_FIRST": "1"], debugBuild: true))
+        XCTAssertFalse(
+            DebugOpenFirst.shouldOpenFirstPage(environment: ["VELLUM_OPEN_FIRST": "1"], debugBuild: false),
+            "Release must ignore the env flag"
+        )
+        let id = UUID(uuidString: "A11CE001-0000-4000-8000-000000000001")!
+        XCTAssertEqual(DebugOpenFirst.pageToOpen(from: [id]), id)
+        XCTAssertNil(DebugOpenFirst.pageToOpen(from: [UUID]()))
+    }
+
     func testShareTxtUsesUntitledWhenEmpty() {
         XCTAssertEqual(PagePlainText.fileName(title: "", body: ""), "Untitled page.txt")
         XCTAssertEqual(PagePlainText.fileName(title: "UI/UX", body: ""), "UI-UX.txt")

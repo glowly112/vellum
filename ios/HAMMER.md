@@ -41,3 +41,4 @@ Logic in `EditorLook` / `EditorSheetCopy` / `PaperGrain.seed(forToken:)`.
 | 4 | Chrome | System back, system `.sheet`, `textformat` — not a circular web back or custom T. |
 | 5 | KB_COVER | No guessed pad. Body is `text-editor`. Style last section is **Size**. |
 | 6 | Desk grain | `PaperGrain.seed(forToken: "desk")` is unsigned and not the cream paper seed. |
+| 7 | Debug open-first | `VELLUM_OPEN_FIRST=1` opens the first page in Debug only. Release ignores the env. |
