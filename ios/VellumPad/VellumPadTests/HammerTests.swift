@@ -188,6 +188,8 @@ final class HammerTests: XCTestCase {
         XCTAssertNotEqual(EditorLook.minimumHit, 0)
         XCTAssertTrue(KeyboardChrome.caretFollowsWordCount)
         XCTAssertFalse(KeyboardChrome.pinsPageToBottom)
+        XCTAssertEqual(KeyboardChrome.caretRoomEdge, "bottom")
+        XCTAssertNotEqual(KeyboardChrome.caretRoomEdge, "top")
         XCTAssertEqual(KeyboardChrome.caretScrollPad(visibleHeight: 280, lineHeight: 32), 248)
         XCTAssertEqual(KeyboardChrome.caretScrollPad(visibleHeight: 32, lineHeight: 32), 0)
         XCTAssertEqual(KeyboardChrome.caretScrollPad(visibleHeight: 0, lineHeight: 32), 0)

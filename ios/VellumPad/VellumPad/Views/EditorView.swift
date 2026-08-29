@@ -15,6 +15,8 @@ struct EditorView: View {
     @State private var styleDetent: PresentationDetent = .medium
     @State private var keyboardPad: CGFloat = 0
     @State private var restingPad: CGFloat = 0
+    @State private var bodyHeight: CGFloat = 0
+    @State private var fieldHeight: CGFloat = 0
     @FocusState private var field: Field?
 
     private enum Field: Hashable {
@@ -163,8 +165,8 @@ struct EditorView: View {
     /// The whole editor is paper: under back / share / Focus / Aa, out to the
     /// screen edges, and behind / beside the keys. No desk-grain frame. Type
     /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
-    /// Bottom pad follows the keyboard layout guide so text travels with the
-    /// keys instead of jumping at animation start.
+    /// Extra room for the caret is under the body so it can travel to the
+    /// word-count. A top inset would shift origin. Not pinned to the bottom.
     private func writingColumn(
         page: Page,
         paper: Paper,
@@ -173,80 +175,126 @@ struct EditorView: View {
         size: TypeSize,
         footer: EditorFooter
     ) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(PageCopy.longDate(page.createdAt))
-                .font(VellumFonts.ui(.caption2, weight: .medium))
-                .tracking(1.6)
-                .foregroundStyle(ink.color.opacity(0.40))
-                .padding(.top, focusMode ? 4 : CGFloat(EditorLook.dateTop))
+        let lift = KeyboardChrome.keyboardOnlyLift(
+            guidePad: Double(keyboardPad),
+            restingPad: Double(restingPad)
+        )
+        let followCaret = field == .body && lift > 0
+        let lineHeight = CGFloat(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints))
+        let floor = followCaret
+            ? CGFloat(KeyboardChrome.caretScrollPad(visibleHeight: Double(fieldHeight), lineHeight: Double(lineHeight)))
+            : 0
+        let editorHeight = page.body.isEmpty
+            ? CGFloat(EditorLook.bodyMinHeight)
+            : max(bodyHeight, lineHeight)
 
-            TextField(
-                "Title",
-                text: titleBinding(page),
-                prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
-                axis: .vertical
-            )
-            .font(VellumFonts.title(typeface, size: size))
-            .foregroundStyle(ink.color)
-            .tint(ink.color)
-            .lineSpacing(rulingSpacing(typeface: typeface, points: size.titlePoints, pitches: PaperRuling.titlePitches))
-            .textInputAutocapitalization(.sentences)
-            .submitLabel(.next)
-            .focused($field, equals: .title)
-            .onSubmit { field = .body }
-            .padding(.top, 12)
+        return ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(PageCopy.longDate(page.createdAt))
+                        .font(VellumFonts.ui(.caption2, weight: .medium))
+                        .tracking(1.6)
+                        .foregroundStyle(ink.color.opacity(0.40))
+                        .padding(.top, focusMode ? 4 : CGFloat(EditorLook.dateTop))
+                        .id("page-top")
 
-            TextEditor(text: bodyBinding(page))
-                .font(VellumFonts.body(typeface, size: size))
-                .foregroundStyle(ink.color)
-                .tint(ink.color)
-                .scrollContentBackground(.hidden)
-                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
-                .contentMargins(.top, 0, for: .scrollContent)
-                .textInputAutocapitalization(.sentences)
-                .focused($field, equals: .body)
-                .padding(.top, 8)
-                .padding(.bottom, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .frame(minHeight: CGFloat(EditorLook.bodyMinHeight))
-                .background {
-                    let lift = KeyboardChrome.keyboardOnlyLift(
-                        guidePad: Double(keyboardPad),
-                        restingPad: Double(restingPad)
+                    TextField(
+                        "Title",
+                        text: titleBinding(page),
+                        prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
+                        axis: .vertical
                     )
-                    CaretFollowsWordCount(
-                        lineHeight: CGFloat(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints)),
-                        active: field == .body && lift > 0
-                    )
+                    .font(VellumFonts.title(typeface, size: size))
+                    .foregroundStyle(ink.color)
+                    .tint(ink.color)
+                    .lineSpacing(rulingSpacing(typeface: typeface, points: size.titlePoints, pitches: PaperRuling.titlePitches))
+                    .textInputAutocapitalization(.sentences)
+                    .submitLabel(.next)
+                    .focused($field, equals: .title)
+                    .onSubmit { field = .body }
+                    .padding(.top, 12)
+
+                    TextEditor(text: bodyBinding(page))
+                        .font(VellumFonts.body(typeface, size: size))
+                        .foregroundStyle(ink.color)
+                        .tint(ink.color)
+                        .scrollContentBackground(.hidden)
+                        .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                        .contentMargins(.top, 0, for: .scrollContent)
+                        .textInputAutocapitalization(.sentences)
+                        .focused($field, equals: .body)
+                        .padding(.top, 8)
+                        .padding(.bottom, 8)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                        .frame(height: editorHeight)
+                        .background(alignment: .top) {
+                            Text(page.body.isEmpty ? " " : page.body)
+                                .font(VellumFonts.body(typeface, size: size))
+                                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                                .padding(.top, 8)
+                                .padding(.bottom, 8)
+                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .opacity(0)
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
+                                .background {
+                                    GeometryReader { geo in
+                                        Color.clear.preference(
+                                            key: BodyHeightKey.self,
+                                            value: geo.size.height
+                                        )
+                                    }
+                                }
+                        }
+                        .overlay(alignment: .topLeading) {
+                            if page.body.isEmpty && field != .body {
+                                Text("Begin writing…")
+                                    .font(VellumFonts.body(typeface, size: size))
+                                    .foregroundStyle(ink.color.opacity(0.38))
+                                    .padding(.top, 16)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+
+                    Color.clear
+                        .frame(height: floor)
+                        .id("caret-floor")
                 }
-                .overlay(alignment: .topLeading) {
-                    if page.body.isEmpty && field != .body {
-                        Text("Begin writing…")
-                            .font(VellumFonts.body(typeface, size: size))
-                            .foregroundStyle(ink.color.opacity(0.38))
-                            .padding(.top, 16)
-                            .allowsHitTesting(false)
+                .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
+                .padding(.trailing, CGFloat(EditorLook.typeTrailing))
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .background {
+                    if paper.ruling != .none {
+                        PaperBackdrop(
+                            paper: paper,
+                            ruleOffset: CGFloat(PaperRuling.firstRuleOffset),
+                            drawsFill: false
+                        )
                     }
                 }
-        }
-        .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
-        .padding(.trailing, CGFloat(EditorLook.typeTrailing))
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background {
-            if paper.ruling != .none {
-                PaperBackdrop(
-                    paper: paper,
-                    ruleOffset: CGFloat(PaperRuling.firstRuleOffset),
-                    drawsFill: false
-                )
+            }
+            .scrollContentBackground(.hidden)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                GeometryReader { geo in
+                    Color.clear.preference(key: FieldHeightKey.self, value: geo.size.height)
+                }
+            }
+            .onPreferenceChange(BodyHeightKey.self) { bodyHeight = $0 }
+            .onPreferenceChange(FieldHeightKey.self) { fieldHeight = $0 }
+            .onChange(of: followCaret) { _, on in
+                scrollCaret(proxy, follow: on)
+            }
+            .onChange(of: floor) { _, _ in
+                scrollCaret(proxy, follow: followCaret)
+            }
+            .onChange(of: page.body) { _, _ in
+                scrollCaret(proxy, follow: followCaret)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if EditorSheetCopy.showsFooter(focus: focusMode) {
-                let lift = KeyboardChrome.keyboardOnlyLift(
-                    guidePad: Double(keyboardPad),
-                    restingPad: Double(restingPad)
-                )
                 wordCountInset(footer: footer, ink: ink)
                     .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
                     .padding(.trailing, CGFloat(EditorLook.typeTrailing))
@@ -259,6 +307,16 @@ struct EditorView: View {
         )))
         .ignoresSafeArea(.keyboard)
         .ignoresSafeArea(.container, edges: .bottom)
+    }
+
+    private func scrollCaret(_ proxy: ScrollViewProxy, follow: Bool) {
+        DispatchQueue.main.async {
+            if follow {
+                proxy.scrollTo("caret-floor", anchor: .bottom)
+            } else {
+                proxy.scrollTo("page-top", anchor: .top)
+            }
+        }
     }
 
     /// Extra `lineSpacing` so the line box equals `pitch * pitches` (UIFont when we have it).
@@ -434,107 +492,16 @@ private final class KeyboardPadUIView: UIView {
     }
 }
 
-/// When the keyboard is open and the body is focused, the caret line sits
-/// just above the word-count. Short pages stay at the locked origin until then.
-/// Does not pin the page to the bottom. Not a guessed 34 / 120.
-private struct CaretFollowsWordCount: UIViewRepresentable {
-    var lineHeight: CGFloat
-    var active: Bool
-
-    func makeUIView(context: Context) -> CaretFollowView {
-        let view = CaretFollowView()
-        view.isUserInteractionEnabled = false
-        view.backgroundColor = .clear
-        view.lineHeight = lineHeight
-        view.active = active
-        return view
-    }
-
-    func updateUIView(_ uiView: CaretFollowView, context: Context) {
-        uiView.lineHeight = lineHeight
-        uiView.active = active
-        uiView.apply()
+private struct BodyHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 
-private final class CaretFollowView: UIView {
-    var lineHeight: CGFloat = 32
-    var active = false
-
-    override func didMoveToWindow() {
-        super.didMoveToWindow()
-        apply()
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        apply()
-    }
-
-    func apply() {
-        guard window != nil else { return }
-        guard let textView = nearestTextView() else { return }
-        textView.contentInsetAdjustmentBehavior = .never
-
-        if !active {
-            if textView.contentInset.top != 0 || textView.contentOffset != .zero {
-                textView.contentInset = .zero
-                textView.verticalScrollIndicatorInsets = .zero
-                textView.setContentOffset(.zero, animated: false)
-            }
-            return
-        }
-
-        let visible = bounds.height > 1 ? bounds.height : textView.bounds.height
-        let pad = CGFloat(
-            KeyboardChrome.caretScrollPad(visibleHeight: Double(visible), lineHeight: Double(lineHeight))
-        )
-        if abs(textView.contentInset.top - pad) > 0.5 {
-            var inset = textView.contentInset
-            inset.top = pad
-            inset.bottom = 0
-            textView.contentInset = inset
-            textView.verticalScrollIndicatorInsets.top = pad
-        }
-        scrollCaretToWordCount(in: textView)
-    }
-
-    private func scrollCaretToWordCount(in textView: UITextView) {
-        let caret: CGRect
-        if let range = textView.selectedTextRange {
-            caret = textView.caretRect(for: range.end)
-        } else {
-            caret = textView.caretRect(for: textView.endOfDocument)
-        }
-        guard !caret.isNull, caret.maxY.isFinite else { return }
-        let height = textView.bounds.height
-        guard height > 0 else { return }
-        let desired = caret.maxY - height + lineHeight
-        let minOffset = -textView.adjustedContentInset.top
-        let maxOffset = max(
-            minOffset,
-            textView.contentSize.height + textView.adjustedContentInset.bottom - height
-        )
-        let y = min(max(desired, minOffset), maxOffset)
-        if abs(textView.contentOffset.y - y) > 0.5 {
-            textView.setContentOffset(CGPoint(x: 0, y: y), animated: false)
-        }
-    }
-
-    private func nearestTextView() -> UITextView? {
-        var ancestor: UIView? = superview
-        while let view = ancestor {
-            if let found = findTextView(in: view) { return found }
-            ancestor = view.superview
-        }
-        return nil
-    }
-
-    private func findTextView(in view: UIView) -> UITextView? {
-        if let textView = view as? UITextView { return textView }
-        for child in view.subviews {
-            if let found = findTextView(in: child) { return found }
-        }
-        return nil
+private struct FieldHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }

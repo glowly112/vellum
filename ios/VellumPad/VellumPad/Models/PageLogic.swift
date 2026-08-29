@@ -87,9 +87,11 @@ enum KeyboardChrome {
     /// Open pad is guide minus resting. Full guide is one home-indicator too tall.
     static let openPadIsKeyboardOnly = true
     /// Keyboard open: caret / last line sits on the word-count, like Notes.
+    /// Extra room is under the body (not a top inset — that shifts origin).
     /// Not pinning the page to the bottom. Origin stays 24 / 56 / 24, date top 8.
     static let caretFollowsWordCount = true
     static let pinsPageToBottom = false
+    static let caretRoomEdge = "bottom"
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {

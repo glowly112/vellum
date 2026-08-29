@@ -230,6 +230,8 @@ enum LinuxHammer {
         expect(!KeyboardChrome.wordCountUsesMinimumHit, "E5 44pt minHeight was the paper band")
         expect(KeyboardChrome.caretFollowsWordCount, "E5 caret sits just above the word-count")
         expect(!KeyboardChrome.pinsPageToBottom, "E5 short pages are not pinned to the bottom")
+        expect(KeyboardChrome.caretRoomEdge == "bottom", "E5 extra room is under the body, not a top inset")
+        expect(KeyboardChrome.caretRoomEdge != "top", "E5 a top inset would shift origin")
         expect(KeyboardChrome.caretScrollPad(visibleHeight: 280, lineHeight: 32) == 248, "E5 caret pad is visible minus one line")
         expect(KeyboardChrome.caretScrollPad(visibleHeight: 32, lineHeight: 32) == 0, "E5 no caret pad when the field is one line")
         expect(EditorLook.typeLeading == 24 && EditorLook.dateTop == 8, "E5 type origin stays locked")
