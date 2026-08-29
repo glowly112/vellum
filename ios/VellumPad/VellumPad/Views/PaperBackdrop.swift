@@ -76,6 +76,40 @@ struct PaperBackdrop: View {
     }
 }
 
+/// Grain desk behind the editor sheet. Not a paper fill; not `UInt64(hashValue)`.
+struct DeskBackdrop: View {
+    var body: some View {
+        Canvas { context, size in
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(VellumPalette.desk))
+
+            let fibre = VellumPalette.ink.opacity(0.03)
+            var x: CGFloat = 0
+            while x < size.width + size.height {
+                var path = Path()
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x - size.height * 0.08, y: size.height))
+                context.stroke(path, with: .color(fibre), lineWidth: 1)
+                x += 18
+            }
+
+            if size.width > 0, size.height > 0 {
+                var rng = SeededRandom(seed: PaperGrain.seed(forToken: "desk"))
+                let count = Int((size.width * size.height) / 110)
+                for _ in 0..<min(count, 900) {
+                    let px = CGFloat(rng.next()) * size.width
+                    let py = CGFloat(rng.next()) * size.height
+                    let rect = CGRect(x: px, y: py, width: 1.1, height: 1.1)
+                    context.fill(
+                        Path(ellipseIn: rect),
+                        with: .color(VellumPalette.ink.opacity(0.055 * rng.next()))
+                    )
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
 /// Tiny deterministic RNG so grain does not shimmer on every redraw.
 private struct SeededRandom {
     private var state: UInt64

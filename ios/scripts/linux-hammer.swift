@@ -117,6 +117,36 @@ enum LinuxHammer {
             if seed == 0 || !grainSeen.insert(seed).inserted { grainOK = false }
         }
         expect(grainOK, "7 paper grain seed is unsigned and distinct")
+
+        expect(EditorLook.surfaceKind == "sheet-on-desk", "E1 editor is sheet on desk")
+        expect(EditorLook.surfaceKind != "full-bleed-notes", "E1 forbid full-bleed Notes")
+        expect(EditorLook.deskInset > 0 && EditorLook.cornerRadius >= 12, "E1 sheet is inset and rounded")
+        expect(EditorLook.wrap == "native", "E1 not a web wrap")
+
+        let editorFooter = EditorSheetCopy.footer(wordCount: 66, paper: .cream, typeface: .book)
+        expect(editorFooter.words == "66 words", "E2 footer word count")
+        expect(editorFooter.style == "Cream · Book", "E2 footer Cream · Book")
+        expect(editorFooter.placement == "on-sheet", "E2 footer lives on the paper")
+        expect(EditorSheetCopy.showsFooter(focus: false), "E3 footer shows when not focused")
+        expect(!EditorSheetCopy.showsFooter(focus: true), "E3 focus hides footer")
+
+        expect(EditorLook.backKind == "system", "E4 system back")
+        expect(EditorLook.focusKind == "system-toolbar", "E4 toolbar Focus")
+        expect(EditorLook.stylesKind == "system-sheet", "E4 styles is system .sheet")
+        expect(EditorLook.stylesSystemImage == "textformat", "E4 system textformat not custom T")
+        expect(EditorLook.backKind != "circular-web", "E4 forbid circular web back")
+
+        expect(KeyboardAvoidance.guessedBottomPoints == nil, "E5 KB_COVER no guessed pad")
+        expect(EditorLook.guessedKeyboardPad == nil, "E5 editor has no guessed keyboard pad")
+        expect(EditorLook.bodyKind == "text-editor", "E5 body is TextEditor")
+        expect(EditorLook.bodyKind != "nested-scrollview", "E5 forbid nested ScrollView")
+        expect(StyleSheetLayout.sections.last == "Size", "E5 style last section reachable")
+        expect(EditorSheetCopy.footer(wordCount: 1, paper: .ruled, typeface: .book).words == "1 word", "E5 singular word")
+
+        let deskSeed = PaperGrain.seed(forToken: "desk")
+        expect(deskSeed != 0, "E6 desk grain seed is unsigned and non-zero")
+        expect(deskSeed != PaperGrain.seed(for: .cream), "E6 desk seed is not cream paper")
+
         expect(DeleteDecision.shouldDelete(confirmed: false) == false, "delete cancel")
         expect(DeleteDecision.shouldDelete(confirmed: true) == true, "delete confirm")
 

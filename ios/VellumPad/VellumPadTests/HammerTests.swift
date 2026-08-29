@@ -59,6 +59,41 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(HitTarget.minimum, 44)
     }
 
+    func testEditorIsSheetOnDeskNotFullBleedNotes() {
+        XCTAssertEqual(EditorLook.surfaceKind, "sheet-on-desk")
+        XCTAssertNotEqual(EditorLook.surfaceKind, "full-bleed-notes")
+        XCTAssertGreaterThan(EditorLook.deskInset, 0)
+        XCTAssertGreaterThanOrEqual(EditorLook.cornerRadius, 12)
+        XCTAssertEqual(EditorLook.wrap, "native")
+    }
+
+    func testEditorFooterCopySitsOnTheSheet() {
+        let footer = EditorSheetCopy.footer(wordCount: 66, paper: .cream, typeface: .book)
+        XCTAssertEqual(footer.words, "66 words")
+        XCTAssertEqual(footer.style, "Cream · Book")
+        XCTAssertEqual(footer.placement, "on-sheet")
+        XCTAssertTrue(EditorSheetCopy.showsFooter(focus: false))
+        XCTAssertFalse(EditorSheetCopy.showsFooter(focus: true))
+    }
+
+    func testEditorChromeIsSystemNotWebPills() {
+        XCTAssertEqual(EditorLook.backKind, "system")
+        XCTAssertEqual(EditorLook.focusKind, "system-toolbar")
+        XCTAssertEqual(EditorLook.stylesKind, "system-sheet")
+        XCTAssertEqual(EditorLook.stylesSystemImage, "textformat")
+        XCTAssertNotEqual(EditorLook.stylesSystemImage, "custom-T")
+        XCTAssertNotEqual(EditorLook.backKind, "circular-web")
+    }
+
+    func testEditorKeyboardCoverKeepsCaretAndLastSection() {
+        XCTAssertNil(KeyboardAvoidance.guessedBottomPoints)
+        XCTAssertNil(EditorLook.guessedKeyboardPad)
+        XCTAssertEqual(EditorLook.bodyKind, "text-editor")
+        XCTAssertNotEqual(EditorLook.bodyKind, "nested-scrollview")
+        XCTAssertEqual(StyleSheetLayout.sections.last, "Size")
+        XCTAssertEqual(EditorSheetCopy.footer(wordCount: 1, paper: .ruled, typeface: .book).words, "1 word")
+    }
+
     func testLibraryEmptyDeskHasNoSheets() {
         let sheets = LibrarySheetCopy.sheets(pages: [], query: "", now: now)
         XCTAssertTrue(sheets.isEmpty)
@@ -137,6 +172,9 @@ final class HammerTests: XCTestCase {
             XCTAssertNotEqual(seed, 0, paper.rawValue)
             XCTAssertTrue(seen.insert(seed).inserted, paper.rawValue)
         }
+        let desk = PaperGrain.seed(forToken: "desk")
+        XCTAssertNotEqual(desk, 0)
+        XCTAssertTrue(seen.insert(desk).inserted)
     }
 
     func testCatalogueTypefacesUseOFLFamilyNames() {

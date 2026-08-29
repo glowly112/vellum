@@ -11,7 +11,7 @@ This Linux worker cannot run that. Logic cases are `VellumPadTests/HammerTests.s
 | 3 | Double tap compose | Second tap within 0.8s on a still-blank page opens the same page. |
 | 4 | First-run samples | Empty store + first launch seeds three sample pages. Later empty desk is empty. |
 | 5 | Empty search | “Nothing matches” + Clear search + Start a page. |
-| 6 | Keyboard cover | Editor uses `TextEditor` (not a nested `ScrollView`). Word-count is a `safeAreaInset` in the system keyboard safe area — no guessed 34pt/120pt. Opening Page dismisses the keyboard. Style sheet last row is **Size**. Fail if `KB_COVER`. |
+| 6 | Keyboard cover | Editor uses `TextEditor` (not a nested `ScrollView`). Footer sits on the sheet (no guessed 34pt/120pt). Opening Page dismisses the keyboard. Style sheet last row is **Size**. Fail if `KB_COVER`. |
 | 7 | Delete confirm | Cancel leaves the page. Confirm deletes and pops. |
 | 8 | Share `.txt` | System share sheet. Empty title → `Untitled page.txt`. |
 
@@ -28,3 +28,16 @@ Logic in `LibrarySheetCopy` / `LibraryEmpty` / `PaperGrain`. Run: `ios/scripts/p
 | 5 | Compose | System `square.and.pencil`, prompt **Search pages**. Fail a custom `+ New page` pill. Greeting family is Fraunces. |
 | 6 | Paper / type | Sage + Hand sheet carries those, face **Hand**, footer `N words · Sage`, Caveat family. |
 | 7 | Grain seed | `PaperGrain.seed` is unsigned and distinct per paper. Fail `UInt64(hashValue)`. |
+
+## Editor sheet on desk (this turn, 6)
+
+Logic in `EditorLook` / `EditorSheetCopy` / `PaperGrain.seed(forToken:)`.
+
+| # | Case | What must happen |
+| --- | --- | --- |
+| 1 | Sheet on desk | `sheet-on-desk`, inset + rounded. Fail `full-bleed-notes`. Fail a web wrap. |
+| 2 | Footer copy | `66 words` and `Cream · Book` live **on-sheet**. |
+| 3 | Focus | Footer hides in focus. Toolbar Focus / styles stay system. |
+| 4 | Chrome | System back, system `.sheet`, `textformat` — not a circular web back or custom T. |
+| 5 | KB_COVER | No guessed pad. Body is `text-editor`. Style last section is **Size**. |
+| 6 | Desk grain | `PaperGrain.seed(forToken: "desk")` is unsigned and not the cream paper seed. |

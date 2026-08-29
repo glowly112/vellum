@@ -138,12 +138,49 @@ enum LibraryEmpty {
     }
 }
 
+/// Editor merge: the page is a sheet on the desk; chrome stays system iOS 26.
+enum EditorLook {
+    static let surfaceKind = "sheet-on-desk"
+    static let wrap = "native"
+    static let backKind = "system"
+    static let focusKind = "system-toolbar"
+    static let stylesKind = "system-sheet"
+    static let stylesSystemImage = "textformat"
+    static let bodyKind = "text-editor"
+    static let cornerRadius: Double = 16
+    static let deskInset: Double = 12
+    static let guessedKeyboardPad: Double? = nil
+}
+
+struct EditorFooter: Equatable, Sendable {
+    var words: String
+    var style: String
+    var placement: String
+}
+
+enum EditorSheetCopy {
+    static func footer(wordCount: Int, paper: Paper, typeface: Typeface) -> EditorFooter {
+        let noun = wordCount == 1 ? "word" : "words"
+        return EditorFooter(
+            words: "\(wordCount) \(noun)",
+            style: "\(paper.name) · \(typeface.name)",
+            placement: "on-sheet"
+        )
+    }
+
+    static func showsFooter(focus: Bool) -> Bool { !focus }
+}
+
 /// Stable grain seed. Do not use `UInt64(hashValue)` — `hashValue` is a signed
 /// `Int` and traps (`Negative value is not representable`) on a negative seed.
 enum PaperGrain {
     static func seed(for paper: Paper) -> UInt64 {
+        seed(forToken: paper.rawValue)
+    }
+
+    static func seed(forToken token: String) -> UInt64 {
         var hash: UInt64 = 0xcbf2_9ce4_8422_2325
-        for byte in paper.rawValue.utf8 {
+        for byte in token.utf8 {
             hash ^= UInt64(byte)
             hash &*= 0x0100_0000_01b3
         }

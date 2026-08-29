@@ -42,73 +42,107 @@ struct EditorView: View {
         let typeface = page.typeface
         let size = page.typeSize
         let editing = field != nil
+        let footer = EditorSheetCopy.footer(
+            wordCount: page.words,
+            paper: paper,
+            typeface: typeface
+        )
 
-        return VStack(alignment: .leading, spacing: 0) {
-            if focusMode {
-                Color.clear
-                    .frame(height: 28)
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture { focusMode = false }
-                    .accessibilityLabel("Exit focus")
-                    .accessibilityAddTraits(.isButton)
-            }
+        return ZStack {
+            DeskBackdrop()
+                .ignoresSafeArea(.container)
 
-            Text(PageCopy.longDate(page.createdAt))
-                .font(VellumFonts.ui(.caption2, weight: .medium))
-                .tracking(1.6)
-                .foregroundStyle(ink.color.opacity(0.40))
-                .padding(.top, focusMode ? 4 : 8)
+            VStack(spacing: 0) {
+                if focusMode {
+                    Color.clear
+                        .frame(height: 28)
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
+                        .onTapGesture { focusMode = false }
+                        .accessibilityLabel("Exit focus")
+                        .accessibilityAddTraits(.isButton)
+                }
 
-            TextField(
-                "Title",
-                text: titleBinding(page),
-                prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
-                axis: .vertical
-            )
-            .font(VellumFonts.title(typeface, size: size))
-            .foregroundStyle(ink.color)
-            .tint(ink.color)
-            .textInputAutocapitalization(.sentences)
-            .submitLabel(.next)
-            .focused($field, equals: .title)
-            .onSubmit { field = .body }
-            .padding(.top, 12)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(PageCopy.longDate(page.createdAt))
+                        .font(VellumFonts.ui(.caption2, weight: .medium))
+                        .tracking(1.6)
+                        .foregroundStyle(ink.color.opacity(0.40))
+                        .padding(.top, focusMode ? 4 : 8)
 
-            TextEditor(text: bodyBinding(page))
-                .font(VellumFonts.body(typeface, size: size))
-                .foregroundStyle(ink.color)
-                .tint(ink.color)
-                .scrollContentBackground(.hidden)
-                .lineSpacing(CGFloat(size.bodyPoints * (size.bodyLeading - 1)))
-                .textInputAutocapitalization(.sentences)
-                .focused($field, equals: .body)
-                .padding(.top, 8)
-                .padding(.bottom, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .overlay(alignment: .topLeading) {
-                    if page.body.isEmpty && field != .body {
-                        Text("Begin writing…")
-                            .font(VellumFonts.body(typeface, size: size))
-                            .foregroundStyle(ink.color.opacity(0.38))
-                            .padding(.top, 16)
-                            .allowsHitTesting(false)
+                    TextField(
+                        "Title",
+                        text: titleBinding(page),
+                        prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
+                        axis: .vertical
+                    )
+                    .font(VellumFonts.title(typeface, size: size))
+                    .foregroundStyle(ink.color)
+                    .tint(ink.color)
+                    .textInputAutocapitalization(.sentences)
+                    .submitLabel(.next)
+                    .focused($field, equals: .title)
+                    .onSubmit { field = .body }
+                    .padding(.top, 12)
+
+                    TextEditor(text: bodyBinding(page))
+                        .font(VellumFonts.body(typeface, size: size))
+                        .foregroundStyle(ink.color)
+                        .tint(ink.color)
+                        .scrollContentBackground(.hidden)
+                        .lineSpacing(CGFloat(size.bodyPoints * (size.bodyLeading - 1)))
+                        .textInputAutocapitalization(.sentences)
+                        .focused($field, equals: .body)
+                        .padding(.top, 8)
+                        .padding(.bottom, 8)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                        .overlay(alignment: .topLeading) {
+                            if page.body.isEmpty && field != .body {
+                                Text("Begin writing…")
+                                    .font(VellumFonts.body(typeface, size: size))
+                                    .foregroundStyle(ink.color.opacity(0.38))
+                                    .padding(.top, 16)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+
+                    if EditorSheetCopy.showsFooter(focus: focusMode) {
+                        Button {
+                            openStyles()
+                        } label: {
+                            HStack {
+                                Text(footer.words)
+                                    .monospacedDigit()
+                                Spacer()
+                                Text(footer.style)
+                            }
+                            .font(VellumFonts.ui(.caption, weight: .medium))
+                            .tracking(0.4)
+                            .foregroundStyle(ink.color.opacity(0.55))
+                            .frame(minHeight: HitTarget.minimum)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Page style, \(footer.words), \(footer.style)")
                     }
                 }
-        }
-        .padding(.leading, paper.ruling == .lines ? 56 : 24)
-        .padding(.trailing, 24)
-        .scrollDismissesKeyboard(.interactively)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            PaperBackdrop(paper: paper, ruleOffset: 118)
-                .ignoresSafeArea(.container)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !focusMode {
-                wordCountBar(page)
+                .padding(.leading, paper.ruling == .lines ? 56 : 24)
+                .padding(.trailing, 24)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background {
+                    PaperBackdrop(paper: paper, ruleOffset: 86)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous)
+                        .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
+                }
+                .shadow(color: VellumPalette.ink.opacity(0.14), radius: 12, y: 4)
             }
+            .padding(.horizontal, CGFloat(EditorLook.deskInset))
+            .padding(.bottom, CGFloat(EditorLook.deskInset))
+            .padding(.top, focusMode ? 6 : 2)
         }
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(focusMode)
@@ -124,18 +158,21 @@ struct EditorView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    Button("Focus", systemImage: "eye") {
+                        field = nil
+                        focusMode = true
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Page style", systemImage: EditorLook.stylesSystemImage) {
+                        openStyles()
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("Focus", systemImage: "eye") {
-                            field = nil
-                            focusMode = true
-                        }
-                        Button("Page style", systemImage: "textformat") {
-                            openStyles()
-                        }
                         ShareLink(item: PageExport(page: page), preview: SharePreview(page.displayTitle)) {
                             Label("Share as Text", systemImage: "square.and.arrow.up")
                         }
-                        Divider()
                         Button("Delete page", systemImage: "trash", role: .destructive) {
                             confirmDelete = true
                         }
@@ -173,27 +210,6 @@ struct EditorView: View {
         } message: {
             Text("This page will be removed from this device. It cannot be undone.")
         }
-    }
-
-    private func wordCountBar(_ page: Page) -> some View {
-        Button {
-            openStyles()
-        } label: {
-            HStack {
-                Text("\(page.words) \(page.words == 1 ? "word" : "words")")
-                    .monospacedDigit()
-                Spacer()
-                Text("\(page.paper.name)  ·  \(page.typeface.name)")
-            }
-            .font(VellumFonts.ui(.caption, weight: .medium))
-            .tracking(0.4)
-            .foregroundStyle(page.ink.color.opacity(0.55))
-            .padding(.horizontal, 16)
-            .frame(minHeight: HitTarget.minimum)
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 16)
-        .accessibilityLabel("Page style, \(page.words) words, \(page.paper.name), \(page.typeface.name)")
     }
 
     private var missing: some View {
