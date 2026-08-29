@@ -235,20 +235,36 @@ enum LinuxHammer {
         expect(KeyboardChrome.caretScrollTarget == "body", "E5 scroll parks the body, not the floor")
         expect(KeyboardChrome.caretScrollTarget != "floor", "E5 scrollTo(floor) tucked the last line under the title")
         expect(KeyboardChrome.caretClearanceInsideTarget, "E5 clearance lives inside the body target")
-        expect(KeyboardChrome.caretClearanceLines == 1.0, "E5 one extra body line above the hairline")
+        expect(KeyboardChrome.caretClearanceLines == 0, "E5 not an extra pitch above the hairline")
         expect(
             KeyboardChrome.caretClearance(lineHeight: PaperRuling.bodyLineHeight(bodyPoints: TypeSize.m.bodyPoints))
-                == PaperRuling.pitch,
-            "E5 clearance is the ruling line box"
+                == KeyboardAvoidance.wordCountAir,
+            "E5 clearance is a few points, not a ruling"
         )
-        expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) == PaperRuling.pitch, "E5 clearance equals line height")
+        expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) == KeyboardAvoidance.wordCountAir, "E5 clearance equals word-count air")
         expect(KeyboardChrome.caretClearance(lineHeight: 0) == 0, "E5 no clearance without a line height")
+        expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) < PaperRuling.pitch, "E5 clearance is not a pitch")
         expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) != 34, "E5 clearance is not a 34 guess")
         expect(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch) != 120, "E5 clearance is not a 120 guess")
-        expect(PaperRuling.sitsOnRule(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch)), "E5 clearance sits on a rule")
-        expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 300) == 100, "E5 floor is slack under the column")
+        expect(
+            !KeyboardChrome.clearanceStacksOnLeftover(lineHeight: PaperRuling.pitch, leftoverPad: EditorLook.bodyBottomPad),
+            "E5 leftover + clearance is not a ruling of empty paper"
+        )
+        expect(KeyboardChrome.leftoverPad == EditorLook.bodyBottomPad, "E5 leftover pad is the editor bottom pad")
+        expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 300) == 0, "E5 no slack under the last line")
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 500) == 0, "E5 no floor when the column is taller than the field")
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 0) == 0, "E5 unmeasured column does not fill the field")
+        expect(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: true) == 400, "E5 follow fills the field")
+        expect(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false) == 0, "E5 closed does not fill the field")
+        expect(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true) == 0, "E5 unmeasured field does not fill")
+        expect(
+            KeyboardChrome.caretRuleOffset(base: 64, visibleHeight: 400, columnHeight: 300, following: true) == 164,
+            "E5 rules travel with the column when the field is filled"
+        )
+        expect(
+            KeyboardChrome.caretRuleOffset(base: 64, visibleHeight: 400, columnHeight: 300, following: false) == 64,
+            "E5 closed rules stay on the locked origin"
+        )
         expect(EditorLook.typeLeading == 24 && EditorLook.dateTop == 8, "E5 type origin stays locked")
         expect(StyleSheetLayout.lastSectionReachable, "E5 last sheet section reachable")
         expect(StyleSheetLayout.detentKind == "medium-first", "E5 Page sheet opens medium")

@@ -94,11 +94,12 @@ enum KeyboardChrome {
     static let caretRoomEdge = "bottom"
     /// Park the body on the inset. `floor` as the target filled the field with paper.
     static let caretScrollTarget = "body"
-    /// Build 16 sliced the caret line: clearance sat *after* `"body"`, so
-    /// `scrollTo("body")` still parked glyphs on the hairline. It lives inside
-    /// the body target — one ruling line box, not a guessed 34 / 120.
-    static let caretClearanceLines = 1.0
+    /// Build 16 sliced glyphs. Build 17 added a full pitch inside `"body"` on
+    /// top of leftover slack and overshot (~3 rulings). A few points, not a pitch.
+    static let caretClearanceLines = 0.0
     static let caretClearanceInsideTarget = true
+    /// Leftover under the last glyphs (TextEditor bottom pad). Not 34 / 120.
+    static let leftoverPad = 8.0
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
@@ -120,19 +121,44 @@ enum KeyboardChrome {
         return max(0, guidePad - restingPad)
     }
 
-    /// Slack under the column so the last line can reach the inset.
-    /// Not `visible - one line` — that floor filled the field (~308pt) and
-    /// `scrollTo(floor)` parked empty paper on the keys. Unmeasured column → 0.
+    /// Slack *under* the column used to be `visible − column`. That leftover
+    /// sat below the last line (Mini ~2 extra rules) and stacked with the
+    /// pitch (build 17, ~98pt). Unmeasured → 0. Following fills the field
+    /// so the line can sit on the inset without parking empty paper.
     static func caretFloor(visibleHeight: Double, columnHeight: Double) -> Double {
         guard visibleHeight > 0, columnHeight > 0 else { return 0 }
-        return max(0, visibleHeight - columnHeight)
+        return 0
     }
 
-    /// One body line under the last glyphs so the hairline does not slice them.
-    /// Uses the ruling line box, not a guessed 34 / 120.
+    /// Short page + follow: fill the field so the column can sit on the inset.
+    /// Closed / unmeasured: 0 so origin stays at the top.
+    static func caretFieldFill(visibleHeight: Double, following: Bool) -> Double {
+        guard following, visibleHeight > 0 else { return 0 }
+        return visibleHeight
+    }
+
+    /// Rules travel with the column when the field is filled. Not a guessed 34 / 120.
+    static func caretRuleOffset(
+        base: Double,
+        visibleHeight: Double,
+        columnHeight: Double,
+        following: Bool
+    ) -> Double {
+        let fill = caretFieldFill(visibleHeight: visibleHeight, following: following)
+        guard fill > 0, columnHeight > 0 else { return base }
+        return base + max(0, fill - columnHeight)
+    }
+
+    /// A few points in the scroll target so the hairline misses the glyphs.
+    /// Not a pitch (build 17 stacked `lineHeight` on leftover pad).
     static func caretClearance(lineHeight: Double) -> Double {
         guard lineHeight > 0 else { return 0 }
-        return lineHeight * caretClearanceLines
+        return KeyboardAvoidance.wordCountAir
+    }
+
+    /// Build 17: leftover + pitch ≥ one ruling of empty paper.
+    static func clearanceStacksOnLeftover(lineHeight: Double, leftoverPad: Double) -> Bool {
+        caretClearance(lineHeight: lineHeight) + leftoverPad >= lineHeight
     }
 }
 
@@ -337,6 +363,8 @@ enum EditorLook {
     static let typeTrailing: Double = 24
     static let dateTop: Double = 8
     static let bodyMinHeight: Double = 280
+    /// TextEditor / measure Text bottom pad. Leftover under the last line box.
+    static let bodyBottomPad: Double = 8
     static let chromeAboveBody: Double = 80
     static let severalParagraphHeight: Double = 240
     static let guessedKeyboardPad: Double? = nil

@@ -193,20 +193,41 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(KeyboardChrome.caretScrollTarget, "body")
         XCTAssertNotEqual(KeyboardChrome.caretScrollTarget, "floor")
         XCTAssertTrue(KeyboardChrome.caretClearanceInsideTarget, "sibling after body is ignored by scrollTo")
-        XCTAssertEqual(KeyboardChrome.caretClearanceLines, 1.0)
+        XCTAssertEqual(KeyboardChrome.caretClearanceLines, 0)
         XCTAssertEqual(
             KeyboardChrome.caretClearance(lineHeight: PaperRuling.bodyLineHeight(bodyPoints: TypeSize.m.bodyPoints)),
-            PaperRuling.pitch
+            KeyboardAvoidance.wordCountAir
         )
-        XCTAssertEqual(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), PaperRuling.pitch)
+        XCTAssertEqual(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), KeyboardAvoidance.wordCountAir)
         XCTAssertEqual(KeyboardChrome.caretClearance(lineHeight: 0), 0)
+        XCTAssertLessThan(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), PaperRuling.pitch)
         XCTAssertNotEqual(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), 34)
         XCTAssertNotEqual(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch), 120)
-        XCTAssertTrue(PaperRuling.sitsOnRule(KeyboardChrome.caretClearance(lineHeight: PaperRuling.pitch)))
-        XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 300), 100)
+        XCTAssertFalse(
+            KeyboardChrome.clearanceStacksOnLeftover(
+                lineHeight: PaperRuling.pitch,
+                leftoverPad: EditorLook.bodyBottomPad
+            ),
+            "pitch stacked on leftover pad overshot (~3 rulings)"
+        )
+        XCTAssertEqual(KeyboardChrome.leftoverPad, EditorLook.bodyBottomPad)
+        XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 300), 0, "no slack under the last line")
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 500), 0)
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 0), 0)
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 0, columnHeight: 300), 0)
+        XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: true), 400)
+        XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false), 0, "closed origin stays")
+        XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true), 0)
+        XCTAssertEqual(
+            KeyboardChrome.caretRuleOffset(base: 64, visibleHeight: 400, columnHeight: 300, following: true),
+            164
+        )
+        XCTAssertEqual(
+            KeyboardChrome.caretRuleOffset(base: 64, visibleHeight: 400, columnHeight: 300, following: false),
+            64,
+            "closed rules stay on the locked origin"
+        )
+        XCTAssertTrue(PaperRuling.sitsOnRule(PaperRuling.bodyLineHeight(bodyPoints: TypeSize.m.bodyPoints)))
         XCTAssertEqual(EditorLook.typeLeading, 24)
         XCTAssertEqual(EditorLook.dateTop, 8)
         XCTAssertNil(KeyboardAvoidance.guessedBottomPoints)

@@ -166,9 +166,9 @@ struct EditorView: View {
     /// The whole editor is paper: under back / share / Focus / Aa, out to the
     /// screen edges, and behind / beside the keys. No desk-grain frame. Type
     /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
-    /// Extra room for the caret is *inside* the body scroll target so the
-    /// current line sits fully above the word-count hairline. A sibling after
-    /// `"body"` is ignored. A top inset would shift origin. Not pinned.
+    /// Extra room for the caret is *inside* the body scroll target — a few
+    /// points, not a pitch (build 17 overshot). A sibling after `"body"` is
+    /// ignored. Slack is not parked under the last line. Not pinned at rest.
     private func writingColumn(
         page: Page,
         paper: Paper,
@@ -189,6 +189,16 @@ struct EditorView: View {
                 columnHeight: Double(columnHeight)
             ))
             : 0
+        let fieldFill = CGFloat(KeyboardChrome.caretFieldFill(
+            visibleHeight: Double(fieldHeight),
+            following: followCaret
+        ))
+        let ruleOffset = CGFloat(KeyboardChrome.caretRuleOffset(
+            base: PaperRuling.firstRuleOffset,
+            visibleHeight: Double(fieldHeight),
+            columnHeight: Double(columnHeight),
+            following: followCaret
+        ))
         let editorHeight: CGFloat = {
             if page.body.isEmpty { return CGFloat(EditorLook.bodyMinHeight) }
             if bodyHeight > lineHeight { return bodyHeight }
@@ -228,7 +238,7 @@ struct EditorView: View {
                                 .font(VellumFonts.body(typeface, size: size))
                                 .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
                                 .padding(.top, 8)
-                                .padding(.bottom, 8)
+                                .padding(.bottom, CGFloat(EditorLook.bodyBottomPad))
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .opacity(0)
@@ -253,7 +263,7 @@ struct EditorView: View {
                                 .textInputAutocapitalization(.sentences)
                                 .focused($field, equals: .body)
                                 .padding(.top, 8)
-                                .padding(.bottom, 8)
+                                .padding(.bottom, CGFloat(EditorLook.bodyBottomPad))
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
                                 .frame(height: editorHeight)
                                 .overlay(alignment: .topLeading) {
@@ -266,8 +276,8 @@ struct EditorView: View {
                                     }
                                 }
                         }
-                        // One body line *inside* the scroll target. A sibling
-                        // after `.id("body")` is ignored by scrollTo("body").
+                        // A few points *inside* the scroll target. A pitch here
+                        // stacked on leftover pad and overshot (build 17).
                         Color.clear
                             .frame(height: followCaret
                                 ? CGFloat(KeyboardChrome.caretClearance(lineHeight: Double(lineHeight)))
@@ -277,11 +287,13 @@ struct EditorView: View {
                     }
                     .id("body")
                     }
+                    .fixedSize(horizontal: false, vertical: true)
                     .background {
                         GeometryReader { geo in
                             Color.clear.preference(key: ColumnHeightKey.self, value: geo.size.height)
                         }
                     }
+                    .frame(minHeight: fieldFill, alignment: .bottom)
 
                     Color.clear
                         .frame(height: floor)
@@ -294,7 +306,7 @@ struct EditorView: View {
                     if paper.ruling != .none {
                         PaperBackdrop(
                             paper: paper,
-                            ruleOffset: CGFloat(PaperRuling.firstRuleOffset),
+                            ruleOffset: ruleOffset,
                             drawsFill: false
                         )
                     }
@@ -313,7 +325,7 @@ struct EditorView: View {
             .onChange(of: followCaret) { _, on in
                 scrollCaret(proxy, follow: on)
             }
-            .onChange(of: floor) { _, _ in
+            .onChange(of: fieldFill) { _, _ in
                 scrollCaret(proxy, follow: followCaret)
             }
             .onChange(of: page.body) { _, _ in
