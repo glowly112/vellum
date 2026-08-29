@@ -121,13 +121,22 @@ enum KeyboardChrome {
         return max(0, guidePad - restingPad)
     }
 
-    /// Slack *under* the column used to be `visible − column`. That leftover
-    /// sat below the last line (Mini ~2 extra rules) and stacked with the
-    /// pitch (build 17, ~98pt). Unmeasured → 0. Following fills the field
-    /// so the line can sit on the inset without parking empty paper.
+    /// Slack *under* the column is leftover empty paper (Mini 16–18:
+    /// 66 / 99 / 72pt under the last ink). Always 0. Unmeasured → 0.
     static func caretFloor(visibleHeight: Double, columnHeight: Double) -> Double {
         guard visibleHeight > 0, columnHeight > 0 else { return 0 }
         return 0
+    }
+
+    /// Short page + follow: leftover sits *above* the column so the last
+    /// line can reach the hairline. Closed / unmeasured: 0 — origin stays.
+    static func caretSlackAbove(
+        visibleHeight: Double,
+        columnHeight: Double,
+        following: Bool
+    ) -> Double {
+        guard following, visibleHeight > 0, columnHeight > 0 else { return 0 }
+        return max(0, visibleHeight - columnHeight)
     }
 
     /// Short page + follow: fill the field so the column can sit on the inset.
@@ -137,16 +146,18 @@ enum KeyboardChrome {
         return visibleHeight
     }
 
-    /// Rules travel with the column when the field is filled. Not a guessed 34 / 120.
+    /// Rules travel with the column when slack sits above. Not a guessed 34 / 120.
     static func caretRuleOffset(
         base: Double,
         visibleHeight: Double,
         columnHeight: Double,
         following: Bool
     ) -> Double {
-        let fill = caretFieldFill(visibleHeight: visibleHeight, following: following)
-        guard fill > 0, columnHeight > 0 else { return base }
-        return base + max(0, fill - columnHeight)
+        base + caretSlackAbove(
+            visibleHeight: visibleHeight,
+            columnHeight: columnHeight,
+            following: following
+        )
     }
 
     /// A few points in the scroll target so the hairline misses the glyphs.
@@ -365,6 +376,15 @@ enum EditorLook {
     static let bodyMinHeight: Double = 280
     /// TextEditor / measure Text bottom pad. Leftover under the last line box.
     static let bodyBottomPad: Double = 8
+
+    /// Hug the measured body. `bodyMinHeight` (280) inside `"body"` is the
+    /// empty paper Mini 18 parked under “the page waiting.” Empty / unmeasured
+    /// still use the min so a blank page is not one line.
+    static func bodyEditorHeight(measured: Double, empty: Bool) -> Double {
+        if empty { return bodyMinHeight }
+        if measured > 0 { return measured }
+        return bodyMinHeight
+    }
     static let chromeAboveBody: Double = 80
     static let severalParagraphHeight: Double = 240
     static let guessedKeyboardPad: Double? = nil

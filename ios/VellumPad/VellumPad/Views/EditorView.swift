@@ -167,8 +167,8 @@ struct EditorView: View {
     /// screen edges, and behind / beside the keys. No desk-grain frame. Type
     /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
     /// Extra room for the caret is *inside* the body scroll target — a few
-    /// points, not a pitch (build 17 overshot). A sibling after `"body"` is
-    /// ignored. Slack is not parked under the last line. Not pinned at rest.
+    /// points, not a pitch. Leftover slack sits *above* the column while
+    /// following so the last line can sit on the hairline. Not pinned at rest.
     private func writingColumn(
         page: Page,
         paper: Paper,
@@ -189,8 +189,9 @@ struct EditorView: View {
                 columnHeight: Double(columnHeight)
             ))
             : 0
-        let fieldFill = CGFloat(KeyboardChrome.caretFieldFill(
+        let slackAbove = CGFloat(KeyboardChrome.caretSlackAbove(
             visibleHeight: Double(fieldHeight),
+            columnHeight: Double(columnHeight),
             following: followCaret
         ))
         let ruleOffset = CGFloat(KeyboardChrome.caretRuleOffset(
@@ -199,15 +200,18 @@ struct EditorView: View {
             columnHeight: Double(columnHeight),
             following: followCaret
         ))
-        let editorHeight: CGFloat = {
-            if page.body.isEmpty { return CGFloat(EditorLook.bodyMinHeight) }
-            if bodyHeight > lineHeight { return bodyHeight }
-            return CGFloat(EditorLook.bodyMinHeight)
-        }()
+        let editorHeight = CGFloat(EditorLook.bodyEditorHeight(
+            measured: Double(bodyHeight),
+            empty: page.body.isEmpty
+        ))
 
         return ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+                    Color.clear
+                        .frame(height: slackAbove)
+                        .accessibilityHidden(true)
+                        .allowsHitTesting(false)
                     VStack(alignment: .leading, spacing: 0) {
                     Text(PageCopy.longDate(page.createdAt))
                         .font(VellumFonts.ui(.caption2, weight: .medium))
@@ -244,13 +248,10 @@ struct EditorView: View {
                                 .opacity(0)
                                 .allowsHitTesting(false)
                                 .accessibilityHidden(true)
-                                .background {
-                                    GeometryReader { geo in
-                                        Color.clear.preference(
-                                            key: BodyHeightKey.self,
-                                            value: geo.size.height
-                                        )
-                                    }
+                                .onGeometryChange(for: CGFloat.self) { proxy in
+                                    proxy.size.height
+                                } action: { height in
+                                    bodyHeight = height
                                 }
 
                             TextEditor(text: bodyBinding(page))
@@ -258,8 +259,10 @@ struct EditorView: View {
                                 .foregroundStyle(ink.color)
                                 .tint(ink.color)
                                 .scrollContentBackground(.hidden)
+                                .scrollDisabled(true)
                                 .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
                                 .contentMargins(.top, 0, for: .scrollContent)
+                                .contentMargins(.bottom, 0, for: .scrollContent)
                                 .textInputAutocapitalization(.sentences)
                                 .focused($field, equals: .body)
                                 .padding(.top, 8)
@@ -287,13 +290,11 @@ struct EditorView: View {
                     }
                     .id("body")
                     }
-                    .fixedSize(horizontal: false, vertical: true)
                     .background {
                         GeometryReader { geo in
                             Color.clear.preference(key: ColumnHeightKey.self, value: geo.size.height)
                         }
                     }
-                    .frame(minHeight: fieldFill, alignment: .bottom)
 
                     Color.clear
                         .frame(height: floor)
@@ -319,13 +320,12 @@ struct EditorView: View {
                     Color.clear.preference(key: FieldHeightKey.self, value: geo.size.height)
                 }
             }
-            .onPreferenceChange(BodyHeightKey.self) { bodyHeight = $0 }
             .onPreferenceChange(FieldHeightKey.self) { fieldHeight = $0 }
             .onPreferenceChange(ColumnHeightKey.self) { columnHeight = $0 }
             .onChange(of: followCaret) { _, on in
                 scrollCaret(proxy, follow: on)
             }
-            .onChange(of: fieldFill) { _, _ in
+            .onChange(of: slackAbove) { _, _ in
                 scrollCaret(proxy, follow: followCaret)
             }
             .onChange(of: page.body) { _, _ in
@@ -528,13 +528,6 @@ private final class KeyboardPadUIView: UIView {
         if last.isFinite, abs(pad - last) < 0.25 { return }
         last = pad
         onPad?(pad)
-    }
-}
-
-private struct BodyHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 

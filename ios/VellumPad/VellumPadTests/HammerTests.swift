@@ -215,9 +215,26 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 500), 0)
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 0), 0)
         XCTAssertEqual(KeyboardChrome.caretFloor(visibleHeight: 0, columnHeight: 300), 0)
+        XCTAssertEqual(
+            KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 328, following: true),
+            72,
+            "Mini 18 leftover sits above the column, not under the last ink"
+        )
+        XCTAssertEqual(KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 300, following: true), 100)
+        XCTAssertEqual(
+            KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 300, following: false),
+            0,
+            "closed origin stays"
+        )
+        XCTAssertEqual(KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 0, following: true), 0)
+        XCTAssertEqual(KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 500, following: true), 0)
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: true), 400)
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false), 0, "closed origin stays")
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true), 0)
+        XCTAssertEqual(EditorLook.bodyEditorHeight(measured: 208, empty: false), 208)
+        XCTAssertNotEqual(EditorLook.bodyEditorHeight(measured: 208, empty: false), EditorLook.bodyMinHeight)
+        XCTAssertEqual(EditorLook.bodyEditorHeight(measured: 0, empty: false), EditorLook.bodyMinHeight)
+        XCTAssertEqual(EditorLook.bodyEditorHeight(measured: 208, empty: true), EditorLook.bodyMinHeight)
         XCTAssertEqual(
             KeyboardChrome.caretRuleOffset(base: 64, visibleHeight: 400, columnHeight: 300, following: true),
             164

@@ -254,9 +254,21 @@ enum LinuxHammer {
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 300) == 0, "E5 no slack under the last line")
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 500) == 0, "E5 no floor when the column is taller than the field")
         expect(KeyboardChrome.caretFloor(visibleHeight: 400, columnHeight: 0) == 0, "E5 unmeasured column does not fill the field")
+        expect(
+            KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 328, following: true) == 72,
+            "E5 Mini 18 leftover sits above the column"
+        )
+        expect(KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 300, following: true) == 100, "E5 follow slack is leftover above")
+        expect(KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 300, following: false) == 0, "E5 closed has no slack above")
+        expect(KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 0, following: true) == 0, "E5 unmeasured column does not invent slack")
+        expect(KeyboardChrome.caretSlackAbove(visibleHeight: 400, columnHeight: 500, following: true) == 0, "E5 no slack when the column is taller")
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: true) == 400, "E5 follow fills the field")
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false) == 0, "E5 closed does not fill the field")
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true) == 0, "E5 unmeasured field does not fill")
+        expect(EditorLook.bodyEditorHeight(measured: 208, empty: false) == 208, "E5 editor hugs the measured body")
+        expect(EditorLook.bodyEditorHeight(measured: 208, empty: false) != EditorLook.bodyMinHeight, "E5 280 inside body was Mini 18 empty paper")
+        expect(EditorLook.bodyEditorHeight(measured: 0, empty: false) == EditorLook.bodyMinHeight, "E5 unmeasured body keeps the min")
+        expect(EditorLook.bodyEditorHeight(measured: 208, empty: true) == EditorLook.bodyMinHeight, "E5 empty body keeps the min")
         expect(
             KeyboardChrome.caretRuleOffset(base: 64, visibleHeight: 400, columnHeight: 300, following: true) == 164,
             "E5 rules travel with the column when the field is filled"
