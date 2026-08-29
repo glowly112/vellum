@@ -1,6 +1,6 @@
 # STATE
 Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 5). Not Capacitor. Not App Review.
-This turn: DEBUG-only `VELLUM_FOCUS_BODY` focuses the body TextEditor on appear so Mini can raise the keyboard without a tap. Writing column, deskPeek 6, library, chrome unchanged. PR #4 not merged. Editor is not done. `keyboardOpenProven` stays false until Mini pixels exist.
+This turn: the whole editor is paper — edge to edge, no desk-grain frame, no rounded sheet on grain. Date / title / body origin unchanged (24 / 56 lined / 24, date top 8). Library cards on the desk stay. Debug flags stay. PR #4 not merged. Editor is not done. `keyboardOpenProven` stays false until Mini pixels exist.
 Launch (Debug install):
 `SIMCTL_CHILD_VELLUM_OPEN_FIRST=1 SIMCTL_CHILD_VELLUM_FOCUS_BODY=1 xcrun simctl launch <UDID> com.jamiematheson.vellumpad`
 Do not use `simctl launch --setenv` (Invalid device).

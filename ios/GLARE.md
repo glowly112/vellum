@@ -23,6 +23,6 @@ These still need a phone-width watch:
 7. **Share sheet.** `FileRepresentation` writes a `.txt`. Not presented.
 8. **Delete alerts.** Cancel vs confirm not tapped.
 9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
-10. **Editor writing column.** Paper should fill under back / share / Focus / Aa down to the word-count inset. Several paragraphs visible without clipping. Desk grain peeking at the edges only — not a 0.92 / 14pt postcard, not full-bleed Notes. Closed-keyboard shot is not a pass. Not watched.
+10. **Editor is paper.** The whole editor is paper, edge to edge (under the toolbar, down to the word-count inset, out to the screen edges). No desk-grain frame. No rounded sheet on grain. Date / title / body origin unchanged. Closed-keyboard shot is not a pass. Not watched.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**.

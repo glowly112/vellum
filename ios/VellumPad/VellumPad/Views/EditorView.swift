@@ -57,7 +57,7 @@ struct EditorView: View {
             footer: footer
         )
         .background {
-            DeskBackdrop()
+            PaperBackdrop(paper: paper, ruleOffset: 86)
                 .ignoresSafeArea(.container)
         }
         .scrollDismissesKeyboard(.interactively)
@@ -142,11 +142,10 @@ struct EditorView: View {
     }
     #endif
 
-    /// Paper is the view background of this column: under back / share / Focus / Aa
-    /// down to the word-count inset. Apple TextEditor is long-form and scrollable,
-    /// so several paragraphs do not clip. Grain peeks at the edges only.
-    /// Keyboard uses the system keyboard safe area — no 34 / 120. Keyboard-open
-    /// is still undone; do not call the editor done from a closed-keyboard shot.
+    /// The whole editor is paper: under back / share / Focus / Aa, down to the
+    /// word-count inset, out to the screen edges. No desk-grain frame. Type
+    /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
+    /// Keyboard-open is still undone.
     private func writingColumn(
         page: Page,
         paper: Paper,
@@ -170,7 +169,7 @@ struct EditorView: View {
                 .font(VellumFonts.ui(.caption2, weight: .medium))
                 .tracking(1.6)
                 .foregroundStyle(ink.color.opacity(0.40))
-                .padding(.top, focusMode ? 4 : 8)
+                .padding(.top, focusMode ? 4 : CGFloat(EditorLook.dateTop))
 
             TextField(
                 "Title",
@@ -209,24 +208,16 @@ struct EditorView: View {
                     }
                 }
         }
-        .padding(.leading, paper.ruling == .lines ? 56 : 24)
-        .padding(.trailing, 24)
+        .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
+        .padding(.trailing, CGFloat(EditorLook.typeTrailing))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if EditorSheetCopy.showsFooter(focus: focusMode) {
                 wordCountInset(footer: footer, ink: ink)
+                    .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
+                    .padding(.trailing, CGFloat(EditorLook.typeTrailing))
             }
         }
-        .background {
-            PaperBackdrop(paper: paper, ruleOffset: 86)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous)
-                .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
-        }
-        .shadow(color: VellumPalette.ink.opacity(0.10), radius: 8, y: 2)
-        .padding(CGFloat(EditorLook.deskPeek))
     }
 
     /// Apple `safeAreaInset`: content sits beside the column and grows the safe

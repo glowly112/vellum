@@ -138,38 +138,44 @@ enum LibraryEmpty {
     }
 }
 
-/// Editor merge: writing column, not a library card. Chrome stays system iOS 26.
+/// Editor merge: the whole editor is paper. Chrome stays system iOS 26.
 ///
 /// Apple TextEditor — “A view that can display and edit long-form text.”
 /// Multiline, scrollable. Several paragraphs must not clip.
 /// Apple safeAreaInset — shows specified content beside the modified view and
-/// increases the safe area by that content. Word-count is that inset, not a
-/// footer glued inside a short card.
-/// Paper fills under the system toolbar down to the inset. Desk grain peeks
-/// at the edges only. Keyboard uses the system keyboard safe area — do not
-/// guess 34 or 120. Keyboard-open is still undone.
+/// increases the safe area by that content. Word-count is that inset.
+/// Paper is the view background, edge to edge (under the toolbar, down to the
+/// inset, out to the screen edges). No desk-grain frame. No rounded sheet.
+/// Type origin stays: leading 24 (56 if lined), trailing 24, date top 8.
+/// Keyboard uses the system keyboard safe area — do not guess 34 or 120.
+/// Keyboard-open is still undone.
 enum EditorLook {
-    static let surfaceKind = "sheet-on-desk"
-    /// Discard `fraction-card` (`0.76`, `0.92` / 14pt). That is still a postcard.
+    /// Whole editor is paper. Not a card on a desk (`sheet-on-desk` / deskPeek 6).
+    static let surfaceKind = "paper-full"
     static let layoutKind = "column-plus-inset"
-    static let isFullBleed = false
+    /// Paper goes edge to edge. Not a Notes clone — still Vellum paper + inset.
+    static let isFullBleed = true
     static let wrap = "native"
     static let backKind = "system"
     static let focusKind = "system-toolbar"
     static let stylesKind = "system-sheet"
     static let stylesSystemImage = "textformat"
     static let bodyKind = "text-editor"
-    static let cornerRadius: Double = 16
-    /// Thin desk grain at the edges only — not a 14/24pt postcard gutter.
-    static let deskPeek: Double = 6
-    /// No height-fraction card. Paper is the column background.
+    /// No rounded sheet sitting on grain.
+    static let cornerRadius: Double = 0
+    /// No desk-grain frame. Paper fills the screen edges.
+    static let deskPeek: Double = 0
     static let sheetMaxHeightFraction: Double? = nil
     static let footerPlacement = "safeAreaInset"
     static let fillsToolbarToInset = true
-    static let grainReveal = "edge-only"
+    static let grainReveal = "none"
     static let bodyHoldsSeveralParagraphs = true
     static let clipsBody = false
-    /// Four short paragraphs. `TextEditor` is scrollable; the column must be tall enough.
+    /// Mini type origin. Do not shift date / title / body.
+    static let typeLeading: Double = 24
+    static let typeLeadingLined: Double = 56
+    static let typeTrailing: Double = 24
+    static let dateTop: Double = 8
     static let bodyMinHeight: Double = 280
     static let chromeAboveBody: Double = 80
     static let severalParagraphHeight: Double = 240
@@ -179,14 +185,17 @@ enum EditorLook {
     /// Mini keyboard-open pixels are still unwatched. Do not call the editor done.
     static let keyboardOpenProven = false
 
-    /// Paper height in the field under the toolbar, above the word-count inset.
-    /// Peek is edge-only. No `sheetMaxHeightFraction`.
+    /// Paper fills the field. No peek subtraction.
     static func writingHeight(inField fieldHeight: Double) -> Double {
-        max(0, fieldHeight - deskPeek * 2)
+        max(0, fieldHeight)
     }
 
     static func bodyFitsSeveralParagraphs(inFieldHeight field: Double) -> Bool {
         writingHeight(inField: field) - chromeAboveBody >= severalParagraphHeight
+    }
+
+    static func typeLeading(for paper: Paper) -> Double {
+        paper.ruling == .lines ? typeLeadingLined : typeLeading
     }
 }
 

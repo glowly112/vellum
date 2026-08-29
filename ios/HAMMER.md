@@ -38,7 +38,7 @@ Apple `safeAreaInset`: shows specified content beside the modified view and incr
 
 | # | Case | What must happen |
 | --- | --- | --- |
-| 1 | Writing column | `layoutKind == column-plus-inset`. Paper fills toolbar-to-inset. `sheetMaxHeightFraction == nil`. Fail `fraction-card` / 0.76 / 0.92. Several paragraphs do not clip. Grain is edge-only (`deskPeek` 0–16). Keyboard-open remains undone. |
+| 1 | Writing column | `surfaceKind == paper-full`. `grainReveal == none` (not edge-only). `deskPeek == 0`. Paper edge to edge. Type origin 24 / 56 lined / 24, date top 8. Fail a desk-grain frame or rounded sheet on grain. Keyboard-open remains undone. |
 | 2 | Footer copy | `66 words` and `Cream · Book` live in a bottom **`safeAreaInset`**, not glued inside a short card. |
 | 3 | Focus | Inset hides in focus. Toolbar Focus / styles stay system. |
 | 4 | Chrome | System back, system `.sheet`, `textformat` — not a circular web back or custom T. |

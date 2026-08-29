@@ -60,23 +60,30 @@ final class HammerTests: XCTestCase {
     }
 
     func testEditorIsColumnPlusInsetNotAPostcard() {
-        XCTAssertEqual(EditorLook.surfaceKind, "sheet-on-desk")
+        XCTAssertEqual(EditorLook.surfaceKind, "paper-full")
+        XCTAssertNotEqual(EditorLook.surfaceKind, "sheet-on-desk")
         XCTAssertEqual(EditorLook.layoutKind, "column-plus-inset")
         XCTAssertNotEqual(EditorLook.layoutKind, "fraction-card")
-        XCTAssertFalse(EditorLook.isFullBleed)
-        XCTAssertGreaterThan(EditorLook.deskPeek, 0, "grain must peek")
-        XCTAssertLessThan(EditorLook.deskPeek, 16, "peek is a thin frame, not a postcard gutter")
-        XCTAssertGreaterThanOrEqual(EditorLook.cornerRadius, 12)
+        XCTAssertTrue(EditorLook.isFullBleed, "paper is edge to edge")
+        XCTAssertEqual(EditorLook.deskPeek, 0, "no desk-grain frame")
+        XCTAssertEqual(EditorLook.cornerRadius, 0, "no rounded sheet on grain")
         XCTAssertEqual(EditorLook.wrap, "native")
         XCTAssertEqual(EditorLook.footerPlacement, "safeAreaInset")
         XCTAssertNil(EditorLook.sheetMaxHeightFraction, "no postcard height fraction")
         XCTAssertTrue(EditorLook.fillsToolbarToInset, "paper fills toolbar-to-inset")
-        XCTAssertEqual(EditorLook.grainReveal, "edge-only")
+        XCTAssertEqual(EditorLook.grainReveal, "none")
+        XCTAssertNotEqual(EditorLook.grainReveal, "edge-only")
+        XCTAssertEqual(EditorLook.typeLeading, 24)
+        XCTAssertEqual(EditorLook.typeLeadingLined, 56)
+        XCTAssertEqual(EditorLook.typeTrailing, 24)
+        XCTAssertEqual(EditorLook.dateTop, 8)
+        XCTAssertEqual(EditorLook.typeLeading(for: .cream), 24)
+        XCTAssertEqual(EditorLook.typeLeading(for: .ruled), 56)
         XCTAssertTrue(EditorLook.bodyHoldsSeveralParagraphs)
         XCTAssertFalse(EditorLook.clipsBody, "several paragraphs must not clip")
         XCTAssertGreaterThanOrEqual(EditorLook.bodyMinHeight, 240)
         let field: Double = 668
-        XCTAssertEqual(EditorLook.writingHeight(inField: field), field - EditorLook.deskPeek * 2)
+        XCTAssertEqual(EditorLook.writingHeight(inField: field), field)
         XCTAssertTrue(EditorLook.bodyFitsSeveralParagraphs(inFieldHeight: field))
         XCTAssertFalse(EditorLook.keyboardOpenProven, "do not call the editor done")
     }
@@ -257,7 +264,8 @@ final class HammerTests: XCTestCase {
             "Release never focuses"
         )
         XCTAssertFalse(EditorLook.keyboardOpenProven, "Mini pixels do not exist yet")
-        XCTAssertEqual(EditorLook.deskPeek, 6)
+        XCTAssertEqual(EditorLook.deskPeek, 0)
+        XCTAssertEqual(EditorLook.grainReveal, "none")
         XCTAssertEqual(EditorLook.layoutKind, "column-plus-inset")
     }
 

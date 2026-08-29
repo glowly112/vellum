@@ -1,14 +1,14 @@
 # Feature
-Job: DEBUG-only `VELLUM_FOCUS_BODY=1` so Mini can raise the system keyboard without a tap.
-Non-goals: Library changes, merging PR #4, claiming keyboard-open or the editor done, changing the writing column
-Touched: DebugFocusBody + EditorView onAppear + hammer/linux-hammer + launch docs
-Reuse: DebugOpenFirst gate, writing column, deskPeek 6, system chrome
-Risk: Shipping the flag in Release; `simctl launch --setenv` (Invalid device)
-Done: DEBUG true + flag focuses the body `TextEditor`. Release never focuses.
+Job: Whole editor is paper. Drop the desk-grain frame (`deskPeek` 6). Type origin stays.
+Non-goals: Library changes, merging PR #4, claiming keyboard-open or the editor done, shifting date / title / body
+Touched: EditorLook + EditorView + hammer/linux-hammer + docs
+Reuse: Writing column, word-count `safeAreaInset`, system chrome, `VELLUM_OPEN_FIRST`, `VELLUM_FOCUS_BODY`
+Risk: Shifting type; putting desk grain back; calling the editor done
+Done: Paper is the view background, edge to edge. `grainReveal` is `none`. Type paddings stay 24 / 56 lined / 24, date top 8.
 Not done: Mini keyboard-open pixels. `keyboardOpenProven` stays false.
 Steps:
-1. Tests first: DEBUG + flag focuses body; release never focuses; keyboardOpenProven false
-2. Same `#if DEBUG` + env gate as `VELLUM_OPEN_FIRST`. EditorView focuses `.body` on appear
-3. prove.sh. Docs use `SIMCTL_CHILD_*`, not `--setenv`
-Status: launch flag this turn. Keyboard-open and editor-done stay false.
-Verified this turn: prove.sh after the flag.
+1. Tests first: `paper-full`, `grainReveal == none`, `deskPeek == 0`, type origin locked, keyboard undone
+2. Drop `DeskBackdrop` / rounded sheet / `deskPeek` on EditorView. `PaperBackdrop` ignores container safe area
+3. prove.sh
+Status: paper-full this turn. Keyboard-open and editor-done stay false.
+Verified this turn: prove.sh after the paper fill.
