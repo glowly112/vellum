@@ -6,7 +6,7 @@ A writing app that feels like paper.
 | --- | --- |
 | **Code (public)** | [github.com/glowly112/vellum](https://github.com/glowly112/vellum) |
 | **Brief** | [Vellum on Notion](https://app.notion.com/p/3ca2661264338157a7b9da5d8bd08d6f) |
-| **Live app** | Import this repo on Vercel: [vercel.com/new](https://vercel.com/new/import?s=https://github.com/glowly112/vellum) — then turn **Deployment Protection** off so anyone can open it. |
+| **Live app** | [vellum-ib7s.vercel.app](https://vellum-ib7s.vercel.app/) |
 
 This is a working prototype, not a notes product with accounts, sync, or folders. The point is the *feeling* of sitting down at a desk with a sheet of paper — not a document editor, not a productivity suite.
 

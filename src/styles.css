@@ -53,8 +53,7 @@
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-quick: 150ms;
-  --motion-fast: 250ms;
-  --motion-slow: 400ms;
+  --motion-fast: 180ms;
 }
 
 @layer base {
@@ -122,6 +121,9 @@
 .paper-sheet {
   position: relative;
   isolation: isolate;
+  transition:
+    background-color var(--motion-quick) var(--ease-out),
+    color var(--motion-quick) var(--ease-out);
 }
 
 .paper-sheet::before {
@@ -291,18 +293,11 @@
   color: color-mix(in oklab, currentColor 38%, transparent);
 }
 
-.stagger-in {
-  animation: rise var(--motion-slow) var(--ease-out) both;
+.sheet-lift {
+  animation: sheet-lift var(--motion-quick) var(--ease-out) both;
 }
 
-.stagger-in:nth-child(1) { animation-delay: 0ms; }
-.stagger-in:nth-child(2) { animation-delay: 50ms; }
-.stagger-in:nth-child(3) { animation-delay: 100ms; }
-.stagger-in:nth-child(4) { animation-delay: 150ms; }
-.stagger-in:nth-child(5) { animation-delay: 200ms; }
-.stagger-in:nth-child(6) { animation-delay: 250ms; }
-
-@keyframes rise {
+@keyframes sheet-lift {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -313,24 +308,27 @@
   }
 }
 
-.slide-in-page {
-  animation: slide-in var(--motion-fast) var(--ease-out) both;
+[data-vaul-drawer] {
+  animation-duration: var(--motion-fast) !important;
+  transition-duration: var(--motion-fast) !important;
+  animation-timing-function: var(--ease-out) !important;
 }
 
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+[data-vaul-overlay] {
+  animation-duration: var(--motion-fast) !important;
+  transition-duration: var(--motion-fast) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stagger-in,
-  .slide-in-page {
+  .sheet-lift,
+  .paper-sheet {
     animation: none;
+    transition: none;
+  }
+
+  [data-vaul-drawer],
+  [data-vaul-overlay] {
+    animation: none !important;
+    transition: none !important;
   }
 }

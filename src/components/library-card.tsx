@@ -12,20 +12,18 @@ function whenLabel(ts: number) {
   return format(d, "d MMM");
 }
 
-export function LibraryCard({ page, index }: { page: Page; index: number }) {
+export function LibraryCard({ page }: { page: Page }) {
   const paper = getPaper(page.paperId);
   const font = getFont(page.fontId);
   const title = pageTitle(page.title, page.body);
   const preview = pagePreview(page.body);
   const words = wordCount(page.title, page.body);
-  const delay = Math.min(index, 5) * 50;
 
   return (
     <Link
       to="/write/$pageId"
       params={{ pageId: page.id }}
-      className="stagger-in block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      style={{ animationDelay: `${delay}ms` }}
+      className="block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
       <PaperSurface
         paperId={page.paperId}

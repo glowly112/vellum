@@ -88,7 +88,7 @@ function WritePage() {
 
   return (
     <main
-      className={cn("relative flex h-full min-h-0 flex-col", paper.surface)}
+      className={cn("sheet-lift relative flex h-full min-h-0 flex-col", paper.surface)}
       style={{ paddingBottom: keyboard }}
     >
       <PaperSurface
@@ -101,7 +101,7 @@ function WritePage() {
       >
         <div
           className={cn(
-            "pointer-events-none relative z-20 flex shrink-0 items-center justify-between px-3 pt-safe pb-2 transition-opacity duration-200 ease-out",
+            "pointer-events-none relative z-20 flex shrink-0 items-center justify-between px-3 pt-safe pb-2 transition-opacity duration-150 ease-out motion-reduce:transition-none",
             focus ? "opacity-0" : "opacity-100",
           )}
         >
@@ -187,7 +187,7 @@ function WritePage() {
 
         <div
           className={cn(
-            "shrink-0 px-4 pb-3 transition-opacity duration-200 ease-out",
+            "shrink-0 px-4 pb-3 transition-opacity duration-150 ease-out motion-reduce:transition-none",
             focus ? "pointer-events-none opacity-0" : "opacity-100",
           )}
         >

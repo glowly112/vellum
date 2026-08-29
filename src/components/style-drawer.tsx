@@ -57,7 +57,7 @@ export function StyleDrawer({
       shouldScaleBackground={false}
     >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-40 bg-ink/35" />
+        <Drawer.Overlay className="fixed inset-0 z-40 bg-ink/35 motion-reduce:transition-none" />
         <Drawer.Content
           className={cn(
             "fixed inset-x-0 z-50 mx-auto flex w-full max-w-sm flex-col rounded-t-2xl outline-none",

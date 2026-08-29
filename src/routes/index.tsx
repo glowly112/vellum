@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Mark } from "@/components/mark";
 import { LibraryCard } from "@/components/library-card";
 import { Button } from "@/components/ui/button";
 import { groupPages } from "@/lib/library";
@@ -46,7 +47,10 @@ function Library() {
           >
             {greeting()}
           </h1>
-          <p className="mt-2 font-display text-lg text-ink-soft">Vellum</p>
+          <div className="mt-3">
+            <Mark className="size-8 rounded-md shadow-[var(--shadow-page)]" />
+            <span className="sr-only">Vellum</span>
+          </div>
 
           <label className="relative mt-5 block">
             <span className="sr-only">Search pages</span>
@@ -80,8 +84,8 @@ function Library() {
                     {group.key}
                   </h2>
                   <div className="space-y-3">
-                    {group.pages.map((page, i) => (
-                      <LibraryCard key={page.id} page={page} index={i} />
+                    {group.pages.map((page) => (
+                      <LibraryCard key={page.id} page={page} />
                     ))}
                   </div>
                 </section>
