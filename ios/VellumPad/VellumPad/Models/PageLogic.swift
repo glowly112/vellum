@@ -92,8 +92,8 @@ enum KeyboardChrome {
     static let caretFollowsWordCount = true
     static let pinsPageToBottom = false
     static let caretRoomEdge = "bottom"
-    /// Park the body on the inset. `floor` as the target filled the field with paper.
-    static let caretScrollTarget = "body"
+    /// Park the live caret rect on the hairline. `body` / field-size was a Mini no-op.
+    static let caretScrollTarget = "caret"
     /// Build 16 sliced glyphs. Build 17 added a full pitch inside `"body"` on
     /// top of leftover slack and overshot (~3 rulings). A few points, not a pitch.
     static let caretClearanceLines = 0.0
@@ -102,6 +102,8 @@ enum KeyboardChrome {
     static let leftoverPad = 8.0
     /// Caret field follows the live layout guide, not a Mini-sized ScrollView.
     static let caretUsesLiveGuide = true
+    /// Mini 19–20: field-size left last_ink 42pt high. Nudge the caret rect.
+    static let caretUsesCaretRect = true
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
@@ -194,6 +196,24 @@ enum KeyboardChrome {
     /// Build 17: leftover + pitch ≥ one ruling of empty paper.
     static func clearanceStacksOnLeftover(lineHeight: Double, leftoverPad: Double) -> Bool {
         caretClearance(lineHeight: lineHeight) + leftoverPad >= lineHeight
+    }
+
+    /// How far to move the caret so its bottom plus a few points sits on the
+    /// hairline. Positive = too low (phone clip). Negative = too high (Mini 42pt).
+    /// Unmeasured → 0. Air is word-count air, not a pitch / 34 / 120.
+    static func caretNudge(caretBottom: Double, hairlineY: Double, air: Double) -> Double {
+        guard caretBottom > 0, hairlineY > 0 else { return 0 }
+        return caretBottom + air - hairlineY
+    }
+
+    /// Slack above the column when the caret is too high to scroll (offset 0).
+    static func caretTopInset(nudge: Double) -> Double {
+        max(0, -nudge)
+    }
+
+    /// Extra scroll when the caret is under the hairline.
+    static func caretBottomInset(nudge: Double) -> Double {
+        max(0, nudge)
     }
 }
 

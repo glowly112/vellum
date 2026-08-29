@@ -16,10 +16,6 @@ struct EditorView: View {
     @State private var keyboardPad: CGFloat = 0
     @State private var restingPad: CGFloat = 0
     @State private var bodyHeight: CGFloat = 0
-    @State private var fieldHeight: CGFloat = 0
-    @State private var columnHeight: CGFloat = 0
-    @State private var containerHeight: CGFloat = 0
-    @State private var insetHeight: CGFloat = 0
     @FocusState private var field: Field?
 
     private enum Field: Hashable {
@@ -168,10 +164,9 @@ struct EditorView: View {
     /// The whole editor is paper: under back / share / Focus / Aa, out to the
     /// screen edges, and behind / beside the keys. No desk-grain frame. Type
     /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
-    /// Extra room for the caret is *inside* the body scroll target — a few
-    /// points, not a pitch. The field above the hairline follows the live
-    /// keyboard layout guide (phone keyboard + suggestion bar), not a
-    /// Mini-sized ScrollView. Not pinned at rest.
+    /// The live UITextInput caret rect sits a few points above the
+    /// word-count hairline. Field-size / scrollTo("body") left Mini 42pt
+    /// high and the phone clipped. Not pinned at rest.
     private func writingColumn(
         page: Page,
         paper: Paper,
@@ -185,34 +180,6 @@ struct EditorView: View {
             restingPad: Double(restingPad)
         )
         let followCaret = field == .body && lift > 0
-        let lineHeight = CGFloat(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints))
-        let visibleHeight = CGFloat(KeyboardChrome.caretVisibleHeight(
-            containerHeight: Double(containerHeight),
-            guidePad: Double(keyboardPad),
-            restingPad: Double(restingPad),
-            insetHeight: Double(insetHeight)
-        ))
-        let overlap = CGFloat(KeyboardChrome.caretScrollOverlap(
-            fieldHeight: Double(fieldHeight),
-            visibleHeight: Double(visibleHeight)
-        ))
-        let floor = followCaret
-            ? CGFloat(KeyboardChrome.caretFloor(
-                visibleHeight: Double(visibleHeight),
-                columnHeight: Double(columnHeight)
-            ))
-            : 0
-        let slackAbove = CGFloat(KeyboardChrome.caretSlackAbove(
-            visibleHeight: Double(visibleHeight),
-            columnHeight: Double(columnHeight),
-            following: followCaret
-        ))
-        let ruleOffset = CGFloat(KeyboardChrome.caretRuleOffset(
-            base: PaperRuling.firstRuleOffset,
-            visibleHeight: Double(visibleHeight),
-            columnHeight: Double(columnHeight),
-            following: followCaret
-        ))
         let editorHeight = CGFloat(EditorLook.bodyEditorHeight(
             measured: Double(bodyHeight),
             empty: page.body.isEmpty
@@ -221,10 +188,6 @@ struct EditorView: View {
         return ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    Color.clear
-                        .frame(height: slackAbove)
-                        .accessibilityHidden(true)
-                        .allowsHitTesting(false)
                     VStack(alignment: .leading, spacing: 0) {
                     Text(PageCopy.longDate(page.createdAt))
                         .font(VellumFonts.ui(.caption2, weight: .medium))
@@ -249,69 +212,50 @@ struct EditorView: View {
                     .onSubmit { field = .body }
                     .padding(.top, 12)
 
-                    VStack(spacing: 0) {
-                        ZStack(alignment: .topLeading) {
-                            Text(page.body.isEmpty ? " " : page.body)
-                                .font(VellumFonts.body(typeface, size: size))
-                                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
-                                .padding(.top, 8)
-                                .padding(.bottom, CGFloat(EditorLook.bodyBottomPad))
-                                .frame(maxWidth: .infinity, alignment: .topLeading)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .opacity(0)
-                                .allowsHitTesting(false)
-                                .accessibilityHidden(true)
-                                .onGeometryChange(for: CGFloat.self) { proxy in
-                                    proxy.size.height
-                                } action: { height in
-                                    bodyHeight = height
-                                }
-
-                            TextEditor(text: bodyBinding(page))
-                                .font(VellumFonts.body(typeface, size: size))
-                                .foregroundStyle(ink.color)
-                                .tint(ink.color)
-                                .scrollContentBackground(.hidden)
-                                .scrollDisabled(true)
-                                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
-                                .contentMargins(.top, 0, for: .scrollContent)
-                                .contentMargins(.bottom, 0, for: .scrollContent)
-                                .textInputAutocapitalization(.sentences)
-                                .focused($field, equals: .body)
-                                .padding(.top, 8)
-                                .padding(.bottom, CGFloat(EditorLook.bodyBottomPad))
-                                .frame(maxWidth: .infinity, alignment: .topLeading)
-                                .frame(height: editorHeight)
-                                .overlay(alignment: .topLeading) {
-                                    if page.body.isEmpty && field != .body {
-                                        Text("Begin writing…")
-                                            .font(VellumFonts.body(typeface, size: size))
-                                            .foregroundStyle(ink.color.opacity(0.38))
-                                            .padding(.top, 16)
-                                            .allowsHitTesting(false)
-                                    }
-                                }
-                        }
-                        // A few points *inside* the scroll target. A pitch here
-                        // stacked on leftover pad and overshot (build 17).
-                        Color.clear
-                            .frame(height: followCaret
-                                ? CGFloat(KeyboardChrome.caretClearance(lineHeight: Double(lineHeight)))
-                                : 0)
-                            .accessibilityHidden(true)
+                    ZStack(alignment: .topLeading) {
+                        Text(page.body.isEmpty ? " " : page.body)
+                            .font(VellumFonts.body(typeface, size: size))
+                            .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                            .padding(.top, 8)
+                            .padding(.bottom, CGFloat(EditorLook.bodyBottomPad))
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .opacity(0)
                             .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                            .onGeometryChange(for: CGFloat.self) { proxy in
+                                proxy.size.height
+                            } action: { height in
+                                bodyHeight = height
+                            }
+
+                        TextEditor(text: bodyBinding(page))
+                            .font(VellumFonts.body(typeface, size: size))
+                            .foregroundStyle(ink.color)
+                            .tint(ink.color)
+                            .scrollContentBackground(.hidden)
+                            .scrollDisabled(true)
+                            .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                            .contentMargins(.top, 0, for: .scrollContent)
+                            .contentMargins(.bottom, 0, for: .scrollContent)
+                            .textInputAutocapitalization(.sentences)
+                            .focused($field, equals: .body)
+                            .padding(.top, 8)
+                            .padding(.bottom, CGFloat(EditorLook.bodyBottomPad))
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .frame(height: editorHeight)
+                            .overlay(alignment: .topLeading) {
+                                if page.body.isEmpty && field != .body {
+                                    Text("Begin writing…")
+                                        .font(VellumFonts.body(typeface, size: size))
+                                        .foregroundStyle(ink.color.opacity(0.38))
+                                        .padding(.top, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                     }
                     .id("body")
                     }
-                    .background {
-                        GeometryReader { geo in
-                            Color.clear.preference(key: ColumnHeightKey.self, value: geo.size.height)
-                        }
-                    }
-
-                    Color.clear
-                        .frame(height: floor)
-                        .id("caret-floor")
                 }
                 .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
                 .padding(.trailing, CGFloat(EditorLook.typeTrailing))
@@ -320,73 +264,34 @@ struct EditorView: View {
                     if paper.ruling != .none {
                         PaperBackdrop(
                             paper: paper,
-                            ruleOffset: ruleOffset,
+                            ruleOffset: CGFloat(PaperRuling.firstRuleOffset),
                             drawsFill: false
                         )
                     }
                 }
             }
             .scrollContentBackground(.hidden)
-            .contentMargins(.bottom, overlap, for: .scrollContent)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background {
-                GeometryReader { geo in
-                    Color.clear.preference(key: FieldHeightKey.self, value: geo.size.height)
-                }
-            }
-            .onPreferenceChange(FieldHeightKey.self) { fieldHeight = $0 }
-            .onPreferenceChange(ColumnHeightKey.self) { columnHeight = $0 }
             .onChange(of: followCaret) { _, on in
-                scrollCaret(proxy, follow: on)
-            }
-            .onChange(of: slackAbove) { _, _ in
-                scrollCaret(proxy, follow: followCaret)
-            }
-            .onChange(of: keyboardPad) { _, _ in
-                scrollCaret(proxy, follow: followCaret)
-            }
-            .onChange(of: page.body) { _, _ in
-                scrollCaret(proxy, follow: followCaret)
+                if !on {
+                    proxy.scrollTo("page-top", anchor: .top)
+                }
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if EditorSheetCopy.showsFooter(focus: focusMode) {
-                wordCountInset(footer: footer, ink: ink)
+                wordCountInset(footer: footer, ink: ink, followCaret: followCaret)
                     .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
                     .padding(.trailing, CGFloat(EditorLook.typeTrailing))
                     .padding(.bottom, CGFloat(KeyboardAvoidance.wordCountBottomPad(keyboardLift: lift)))
-                    .onGeometryChange(for: CGFloat.self) { proxy in
-                        proxy.size.height
-                    } action: { height in
-                        insetHeight = height
-                    }
             }
         }
         .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(
             guidePad: Double(keyboardPad),
             restingPad: Double(restingPad)
         )))
-        .onChange(of: focusMode) { _, on in
-            if !EditorSheetCopy.showsFooter(focus: on) { insetHeight = 0 }
-        }
         .ignoresSafeArea(.keyboard)
         .ignoresSafeArea(.container, edges: .bottom)
-        .background {
-            GeometryReader { geo in
-                Color.clear.preference(key: ContainerHeightKey.self, value: geo.size.height)
-            }
-        }
-        .onPreferenceChange(ContainerHeightKey.self) { containerHeight = $0 }
-    }
-
-    private func scrollCaret(_ proxy: ScrollViewProxy, follow: Bool) {
-        DispatchQueue.main.async {
-            if follow {
-                proxy.scrollTo("body", anchor: .bottom)
-            } else {
-                proxy.scrollTo("page-top", anchor: .top)
-            }
-        }
     }
 
     /// Extra `lineSpacing` so the line box equals `pitch * pitches` (UIFont when we have it).
@@ -398,11 +303,17 @@ struct EditorView: View {
 
     /// Apple `safeAreaInset`: content sits beside the column and grows the safe
     /// area. Bottom pad is the keyboard layout guide, not a jumped safe area.
-    private func wordCountInset(footer: EditorFooter, ink: Ink) -> some View {
+    private func wordCountInset(footer: EditorFooter, ink: Ink, followCaret: Bool) -> some View {
         VStack(spacing: 0) {
             Rectangle()
                 .fill(ink.color.opacity(0.12))
                 .frame(height: 0.5)
+                .background {
+                    CaretHairlineFollower(
+                        following: followCaret,
+                        air: CGFloat(KeyboardAvoidance.wordCountAir)
+                    )
+                }
             Text(footer.words)
                 .monospacedDigit()
                 .font(VellumFonts.ui(.caption, weight: .medium))
@@ -562,23 +473,163 @@ private final class KeyboardPadUIView: UIView {
     }
 }
 
-private struct FieldHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+/// Parks the first-responder `UITextInput` caret a few points above this
+/// view (the word-count hairline). Ancestor walks miss SwiftUI's TextEditor;
+/// the first responder is the live caret. Not a guessed 34 / 120.
+private struct CaretHairlineFollower: UIViewRepresentable {
+    var following: Bool
+    var air: CGFloat
+
+    func makeUIView(context: Context) -> CaretHairlineView {
+        let view = CaretHairlineView()
+        view.isUserInteractionEnabled = false
+        view.backgroundColor = .clear
+        return view
+    }
+
+    func updateUIView(_ uiView: CaretHairlineView, context: Context) {
+        uiView.air = air
+        uiView.following = following
+        uiView.nudge()
     }
 }
 
-private struct ColumnHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+private final class CaretHairlineView: UIView {
+    var following = false
+    var air: CGFloat = 4
+    private weak var lastScroll: UIScrollView?
+    private var observers: [NSObjectProtocol] = []
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        let names: [Notification.Name] = [
+            UITextView.textDidChangeNotification,
+            UITextView.textDidBeginEditingNotification,
+            UIResponder.keyboardDidChangeFrameNotification,
+        ]
+        for name in names {
+            observers.append(
+                NotificationCenter.default.addObserver(
+                    forName: name,
+                    object: nil,
+                    queue: .main
+                ) { [weak self] _ in
+                    self?.nudge()
+                }
+            )
+        }
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    deinit {
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        nudge()
+    }
+
+    func nudge() {
+        guard let window else { return }
+        guard following else {
+            if let scroll = lastScroll { reset(scroll) }
+            return
+        }
+        guard let text = Self.bodyTextView(in: window) else { return }
+        guard let scroll = Self.outerScrollView(from: text, in: window) else { return }
+        lastScroll = scroll
+        guard let range = text.selectedTextRange else { return }
+        let caret = text.caretRect(for: range.start)
+        guard caret.origin.x.isFinite, caret.origin.y.isFinite, caret.height > 0 else { return }
+        let caretBottom = text.convert(CGPoint(x: caret.midX, y: caret.maxY), to: window).y
+        let hairlineY = convert(.zero, to: window).y
+        let remaining = CGFloat(KeyboardChrome.caretNudge(
+            caretBottom: Double(caretBottom),
+            hairlineY: Double(hairlineY),
+            air: Double(air)
+        ))
+        apply(remaining, to: scroll)
+    }
+
+    private func apply(_ remaining: CGFloat, to scroll: UIScrollView) {
+        if remaining < -0.5 {
+            let top = max(0, scroll.contentInset.top - remaining)
+            scroll.contentInset.top = top
+            scroll.contentInset.bottom = 0
+            scroll.contentOffset = CGPoint(x: scroll.contentOffset.x, y: -top)
+        } else if remaining > 0.5 {
+            let bottom = max(0, scroll.contentInset.bottom + remaining)
+            scroll.contentInset.top = 0
+            scroll.contentInset.bottom = bottom
+            scroll.contentOffset = CGPoint(
+                x: scroll.contentOffset.x,
+                y: scroll.contentOffset.y + remaining
+            )
+        }
+    }
+
+    private func reset(_ scroll: UIScrollView) {
+        guard scroll.contentInset.top != 0 || scroll.contentInset.bottom != 0 else { return }
+        scroll.contentInset.top = 0
+        scroll.contentInset.bottom = 0
+    }
+
+    /// First responder `UITextView` — the body TextEditor. Title is a field.
+    private static func bodyTextView(in window: UIWindow) -> UITextView? {
+        if let text = currentFirstResponder() as? UITextView { return text }
+        return firstResponder(in: window) as? UITextView
+    }
+
+    private static func currentFirstResponder() -> UIResponder? {
+        FirstResponderBox.current = nil
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.vellum_captureFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
+        )
+        return FirstResponderBox.current
+    }
+
+    private static func firstResponder(in view: UIView) -> UIView? {
+        if view.isFirstResponder { return view }
+        for child in view.subviews {
+            if let found = firstResponder(in: child) { return found }
+        }
+        return nil
+    }
+
+    private static func outerScrollView(from start: UIView, in window: UIWindow) -> UIScrollView? {
+        var found: UIScrollView?
+        var node = start.superview
+        while let current = node {
+            if let scroll = current as? UIScrollView, !(scroll is UITextView) {
+                found = scroll
+            }
+            node = current.superview
+        }
+        if found == nil {
+            found = firstScrollView(in: window)
+        }
+        return found
+    }
+
+    private static func firstScrollView(in view: UIView) -> UIScrollView? {
+        if let scroll = view as? UIScrollView, !(scroll is UITextView) { return scroll }
+        for child in view.subviews {
+            if let found = firstScrollView(in: child) { return found }
+        }
+        return nil
     }
 }
 
-private struct ContainerHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+private enum FirstResponderBox {
+    static weak var current: UIResponder?
+}
+
+private extension UIResponder {
+    @objc func vellum_captureFirstResponder() {
+        FirstResponderBox.current = self
     }
 }

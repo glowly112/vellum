@@ -232,8 +232,10 @@ enum LinuxHammer {
         expect(!KeyboardChrome.pinsPageToBottom, "E5 short pages are not pinned to the bottom")
         expect(KeyboardChrome.caretRoomEdge == "bottom", "E5 extra room is under the body, not a top inset")
         expect(KeyboardChrome.caretRoomEdge != "top", "E5 a top inset would shift origin")
-        expect(KeyboardChrome.caretScrollTarget == "body", "E5 scroll parks the body, not the floor")
+        expect(KeyboardChrome.caretScrollTarget == "caret", "E5 scroll parks the caret rect, not the body")
+        expect(KeyboardChrome.caretScrollTarget != "body", "E5 scrollTo(body) left Mini 42pt high")
         expect(KeyboardChrome.caretScrollTarget != "floor", "E5 scrollTo(floor) tucked the last line under the title")
+        expect(KeyboardChrome.caretUsesCaretRect, "E5 nudge the live UITextInput caret")
         expect(KeyboardChrome.caretClearanceInsideTarget, "E5 clearance lives inside the body target")
         expect(KeyboardChrome.caretClearanceLines == 0, "E5 not an extra pitch above the hairline")
         expect(
@@ -266,6 +268,15 @@ enum LinuxHammer {
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false) == 0, "E5 closed does not fill the field")
         expect(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true) == 0, "E5 unmeasured field does not fill")
         expect(KeyboardChrome.caretUsesLiveGuide, "E5 caret field follows the live layout guide")
+        expect(KeyboardChrome.caretNudge(caretBottom: 481, hairlineY: 523, air: 4) == -38, "E5 Mini 20 last_ink is 42pt above the hairline")
+        expect(KeyboardChrome.caretTopInset(nudge: -38) == 38, "E5 too-high caret lifts the column")
+        expect(KeyboardChrome.caretBottomInset(nudge: -38) == 0, "E5 too-high caret does not sink")
+        expect(KeyboardChrome.caretNudge(caretBottom: 533, hairlineY: 523, air: 4) == 14, "E5 phone clip is a positive nudge")
+        expect(KeyboardChrome.caretBottomInset(nudge: 14) == 14, "E5 too-low caret sinks under the count")
+        expect(KeyboardChrome.caretNudge(caretBottom: 519, hairlineY: 523, air: 4) == 0, "E5 flush caret does not nudge")
+        expect(KeyboardChrome.caretNudge(caretBottom: 0, hairlineY: 523, air: 4) == 0, "E5 unmeasured caret does not nudge")
+        expect(KeyboardChrome.caretNudge(caretBottom: 481, hairlineY: 523, air: 4) != 34, "E5 nudge is not a 34 guess")
+        expect(KeyboardChrome.caretNudge(caretBottom: 481, hairlineY: 523, air: 4) != 120, "E5 nudge is not a 120 guess")
         expect(
             KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 20) == 534,
             "E5 visible field is container minus live pad minus inset"

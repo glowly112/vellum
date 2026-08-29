@@ -190,8 +190,10 @@ final class HammerTests: XCTestCase {
         XCTAssertFalse(KeyboardChrome.pinsPageToBottom)
         XCTAssertEqual(KeyboardChrome.caretRoomEdge, "bottom")
         XCTAssertNotEqual(KeyboardChrome.caretRoomEdge, "top")
-        XCTAssertEqual(KeyboardChrome.caretScrollTarget, "body")
+        XCTAssertEqual(KeyboardChrome.caretScrollTarget, "caret")
+        XCTAssertNotEqual(KeyboardChrome.caretScrollTarget, "body")
         XCTAssertNotEqual(KeyboardChrome.caretScrollTarget, "floor")
+        XCTAssertTrue(KeyboardChrome.caretUsesCaretRect)
         XCTAssertTrue(KeyboardChrome.caretClearanceInsideTarget, "sibling after body is ignored by scrollTo")
         XCTAssertEqual(KeyboardChrome.caretClearanceLines, 0)
         XCTAssertEqual(
@@ -232,6 +234,15 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 400, following: false), 0, "closed origin stays")
         XCTAssertEqual(KeyboardChrome.caretFieldFill(visibleHeight: 0, following: true), 0)
         XCTAssertTrue(KeyboardChrome.caretUsesLiveGuide)
+        XCTAssertEqual(KeyboardChrome.caretNudge(caretBottom: 481, hairlineY: 523, air: 4), -38)
+        XCTAssertEqual(KeyboardChrome.caretTopInset(nudge: -38), 38, "Mini 20: 42pt high needs lift, not a field-size no-op")
+        XCTAssertEqual(KeyboardChrome.caretBottomInset(nudge: -38), 0)
+        XCTAssertEqual(KeyboardChrome.caretNudge(caretBottom: 533, hairlineY: 523, air: 4), 14)
+        XCTAssertEqual(KeyboardChrome.caretBottomInset(nudge: 14), 14, "phone clip: caret under the hairline")
+        XCTAssertEqual(KeyboardChrome.caretNudge(caretBottom: 519, hairlineY: 523, air: 4), 0)
+        XCTAssertEqual(KeyboardChrome.caretNudge(caretBottom: 0, hairlineY: 523, air: 4), 0)
+        XCTAssertNotEqual(KeyboardChrome.caretNudge(caretBottom: 481, hairlineY: 523, air: 4), 34)
+        XCTAssertNotEqual(KeyboardChrome.caretNudge(caretBottom: 481, hairlineY: 523, air: 4), 120)
         XCTAssertEqual(
             KeyboardChrome.caretVisibleHeight(containerHeight: 800, guidePad: 280, restingPad: 34, insetHeight: 20),
             534
