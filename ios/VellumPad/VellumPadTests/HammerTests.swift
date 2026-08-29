@@ -158,6 +158,30 @@ final class HammerTests: XCTestCase {
         XCTAssertFalse(EditorLook.keyboardOpenProven, "Linux has no Mini keyboard pixels")
     }
 
+    func testKeyboardOpenPaperFillsGuttersAndTextTracksKeys() {
+        XCTAssertEqual(KeyboardChrome.gutterFill, "paper")
+        XCTAssertFalse(KeyboardChrome.systemWhiteGutter, "KB_COVER: no system-white beside the keys")
+        XCTAssertTrue(KeyboardChrome.paperRegions.contains("keyboard"))
+        XCTAssertTrue(KeyboardChrome.paperRegions.contains("container"))
+        XCTAssertTrue(EditorLook.paperIgnoresKeyboard)
+        XCTAssertEqual(KeyboardChrome.liftKind, "layout-guide")
+        XCTAssertNotEqual(KeyboardChrome.liftKind, "safe-area-jump")
+        XCTAssertFalse(KeyboardChrome.liftJumpsAtAnimationStart)
+        XCTAssertTrue(KeyboardChrome.textTracksKeyboard)
+        XCTAssertEqual(KeyboardChrome.writingBottomPad(guidePad: 280), 280)
+        XCTAssertEqual(KeyboardChrome.restingPad(current: 0, reported: 0), 0)
+        XCTAssertEqual(KeyboardChrome.restingPad(current: 0, reported: 34), 34)
+        XCTAssertEqual(KeyboardChrome.restingPad(current: 34, reported: 300), 34)
+        XCTAssertEqual(KeyboardChrome.restingPad(current: 34, reported: 20), 20)
+        XCTAssertEqual(KeyboardChrome.keyboardOnlyLift(guidePad: 34, restingPad: 34), 0)
+        XCTAssertEqual(KeyboardChrome.keyboardOnlyLift(guidePad: 300, restingPad: 34), 266)
+        XCTAssertEqual(KeyboardChrome.keyboardOnlyLift(guidePad: 300, restingPad: 0), 0)
+        XCTAssertNil(KeyboardAvoidance.guessedBottomPoints)
+        XCTAssertEqual(EditorLook.deskPeek, 0)
+        XCTAssertEqual(EditorLook.surfaceKind, "paper-full")
+        XCTAssertFalse(EditorLook.keyboardOpenProven)
+    }
+
     func testStyleSheetLastRowsAreReachable() {
         XCTAssertEqual(StyleSheetLayout.sections.last, "Size")
         XCTAssertTrue(StyleSheetLayout.lastSectionReachable)

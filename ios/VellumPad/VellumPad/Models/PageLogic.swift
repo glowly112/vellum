@@ -64,6 +64,39 @@ enum KeyboardAvoidance {
     }
 }
 
+/// Keyboard-open chrome. The clip’s fail is jank: text jumps to the end
+/// the moment the keyboard starts moving, because a safe-area read snaps.
+/// Paper still fills beside / behind the keys so a system-white gutter cannot
+/// show. Do not guess 34 / 120.
+enum KeyboardChrome {
+    /// Paper ignores both. `.container` only lets the paper resize with the keys.
+    static let paperRegions: [String] = ["container", "keyboard"]
+    /// Left and right of the keys (and behind them) are paper, not window white.
+    static let gutterFill = "paper"
+    static let systemWhiteGutter = false
+    /// Bottom pad follows `keyboardLayoutGuide` (animates). Not a jumped safe area.
+    static let liftKind = "layout-guide"
+    static let liftJumpsAtAnimationStart = false
+    static let textTracksKeyboard = true
+
+    static func writingBottomPad(guidePad: Double) -> Double {
+        max(0, guidePad)
+    }
+
+    /// First measured resting inset (home indicator). Not a guessed 34.
+    static func restingPad(current: Double, reported: Double) -> Double {
+        guard reported > 0 else { return current }
+        if current == 0 || reported < current { return reported }
+        return current
+    }
+
+    /// Keyboard-only lift for word-count air. Zero until resting is known.
+    static func keyboardOnlyLift(guidePad: Double, restingPad: Double) -> Double {
+        guard restingPad > 0 else { return 0 }
+        return max(0, guidePad - restingPad)
+    }
+}
+
 /// Library merge: paper sheet is the object; chrome stays system iOS 26.
 enum LibraryLook {
     static let cellKind = "paper-sheet"
@@ -254,6 +287,8 @@ enum EditorLook {
     static let sheetMaxHeightFraction: Double? = nil
     static let footerPlacement = "safeAreaInset"
     static let fillsToolbarToInset = true
+    /// Paper stays behind the keys. Not a container-only ignore (that resizes).
+    static let paperIgnoresKeyboard = true
     static let grainReveal = "none"
     static let bodyHoldsSeveralParagraphs = true
     static let clipsBody = false

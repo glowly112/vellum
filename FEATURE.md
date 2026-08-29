@@ -1,14 +1,14 @@
 # Feature
-Job: 1.0.0 (8) crashes on phones that already had 7. Jamie also expected the home-screen name Velin. Fix the store and the display name on PR #4. Bump to build 9.
-Non-goals: Wiping pages, changing the bundle id, store listing, web, claiming Simulator proof
-Touched: Page.isPinned → optional + PageStoreOpen + pbxproj display name / build + hammer
-Reuse: Swipe pin/delete, Focus eye, Page style medium, words-only inset, paper sheets
-Risk: In-memory fallback that hides the desk; VersionedSchema that cannot open an unversioned store
-Done: Optional pin so a build-7 `vellum-pages` row opens and stays. Display name Velin. Build 9. Pre-pin store test fails on required Bool, passes on optional.
+Job: Internal 1.0.0 (9) jank when the keyboard rises or falls. Text snaps at animation start. Keep paper filling keyboard gutters. Bump to build 10.
+Non-goals: White-gutter-only theory, guessing 34 / 120, desk-frame postcard, claiming Simulator proof, merging, archiving
+Touched: EditorView keyboard pad + KeyboardChrome + hammer + pbxproj build
+Reuse: Paper-full editor, word-count inset, type origin 24 / 56 / 24, ruled pitch, Velin display name
+Risk: Safe-area GeometryReader (jumps); paper that resizes with the keys
+Done: Bottom pad follows `keyboardLayoutGuide` so text travels with the keys. Paper ignores keyboard + container (gutter fill is paper). Build 10.
 Not done: Mini / Simulator pixels. `keyboardOpenProven` stays false on Linux.
 Steps:
-1. Test that a pre-pin store (no isPinned) opens and keeps the page
-2. Store pin as optional Bool (nil → unpinned). Display name Velin. Build 9
+1. Tests: keyboard-open gutters are paper; lift is layout-guide, not a safe-area jump
+2. Ignore keyboard on the column; pad from the layout guide; paper stays behind the keys
 3. prove.sh — linux-hammer green. Do not claim Simulator proof
-Status: crash + name this turn. Editor-done stays false.
+Status: keyboard jank this turn. Editor-done stays false.
 Verified this turn: linux-hammer. No Simulator on this worker.
