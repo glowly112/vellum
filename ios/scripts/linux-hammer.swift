@@ -120,8 +120,17 @@ enum LinuxHammer {
 
         expect(EditorLook.surfaceKind == "sheet-on-desk", "E1 editor is sheet on desk")
         expect(EditorLook.surfaceKind != "full-bleed-notes", "E1 forbid full-bleed Notes")
-        expect(EditorLook.deskInset > 0 && EditorLook.cornerRadius >= 12, "E1 sheet is inset and rounded")
+        expect(!EditorLook.isFullBleed, "E1 sheet is not full-bleed")
+        expect(EditorLook.deskInset > 16, "E1 side desk is more than a 12pt gutter")
+        expect(EditorLook.deskBottom > 28, "E1 desk shows below the sheet")
+        expect(EditorLook.sheetMaxHeightFraction < 0.90, "E1 sheet does not take the full field")
+        expect(EditorLook.cornerRadius >= 12, "E1 sheet is rounded")
         expect(EditorLook.wrap == "native", "E1 not a web wrap")
+        let editorField = 700.0
+        let editorSheetH = EditorLook.sheetHeight(inField: editorField)
+        expect(editorSheetH < editorField, "E1 sheet height is shorter than the field")
+        expect(editorSheetH < editorField * 0.90, "E1 sheet is not a 90% card")
+        expect(editorField - editorSheetH > EditorLook.deskBottom, "E1 leftover field is desk, not a rim")
 
         let editorFooter = EditorSheetCopy.footer(wordCount: 66, paper: .cream, typeface: .book)
         expect(editorFooter.words == "66 words", "E2 footer word count")
@@ -142,6 +151,10 @@ enum LinuxHammer {
         expect(EditorLook.bodyKind != "nested-scrollview", "E5 forbid nested ScrollView")
         expect(StyleSheetLayout.sections.last == "Size", "E5 style last section reachable")
         expect(EditorSheetCopy.footer(wordCount: 1, paper: .ruled, typeface: .book).words == "1 word", "E5 singular word")
+        let keyboardField = 360.0
+        let keyboardSheet = EditorLook.sheetHeight(inField: keyboardField)
+        expect(keyboardSheet <= keyboardField, "E5 sheet shrinks with the keyboard field")
+        expect(keyboardSheet + EditorLook.deskTop <= keyboardField, "E5 footer stays in the field")
 
         let deskSeed = PaperGrain.seed(forToken: "desk")
         expect(deskSeed != 0, "E6 desk grain seed is unsigned and non-zero")

@@ -1,13 +1,13 @@
 # Feature
-Job: Debug-only `VELLUM_OPEN_FIRST=1` so Mini can launch straight into EditorView without a tap.
-Non-goals: Release shipping, layout change, web wrap, custom chrome
-Touched: DebugOpenFirst, LibraryView (`#if DEBUG`), GLARE.md, hammer
-Reuse: existing NavigationStack path, first `@Query` page
-Risk: Opening the editor in Release. Guard is `#if DEBUG` + `debugBuild == false` ignores env.
-Done: Env flag pushes the first page after the library appears. Documented simctl one-liner.
+Job: Editor sheet is an object on the desk, not a tall full-screen card with a 12pt gutter.
+Non-goals: Library changes, custom back, web wrap, Release open-first
+Touched: EditorLook (deskInset 24, deskBottom 40, sheetMaxHeightFraction 0.76, sheetHeight), EditorView GeometryReader
+Reuse: DeskBackdrop, PaperBackdrop, system chrome, VELLUM_OPEN_FIRST
+Risk: KB_COVER if sheet height ignores the keyboard-safe field. sheetHeight(inField:) uses the current field (no guessed pad).
+Done: Sheet is shorter than the safe-area field. Desk shows on sides and below. Long body still scrolls inside the sheet.
 Steps:
-1. Failing test first: `cannot find 'DebugOpenFirst' in scope`
-2. Smallest pass: DebugOpenFirst helper + LibraryView `#if DEBUG` onAppear
-3. Run prove.sh
-Status: logic gate this turn. Editor pixels still Mini (now launchable without a tap).
-Verified this turn: linux-hammer DebugOpenFirst cases + prove.sh.
+1. Failing test first: EditorLook had no isFullBleed / sheetHeight / deskBottom
+2. Smallest pass: look constants + GeometryReader height, not maxHeight infinity
+3. prove.sh
+Status: logic gate this turn. Mini still photographs pixels.
+Verified this turn: linux-hammer E1/E5 sheetHeight + KB_COVER; prove.sh.

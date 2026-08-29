@@ -52,95 +52,39 @@ struct EditorView: View {
             DeskBackdrop()
                 .ignoresSafeArea(.container)
 
-            VStack(spacing: 0) {
-                if focusMode {
-                    Color.clear
-                        .frame(height: 28)
-                        .frame(maxWidth: .infinity)
-                        .contentShape(Rectangle())
-                        .onTapGesture { focusMode = false }
-                        .accessibilityLabel("Exit focus")
-                        .accessibilityAddTraits(.isButton)
-                }
+            GeometryReader { geo in
+                let sheetHeight = CGFloat(EditorLook.sheetHeight(inField: geo.size.height))
 
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(PageCopy.longDate(page.createdAt))
-                        .font(VellumFonts.ui(.caption2, weight: .medium))
-                        .tracking(1.6)
-                        .foregroundStyle(ink.color.opacity(0.40))
-                        .padding(.top, focusMode ? 4 : 8)
-
-                    TextField(
-                        "Title",
-                        text: titleBinding(page),
-                        prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
-                        axis: .vertical
-                    )
-                    .font(VellumFonts.title(typeface, size: size))
-                    .foregroundStyle(ink.color)
-                    .tint(ink.color)
-                    .textInputAutocapitalization(.sentences)
-                    .submitLabel(.next)
-                    .focused($field, equals: .title)
-                    .onSubmit { field = .body }
-                    .padding(.top, 12)
-
-                    TextEditor(text: bodyBinding(page))
-                        .font(VellumFonts.body(typeface, size: size))
-                        .foregroundStyle(ink.color)
-                        .tint(ink.color)
-                        .scrollContentBackground(.hidden)
-                        .lineSpacing(CGFloat(size.bodyPoints * (size.bodyLeading - 1)))
-                        .textInputAutocapitalization(.sentences)
-                        .focused($field, equals: .body)
-                        .padding(.top, 8)
-                        .padding(.bottom, 8)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                        .overlay(alignment: .topLeading) {
-                            if page.body.isEmpty && field != .body {
-                                Text("Begin writing…")
-                                    .font(VellumFonts.body(typeface, size: size))
-                                    .foregroundStyle(ink.color.opacity(0.38))
-                                    .padding(.top, 16)
-                                    .allowsHitTesting(false)
-                            }
-                        }
-
-                    if EditorSheetCopy.showsFooter(focus: focusMode) {
-                        Button {
-                            openStyles()
-                        } label: {
-                            HStack {
-                                Text(footer.words)
-                                    .monospacedDigit()
-                                Spacer()
-                                Text(footer.style)
-                            }
-                            .font(VellumFonts.ui(.caption, weight: .medium))
-                            .tracking(0.4)
-                            .foregroundStyle(ink.color.opacity(0.55))
-                            .frame(minHeight: HitTarget.minimum)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Page style, \(footer.words), \(footer.style)")
+                VStack(spacing: 0) {
+                    if focusMode {
+                        Color.clear
+                            .frame(height: 28)
+                            .frame(maxWidth: .infinity)
+                            .contentShape(Rectangle())
+                            .onTapGesture { focusMode = false }
+                            .accessibilityLabel("Exit focus")
+                            .accessibilityAddTraits(.isButton)
                     }
+
+                    Spacer(minLength: CGFloat(EditorLook.deskTop))
+
+                    sheet(
+                        page: page,
+                        paper: paper,
+                        ink: ink,
+                        typeface: typeface,
+                        size: size,
+                        footer: footer
+                    )
+                    .frame(
+                        width: max(0, geo.size.width - CGFloat(EditorLook.deskInset) * 2),
+                        height: sheetHeight
+                    )
+
+                    Spacer(minLength: CGFloat(EditorLook.deskBottom))
                 }
-                .padding(.leading, paper.ruling == .lines ? 56 : 24)
-                .padding(.trailing, 24)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background {
-                    PaperBackdrop(paper: paper, ruleOffset: 86)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous)
-                        .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
-                }
-                .shadow(color: VellumPalette.ink.opacity(0.14), radius: 12, y: 4)
             }
-            .padding(.horizontal, CGFloat(EditorLook.deskInset))
-            .padding(.bottom, CGFloat(EditorLook.deskInset))
-            .padding(.top, focusMode ? 6 : 2)
         }
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("")
@@ -210,6 +154,90 @@ struct EditorView: View {
         } message: {
             Text("This page will be removed from this device. It cannot be undone.")
         }
+    }
+
+    private func sheet(
+        page: Page,
+        paper: Paper,
+        ink: Ink,
+        typeface: Typeface,
+        size: TypeSize,
+        footer: EditorFooter
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(PageCopy.longDate(page.createdAt))
+                .font(VellumFonts.ui(.caption2, weight: .medium))
+                .tracking(1.6)
+                .foregroundStyle(ink.color.opacity(0.40))
+                .padding(.top, focusMode ? 4 : 8)
+
+            TextField(
+                "Title",
+                text: titleBinding(page),
+                prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
+                axis: .vertical
+            )
+            .font(VellumFonts.title(typeface, size: size))
+            .foregroundStyle(ink.color)
+            .tint(ink.color)
+            .textInputAutocapitalization(.sentences)
+            .submitLabel(.next)
+            .focused($field, equals: .title)
+            .onSubmit { field = .body }
+            .padding(.top, 12)
+
+            TextEditor(text: bodyBinding(page))
+                .font(VellumFonts.body(typeface, size: size))
+                .foregroundStyle(ink.color)
+                .tint(ink.color)
+                .scrollContentBackground(.hidden)
+                .lineSpacing(CGFloat(size.bodyPoints * (size.bodyLeading - 1)))
+                .textInputAutocapitalization(.sentences)
+                .focused($field, equals: .body)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .overlay(alignment: .topLeading) {
+                    if page.body.isEmpty && field != .body {
+                        Text("Begin writing…")
+                            .font(VellumFonts.body(typeface, size: size))
+                            .foregroundStyle(ink.color.opacity(0.38))
+                            .padding(.top, 16)
+                            .allowsHitTesting(false)
+                    }
+                }
+
+            if EditorSheetCopy.showsFooter(focus: focusMode) {
+                Button {
+                    openStyles()
+                } label: {
+                    HStack {
+                        Text(footer.words)
+                            .monospacedDigit()
+                        Spacer()
+                        Text(footer.style)
+                    }
+                    .font(VellumFonts.ui(.caption, weight: .medium))
+                    .tracking(0.4)
+                    .foregroundStyle(ink.color.opacity(0.55))
+                    .frame(minHeight: HitTarget.minimum)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Page style, \(footer.words), \(footer.style)")
+            }
+        }
+        .padding(.leading, paper.ruling == .lines ? 56 : 24)
+        .padding(.trailing, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            PaperBackdrop(paper: paper, ruleOffset: 86)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous)
+                .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
+        }
+        .shadow(color: VellumPalette.ink.opacity(0.14), radius: 12, y: 4)
     }
 
     private var missing: some View {

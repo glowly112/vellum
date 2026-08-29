@@ -62,9 +62,17 @@ final class HammerTests: XCTestCase {
     func testEditorIsSheetOnDeskNotFullBleedNotes() {
         XCTAssertEqual(EditorLook.surfaceKind, "sheet-on-desk")
         XCTAssertNotEqual(EditorLook.surfaceKind, "full-bleed-notes")
-        XCTAssertGreaterThan(EditorLook.deskInset, 0)
+        XCTAssertFalse(EditorLook.isFullBleed)
+        XCTAssertGreaterThan(EditorLook.deskInset, 16, "12pt gutter still reads as a full-screen card")
+        XCTAssertGreaterThan(EditorLook.deskBottom, 28)
+        XCTAssertLessThan(EditorLook.sheetMaxHeightFraction, 0.90)
         XCTAssertGreaterThanOrEqual(EditorLook.cornerRadius, 12)
         XCTAssertEqual(EditorLook.wrap, "native")
+        let field = 700.0
+        let sheet = EditorLook.sheetHeight(inField: field)
+        XCTAssertLessThan(sheet, field)
+        XCTAssertLessThan(sheet, field * 0.90)
+        XCTAssertGreaterThan(field - sheet, EditorLook.deskBottom)
     }
 
     func testEditorFooterCopySitsOnTheSheet() {
@@ -92,6 +100,10 @@ final class HammerTests: XCTestCase {
         XCTAssertNotEqual(EditorLook.bodyKind, "nested-scrollview")
         XCTAssertEqual(StyleSheetLayout.sections.last, "Size")
         XCTAssertEqual(EditorSheetCopy.footer(wordCount: 1, paper: .ruled, typeface: .book).words, "1 word")
+        let keyboardField = 360.0
+        let sheet = EditorLook.sheetHeight(inField: keyboardField)
+        XCTAssertLessThanOrEqual(sheet, keyboardField)
+        XCTAssertLessThanOrEqual(sheet + EditorLook.deskTop, keyboardField)
     }
 
     func testLibraryEmptyDeskHasNoSheets() {

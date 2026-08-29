@@ -141,6 +141,7 @@ enum LibraryEmpty {
 /// Editor merge: the page is a sheet on the desk; chrome stays system iOS 26.
 enum EditorLook {
     static let surfaceKind = "sheet-on-desk"
+    static let isFullBleed = false
     static let wrap = "native"
     static let backKind = "system"
     static let focusKind = "system-toolbar"
@@ -148,8 +149,22 @@ enum EditorLook {
     static let stylesSystemImage = "textformat"
     static let bodyKind = "text-editor"
     static let cornerRadius: Double = 16
-    static let deskInset: Double = 12
+    /// Side desk — more than a 12pt card gutter.
+    static let deskInset: Double = 24
+    static let deskTop: Double = 18
+    /// Desk below the sheet, above the home indicator.
+    static let deskBottom: Double = 40
+    /// Sheet is an object on the field, not a 100% card.
+    static let sheetMaxHeightFraction: Double = 0.76
     static let guessedKeyboardPad: Double? = nil
+
+    /// Height of the paper in the current safe-area field (keyboard-aware).
+    /// Always shorter than the field so grain shows below. No guessed pad.
+    static func sheetHeight(inField fieldHeight: Double) -> Double {
+        let usable = max(0, fieldHeight - deskTop - deskBottom)
+        let capped = fieldHeight * sheetMaxHeightFraction
+        return min(usable, capped)
+    }
 }
 
 struct EditorFooter: Equatable, Sendable {

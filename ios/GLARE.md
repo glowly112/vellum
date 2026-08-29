@@ -23,6 +23,6 @@ These still need a phone-width watch:
 7. **Share sheet.** `FileRepresentation` writes a `.txt`. Not presented.
 8. **Delete alerts.** Cancel vs confirm not tapped.
 9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
-10. **Editor sheet on desk.** Rounded paper on the grain desk; footer `N words` / `Cream · Book` on the sheet. System back / Focus / styles / ShareLink. Not a full-bleed Notes page. Not watched.
+10. **Editor sheet on desk.** Paper is a shorter object (max 76% of the field, 24pt sides, 40pt desk below). Grain visible on sides AND below. Footer on the sheet. Not a 12pt-gutter full-screen card. Not watched.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**.
