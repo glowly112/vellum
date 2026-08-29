@@ -43,7 +43,7 @@ struct LibraryView: View {
                 DefaultToolbarItem(kind: .search, placement: .bottomBar)
                 ToolbarSpacer(.flexible, placement: .bottomBar)
                 ToolbarItem(placement: .bottomBar) {
-                    Button("New page", systemImage: "square.and.pencil") {
+                    Button("New page", systemImage: LibraryLook.composeSystemImage) {
                         startPage()
                     }
                     .accessibilityLabel("New page")
@@ -96,15 +96,11 @@ struct LibraryView: View {
         let searching = !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         ContentUnavailableView {
             Label(
-                searching ? "Nothing matches" : "The desk is clear",
+                LibraryEmpty.headline(searching: searching),
                 systemImage: searching ? "magnifyingglass" : "doc"
             )
         } description: {
-            Text(
-                searching
-                    ? "Try a different word, or start a new page."
-                    : "A blank sheet, waiting. Start whenever you like."
-            )
+            Text(LibraryEmpty.detail(searching: searching))
         } actions: {
             if searching {
                 Button("Clear search") { query = "" }

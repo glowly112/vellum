@@ -1,13 +1,13 @@
 # Feature
-Job: Merge web-desk paper-sheet charm into the native iOS 26 library chrome.
-Non-goals: Capacitor, WKWebView, wrapping the web app, custom brown “+ New page” pill, hiding nav/search
-Touched: LibraryView, PaperCard (PaperSheet), VellumFonts.display, LibraryLook, hammer tests
-Reuse: PaperBackdrop, PaperGrain.seed, bundled OFL faces, system .searchable + compose
-Risk: UINavigationBarAppearance would flatten Liquid Glass; large title type is a ToolbarItem. Grain must stay PaperGrain.seed (unsigned).
-Done: Library cells are cream/sage/ruled sheets (time + face stamp, page type, snippet, word count). Greeting is Fraunces italic. Search + compose stay system.
+Job: Pass-gate the library paper-sheet merge (just-works, ui-thrift, tdd-one, hammer, unlazy, verify-done).
+Non-goals: Simulator pixels (Jamie’s Mini), Capacitor, WKWebView, custom + New page pill
+Touched: PageLogic (LibrarySheetCopy), PaperSheet, LibraryView, HammerTests, linux-hammer, prove.sh
+Reuse: PaperBackdrop, PaperGrain.seed, OFL faces, system searchable + compose
+Risk: Claiming done from a plan. Test target on Linux is linux-hammer, not xcodebuild.
+Done: Seven library hammer cases exist and were run this turn (0 failures). Cell is a paper-sheet. Compose stays system. Grain seed stays unsigned.
 Steps:
-1. Replace PaperRow thumbnail+Notes row with PaperSheet on PaperBackdrop
-2. Style large title via ToolbarItem(.largeTitle) + VellumFonts.display (Fraunces italic)
-3. Leave editor as-is; keep compose / searchable / recency sections
-Status: prototype — production bar false until a phone watches the library
-Verified this turn: PaperRow/PaperStamp gone; PaperSheet uses PaperBackdrop + PaperGrain.seed; compose is still system searchable + square.and.pencil. linux-hammer/xcodebuild absent on this Linux worker (no swiftc).
+1. Failing test first: `LibrarySheetCopy` missing (`cannot find 'LibrarySheetCopy' in scope`)
+2. Smallest pass: LibrarySheetCopy + LibraryEmpty; PaperSheet reads that copy
+3. Run test target: `swiftc` + linux-hammer → 0 failures
+Status: logic gate passed this turn. Visual / Liquid Glass still Mini.
+Verified this turn: linux-hammer exit 0 (see HAMMER.md library table). No PaperRow leftover. PaperGrain.seed unchanged.

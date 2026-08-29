@@ -59,12 +59,75 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(HitTarget.minimum, 44)
     }
 
-    func testLibraryLookIsPaperSheetWithSerifGreetingAndSystemCompose() {
-        XCTAssertEqual(LibraryLook.cellKind, "paper-sheet")
+    func testLibraryEmptyDeskHasNoSheets() {
+        let sheets = LibrarySheetCopy.sheets(pages: [], query: "", now: now)
+        XCTAssertTrue(sheets.isEmpty)
+        XCTAssertEqual(LibraryEmpty.headline(searching: false), "The desk is clear")
+    }
+
+    func testLibraryOnePageIsAPaperSheetNotANotesRow() {
+        let pages = [
+            LibraryPage(title: "Late light on the river", body: "pewter water", updatedAt: now, paper: .cream, typeface: .book),
+        ]
+        let sheets = LibrarySheetCopy.sheets(pages: pages, query: "", now: now)
+        XCTAssertEqual(sheets.count, 1)
+        XCTAssertEqual(sheets[0].kind, "paper-sheet")
+        XCTAssertNotEqual(sheets[0].kind, "notes-row")
+        XCTAssertNotEqual(sheets[0].face, "Aa")
+        XCTAssertEqual(sheets[0].face, "Book")
+        XCTAssertEqual(sheets[0].title, "Late light on the river")
+        XCTAssertGreaterThanOrEqual(LibraryLook.sheetMinHeight, 160)
+    }
+
+    func testLibraryLongTitleStaysOnTheSheet() {
+        let long = String(repeating: "Late light on the river ", count: 6).trimmingCharacters(in: .whitespaces)
+        let sheet = LibrarySheetCopy.cell(
+            title: long,
+            body: "The Thames.",
+            updatedAt: now,
+            paper: .cream,
+            typeface: .book,
+            now: now
+        )
+        XCTAssertEqual(sheet.kind, "paper-sheet")
+        XCTAssertEqual(sheet.title, long)
+        XCTAssertTrue(sheet.title.count > 40)
+    }
+
+    func testLibrarySearchOpenFiltersAndEmptyMatch() {
+        let pages = [
+            LibraryPage(title: "River", body: "water", updatedAt: now, paper: .cream, typeface: .book),
+        ]
+        XCTAssertEqual(LibrarySheetCopy.sheets(pages: pages, query: "river", now: now).count, 1)
+        XCTAssertTrue(LibrarySheetCopy.sheets(pages: pages, query: "zebra", now: now).isEmpty)
+        XCTAssertEqual(LibraryEmpty.headline(searching: true), "Nothing matches")
+    }
+
+    func testLibraryComposeIsSystemNotACustomPill() {
+        XCTAssertEqual(LibraryLook.composeKind, "system")
+        XCTAssertEqual(LibraryLook.composeSystemImage, "square.and.pencil")
+        XCTAssertEqual(LibraryLook.searchablePrompt, "Search pages")
+        XCTAssertNotEqual(LibraryLook.composeKind, "custom-pill")
         XCTAssertEqual(LibraryLook.greetingFamily, "Fraunces")
         XCTAssertNotEqual(LibraryLook.greetingFamily, "SF Pro")
-        XCTAssertEqual(LibraryLook.composeKind, "system")
-        XCTAssertGreaterThanOrEqual(LibraryLook.sheetMinHeight, 160)
+    }
+
+    func testLibrarySheetCarriesPaperAndTypeface() {
+        let sheet = LibrarySheetCopy.cell(
+            title: "things I noticed",
+            body: "rain on warm pavement",
+            updatedAt: now.addingTimeInterval(-26 * 60 * 60),
+            paper: .sage,
+            typeface: .hand,
+            now: now
+        )
+        XCTAssertEqual(sheet.kind, "paper-sheet")
+        XCTAssertEqual(sheet.paper, .sage)
+        XCTAssertEqual(sheet.typeface, .hand)
+        XCTAssertEqual(sheet.face, "Hand")
+        XCTAssertEqual(sheet.footer, "7 words  ·  Sage")
+        XCTAssertEqual(sheet.typeface.familyName, "Caveat")
+        XCTAssertEqual(Typeface.book.familyName, "Literata")
     }
 
     func testPaperGrainSeedDoesNotTrapOnEveryPaper() {

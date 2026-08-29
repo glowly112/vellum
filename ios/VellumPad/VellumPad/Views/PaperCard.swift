@@ -5,36 +5,38 @@ struct PaperSheet: View {
     let page: Page
 
     var body: some View {
+        let sheet = LibrarySheetCopy.cell(
+            title: page.title,
+            body: page.body,
+            updatedAt: page.updatedAt,
+            paper: page.paper,
+            typeface: page.typeface
+        )
         let ink = page.ink
-        let typeface = page.typeface
-        let paper = page.paper
-        let title = page.displayTitle
-        let preview = page.preview
-        let showPreview = !preview.isEmpty && preview != title
-        let titleSize: CGFloat = typeface == .hand ? 24 : 22
-        let snippetSize: CGFloat = typeface == .hand ? 17 : 15
+        let titleSize: CGFloat = sheet.typeface == .hand ? 24 : 22
+        let snippetSize: CGFloat = sheet.typeface == .hand ? 17 : 15
 
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
-                Text(PageCopy.whenLabel(page.updatedAt))
+                Text(sheet.when)
                 Spacer(minLength: 8)
-                Text(typeface.name)
+                Text(sheet.face)
             }
             .font(VellumFonts.ui(.caption2, weight: .medium))
             .tracking(1.4)
             .textCase(.uppercase)
             .foregroundStyle(ink.color.opacity(0.45))
 
-            Text(title)
-                .font(VellumFonts.page(typeface, size: titleSize, relativeTo: .title3))
+            Text(sheet.title)
+                .font(VellumFonts.page(sheet.typeface, size: titleSize, relativeTo: .title3))
                 .foregroundStyle(ink.color)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
                 .padding(.top, 12)
 
-            if showPreview {
-                Text(preview)
-                    .font(VellumFonts.page(typeface, size: snippetSize, relativeTo: .subheadline))
+            if let snippet = sheet.snippet {
+                Text(snippet)
+                    .font(VellumFonts.page(sheet.typeface, size: snippetSize, relativeTo: .subheadline))
                     .foregroundStyle(ink.color.opacity(0.85))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
@@ -43,7 +45,7 @@ struct PaperSheet: View {
 
             Spacer(minLength: 10)
 
-            Text("\(page.words) \(page.words == 1 ? "word" : "words")  ·  \(paper.name)")
+            Text(sheet.footer)
                 .font(VellumFonts.ui(.caption2, weight: .medium))
                 .tracking(0.4)
                 .foregroundStyle(ink.color.opacity(0.40))
@@ -52,17 +54,17 @@ struct PaperSheet: View {
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity, minHeight: CGFloat(LibraryLook.sheetMinHeight), alignment: .topLeading)
         .background {
-            PaperBackdrop(paper: paper, compact: true)
+            PaperBackdrop(paper: sheet.paper, compact: true)
         }
         .clipShape(RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous)
-                .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
+                .strokeBorder(VellumPalette.ink.opacity(sheet.paper.isDark ? 0.28 : 0.10), lineWidth: 1)
         }
         .shadow(color: VellumPalette.ink.opacity(0.12), radius: 8, y: 3)
         .contentShape(RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title), \(paper.name), \(typeface.name)")
+        .accessibilityLabel("\(sheet.title), \(sheet.paper.name), \(sheet.typeface.name)")
     }
 }
 

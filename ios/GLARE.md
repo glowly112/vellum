@@ -2,6 +2,8 @@
 
 Linux worker. No iOS Simulator. No screenshots invented. A Mini `xcodebuild` generic iOS Debug already succeeded on Jamie’s Mac (exit 0, iPhoneOS 26.5). That is not a visual pass.
 
+Library sheet logic was run this turn (`linux-hammer`, 0 failures). Simulator pixels still need Jamie’s Mini.
+
 These still need a phone-width watch:
 
 1. **KB_COVER (editor).** `TextEditor` fills the column. Word-count is a `safeAreaInset` in the **system** keyboard safe area (no 34pt / 120pt guess). Not watched with a keyboard up.

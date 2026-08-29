@@ -1,5 +1,5 @@
 # STATE
 Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 5). Not Capacitor. Not App Review.
-This turn: library cells are paper sheets (web-desk charm) inside the existing iOS 26 NavigationStack / searchable / compose chrome. Greeting is Fraunces italic, not SF-only. Grain seed stays PaperGrain.seed (unsigned).
-Production bar: false until a phone watches the library sheets and KB_COVER. This Linux worker has no Simulator.
+This turn: pass-gate for library paper sheets. TDD red (`LibrarySheetCopy` missing) then green. linux-hammer ran: 0 failures (empty, one page, long title, search open, compose, paper/type, unsigned grain).
+Production bar: logic tests passed on this VM. Simulator pixels still false until Jamie’s Mini. This worker has no iOS Simulator.
 Live web: https://vellum-ib7s.vercel.app/
