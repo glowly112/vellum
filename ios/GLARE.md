@@ -2,7 +2,7 @@
 
 Linux worker. No iOS Simulator. No screenshots invented. A Mini `xcodebuild` generic iOS Debug already succeeded on Jamie’s Mac (exit 0, iPhoneOS 26.5). That is not a visual pass.
 
-Library and editor sheet logic was run this turn (`linux-hammer`). Simulator pixels still need Jamie’s Mini.
+**Do not call the editor done.** Writing-column logic ran this turn (`linux-hammer`). Keyboard-open is still undone. Simulator pixels still need Jamie’s Mini.
 
 **Editor pixels without a tap** (Debug only; Release ignores this). After a Debug install:
 
@@ -23,6 +23,6 @@ These still need a phone-width watch:
 7. **Share sheet.** `FileRepresentation` writes a `.txt`. Not presented.
 8. **Delete alerts.** Cancel vs confirm not tapped.
 9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
-10. **Editor sheet on desk.** Large page (92% of the field) with a thin desk frame (14pt sides, 14pt below). Grain peeks; not a postcard; not full-bleed Notes. Not watched.
+10. **Editor writing column.** Paper should fill under back / share / Focus / Aa down to the word-count inset. Several paragraphs visible without clipping. Desk grain peeking at the edges only — not a 0.92 / 14pt postcard, not full-bleed Notes. Closed-keyboard shot is not a pass. Not watched.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**.

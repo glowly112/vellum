@@ -48,43 +48,17 @@ struct EditorView: View {
             typeface: typeface
         )
 
-        return ZStack {
+        return writingColumn(
+            page: page,
+            paper: paper,
+            ink: ink,
+            typeface: typeface,
+            size: size,
+            footer: footer
+        )
+        .background {
             DeskBackdrop()
                 .ignoresSafeArea(.container)
-
-            GeometryReader { geo in
-                let sheetHeight = CGFloat(EditorLook.sheetHeight(inField: geo.size.height))
-
-                VStack(spacing: 0) {
-                    if focusMode {
-                        Color.clear
-                            .frame(height: 28)
-                            .frame(maxWidth: .infinity)
-                            .contentShape(Rectangle())
-                            .onTapGesture { focusMode = false }
-                            .accessibilityLabel("Exit focus")
-                            .accessibilityAddTraits(.isButton)
-                    }
-
-                    Spacer(minLength: CGFloat(EditorLook.deskTop))
-
-                    sheet(
-                        page: page,
-                        paper: paper,
-                        ink: ink,
-                        typeface: typeface,
-                        size: size,
-                        footer: footer
-                    )
-                    .frame(
-                        width: max(0, geo.size.width - CGFloat(EditorLook.deskInset) * 2),
-                        height: sheetHeight
-                    )
-
-                    Spacer(minLength: CGFloat(EditorLook.deskBottom))
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
         }
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("")
@@ -156,7 +130,12 @@ struct EditorView: View {
         }
     }
 
-    private func sheet(
+    /// Paper is the view background of this column: under back / share / Focus / Aa
+    /// down to the word-count inset. Apple TextEditor is long-form and scrollable,
+    /// so several paragraphs do not clip. Grain peeks at the edges only.
+    /// Keyboard uses the system keyboard safe area — no 34 / 120. Keyboard-open
+    /// is still undone; do not call the editor done from a closed-keyboard shot.
+    private func writingColumn(
         page: Page,
         paper: Paper,
         ink: Ink,
@@ -165,6 +144,16 @@ struct EditorView: View {
         footer: EditorFooter
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
+            if focusMode {
+                Color.clear
+                    .frame(height: 28)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture { focusMode = false }
+                    .accessibilityLabel("Exit focus")
+                    .accessibilityAddTraits(.isButton)
+            }
+
             Text(PageCopy.longDate(page.createdAt))
                 .font(VellumFonts.ui(.caption2, weight: .medium))
                 .tracking(1.6)
@@ -197,6 +186,7 @@ struct EditorView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .frame(minHeight: CGFloat(EditorLook.bodyMinHeight))
                 .overlay(alignment: .topLeading) {
                     if page.body.isEmpty && field != .body {
                         Text("Begin writing…")
@@ -206,29 +196,15 @@ struct EditorView: View {
                             .allowsHitTesting(false)
                     }
                 }
-
-            if EditorSheetCopy.showsFooter(focus: focusMode) {
-                Button {
-                    openStyles()
-                } label: {
-                    HStack {
-                        Text(footer.words)
-                            .monospacedDigit()
-                        Spacer()
-                        Text(footer.style)
-                    }
-                    .font(VellumFonts.ui(.caption, weight: .medium))
-                    .tracking(0.4)
-                    .foregroundStyle(ink.color.opacity(0.55))
-                    .frame(minHeight: HitTarget.minimum)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Page style, \(footer.words), \(footer.style)")
-            }
         }
         .padding(.leading, paper.ruling == .lines ? 56 : 24)
         .padding(.trailing, 24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if EditorSheetCopy.showsFooter(focus: focusMode) {
+                wordCountInset(footer: footer, ink: ink)
+            }
+        }
         .background {
             PaperBackdrop(paper: paper, ruleOffset: 86)
         }
@@ -237,7 +213,34 @@ struct EditorView: View {
             RoundedRectangle(cornerRadius: CGFloat(EditorLook.cornerRadius), style: .continuous)
                 .strokeBorder(VellumPalette.ink.opacity(paper.isDark ? 0.28 : 0.10), lineWidth: 1)
         }
-        .shadow(color: VellumPalette.ink.opacity(0.14), radius: 12, y: 4)
+        .shadow(color: VellumPalette.ink.opacity(0.10), radius: 8, y: 2)
+        .padding(CGFloat(EditorLook.deskPeek))
+    }
+
+    /// Apple `safeAreaInset`: content sits beside the column and grows the safe
+    /// area. Keyboard rides the system keyboard safe area. Not a guessed pad.
+    private func wordCountInset(footer: EditorFooter, ink: Ink) -> some View {
+        Button {
+            openStyles()
+        } label: {
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(ink.color.opacity(0.12))
+                    .frame(height: 0.5)
+                HStack {
+                    Text(footer.words)
+                        .monospacedDigit()
+                    Spacer()
+                    Text(footer.style)
+                }
+                .font(VellumFonts.ui(.caption, weight: .medium))
+                .tracking(0.4)
+                .foregroundStyle(ink.color.opacity(0.55))
+                .frame(minHeight: CGFloat(EditorLook.minimumHit))
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Page style, \(footer.words), \(footer.style)")
     }
 
     private var missing: some View {

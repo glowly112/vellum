@@ -59,30 +59,33 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(HitTarget.minimum, 44)
     }
 
-    func testEditorIsSheetOnDeskNotFullBleedNotes() {
+    func testEditorIsColumnPlusInsetNotAPostcard() {
         XCTAssertEqual(EditorLook.surfaceKind, "sheet-on-desk")
-        XCTAssertNotEqual(EditorLook.surfaceKind, "full-bleed-notes")
+        XCTAssertEqual(EditorLook.layoutKind, "column-plus-inset")
+        XCTAssertNotEqual(EditorLook.layoutKind, "fraction-card")
         XCTAssertFalse(EditorLook.isFullBleed)
-        XCTAssertGreaterThan(EditorLook.deskInset, 8, "some desk must peek at the sides")
-        XCTAssertLessThan(EditorLook.deskInset, 20, "24pt sides made a postcard")
-        XCTAssertGreaterThan(EditorLook.deskBottom, 8)
-        XCTAssertLessThan(EditorLook.deskBottom, 24, "40pt bottom made a floating card")
-        XCTAssertGreaterThanOrEqual(EditorLook.sheetMaxHeightFraction, 0.88)
-        XCTAssertLessThan(EditorLook.sheetMaxHeightFraction, 1, "1.0 is a full-bleed Notes page")
+        XCTAssertGreaterThan(EditorLook.deskPeek, 0, "grain must peek")
+        XCTAssertLessThan(EditorLook.deskPeek, 16, "peek is a thin frame, not a postcard gutter")
         XCTAssertGreaterThanOrEqual(EditorLook.cornerRadius, 12)
         XCTAssertEqual(EditorLook.wrap, "native")
-        let field = 700.0
-        let sheet = EditorLook.sheetHeight(inField: field)
-        XCTAssertGreaterThan(sheet, field * 0.85, "page must be the writing surface")
-        XCTAssertLessThan(sheet, field)
-        XCTAssertLessThan(field - sheet, field * 0.18, "leftover is a thin desk frame")
+        XCTAssertEqual(EditorLook.footerPlacement, "safeAreaInset")
+        XCTAssertNil(EditorLook.sheetMaxHeightFraction, "no postcard height fraction")
+        XCTAssertTrue(EditorLook.fillsToolbarToInset, "paper fills toolbar-to-inset")
+        XCTAssertEqual(EditorLook.grainReveal, "edge-only")
+        XCTAssertTrue(EditorLook.bodyHoldsSeveralParagraphs)
+        XCTAssertFalse(EditorLook.clipsBody, "several paragraphs must not clip")
+        XCTAssertGreaterThanOrEqual(EditorLook.bodyMinHeight, 240)
+        let field: Double = 668
+        XCTAssertEqual(EditorLook.writingHeight(inField: field), field - EditorLook.deskPeek * 2)
+        XCTAssertTrue(EditorLook.bodyFitsSeveralParagraphs(inFieldHeight: field))
+        XCTAssertFalse(EditorLook.keyboardOpenProven, "do not call the editor done")
     }
 
-    func testEditorFooterCopySitsOnTheSheet() {
+    func testEditorFooterCopyUsesSafeAreaInset() {
         let footer = EditorSheetCopy.footer(wordCount: 66, paper: .cream, typeface: .book)
         XCTAssertEqual(footer.words, "66 words")
         XCTAssertEqual(footer.style, "Cream · Book")
-        XCTAssertEqual(footer.placement, "on-sheet")
+        XCTAssertEqual(footer.placement, "safeAreaInset")
         XCTAssertTrue(EditorSheetCopy.showsFooter(focus: false))
         XCTAssertFalse(EditorSheetCopy.showsFooter(focus: true))
     }
@@ -103,10 +106,10 @@ final class HammerTests: XCTestCase {
         XCTAssertNotEqual(EditorLook.bodyKind, "nested-scrollview")
         XCTAssertEqual(StyleSheetLayout.sections.last, "Size")
         XCTAssertEqual(EditorSheetCopy.footer(wordCount: 1, paper: .ruled, typeface: .book).words, "1 word")
-        let keyboardField = 360.0
-        let sheet = EditorLook.sheetHeight(inField: keyboardField)
-        XCTAssertLessThanOrEqual(sheet, keyboardField)
-        XCTAssertLessThanOrEqual(sheet + EditorLook.deskTop, keyboardField)
+        XCTAssertEqual(EditorLook.footerPlacement, "safeAreaInset")
+        XCTAssertFalse(EditorLook.forbiddenGuessedPads.contains(34))
+        XCTAssertFalse(EditorLook.forbiddenGuessedPads.contains(120))
+        XCTAssertEqual(HitTarget.minimum, 44)
     }
 
     func testLibraryEmptyDeskHasNoSheets() {

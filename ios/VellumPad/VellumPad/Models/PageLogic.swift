@@ -138,9 +138,20 @@ enum LibraryEmpty {
     }
 }
 
-/// Editor merge: the page is a sheet on the desk; chrome stays system iOS 26.
+/// Editor merge: writing column, not a library card. Chrome stays system iOS 26.
+///
+/// Apple TextEditor — “A view that can display and edit long-form text.”
+/// Multiline, scrollable. Several paragraphs must not clip.
+/// Apple safeAreaInset — shows specified content beside the modified view and
+/// increases the safe area by that content. Word-count is that inset, not a
+/// footer glued inside a short card.
+/// Paper fills under the system toolbar down to the inset. Desk grain peeks
+/// at the edges only. Keyboard uses the system keyboard safe area — do not
+/// guess 34 or 120. Keyboard-open is still undone.
 enum EditorLook {
     static let surfaceKind = "sheet-on-desk"
+    /// Discard `fraction-card` (`0.76`, `0.92` / 14pt). That is still a postcard.
+    static let layoutKind = "column-plus-inset"
     static let isFullBleed = false
     static let wrap = "native"
     static let backKind = "system"
@@ -149,21 +160,33 @@ enum EditorLook {
     static let stylesSystemImage = "textformat"
     static let bodyKind = "text-editor"
     static let cornerRadius: Double = 16
-    /// Thin side reveal. 24pt read as a postcard; 0 is full-bleed Notes.
-    static let deskInset: Double = 14
-    static let deskTop: Double = 8
-    /// Thin desk below the sheet. 40pt floated the page.
-    static let deskBottom: Double = 14
-    /// Large page you write on. 0.76 was a postcard; 1.0 is Notes.
-    static let sheetMaxHeightFraction: Double = 0.92
+    /// Thin desk grain at the edges only — not a 14/24pt postcard gutter.
+    static let deskPeek: Double = 6
+    /// No height-fraction card. Paper is the column background.
+    static let sheetMaxHeightFraction: Double? = nil
+    static let footerPlacement = "safeAreaInset"
+    static let fillsToolbarToInset = true
+    static let grainReveal = "edge-only"
+    static let bodyHoldsSeveralParagraphs = true
+    static let clipsBody = false
+    /// Four short paragraphs. `TextEditor` is scrollable; the column must be tall enough.
+    static let bodyMinHeight: Double = 280
+    static let chromeAboveBody: Double = 80
+    static let severalParagraphHeight: Double = 240
     static let guessedKeyboardPad: Double? = nil
+    static let forbiddenGuessedPads: [Double] = []
+    static let minimumHit: Double = 44
+    /// Mini keyboard-open pixels are still unwatched. Do not call the editor done.
+    static let keyboardOpenProven = false
 
-    /// Height of the paper in the current safe-area field (keyboard-aware).
-    /// Always shorter than the field so grain shows below. No guessed pad.
-    static func sheetHeight(inField fieldHeight: Double) -> Double {
-        let usable = max(0, fieldHeight - deskTop - deskBottom)
-        let capped = fieldHeight * sheetMaxHeightFraction
-        return min(usable, capped)
+    /// Paper height in the field under the toolbar, above the word-count inset.
+    /// Peek is edge-only. No `sheetMaxHeightFraction`.
+    static func writingHeight(inField fieldHeight: Double) -> Double {
+        max(0, fieldHeight - deskPeek * 2)
+    }
+
+    static func bodyFitsSeveralParagraphs(inFieldHeight field: Double) -> Bool {
+        writingHeight(inField: field) - chromeAboveBody >= severalParagraphHeight
     }
 }
 
@@ -202,7 +225,7 @@ enum EditorSheetCopy {
         return EditorFooter(
             words: "\(wordCount) \(noun)",
             style: "\(paper.name) · \(typeface.name)",
-            placement: "on-sheet"
+            placement: "safeAreaInset"
         )
     }
 

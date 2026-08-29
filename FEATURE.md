@@ -1,13 +1,14 @@
 # Feature
-Job: Grow the editor sheet after Jamie rejected the 0.76 postcard as too small to write on.
-Non-goals: Library changes, merging PR #4, custom chrome, web wrap
-Touched: EditorLook sizes + hammer/linux-hammer look tests
-Reuse: EditorView GeometryReader, system toolbar, VELLUM_OPEN_FIRST
-Risk: Full-bleed Notes (fraction 1 / inset 0) or another postcard (24/40/0.76)
-Done: Thin desk frame (14 / 8 / 14) and sheet at 92% of the keyboard-safe field.
+Job: Stop the 92% / 14pt postcard (`86453bd`). Editor is a writing column, not a library card.
+Non-goals: Library changes, merging PR #4, custom chrome, web wrap, claiming the editor done
+Touched: EditorLook + EditorView + hammer/linux-hammer look tests + docs
+Reuse: System toolbar, StyleSheet `.sheet`, VELLUM_OPEN_FIRST, DeskBackdrop
+Risk: Another fraction card (0.76 / 0.92) or full-bleed Notes; guessed 34 / 120 keyboard pads
+Done: Paper fills toolbar-to-inset. Word-count is `safeAreaInset`. Grain is edge-only. Several paragraphs do not clip.
+Not done: Keyboard-open on a Mini. Do not call the editor done from a closed-keyboard shot.
 Steps:
-1. Tests first for majority page + thin frame (5 FAIL on 0.76/24/40)
-2. Smallest pass: EditorLook 14 / 8 / 14 / 0.92
+1. Tests first: column-plus-inset, fills toolbar-to-inset, several paragraphs, grain edge-only, keyboard undone
+2. Discard `sheetMaxHeightFraction` / `sheetHeight`. EditorView is the column + inset
 3. prove.sh
-Status: logic gate this turn. Mini photographs again.
-Verified this turn: prove.sh after the size change.
+Status: writing-column logic this turn. Keyboard-open and editor-done stay false.
+Verified this turn: prove.sh after the column change.
