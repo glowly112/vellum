@@ -1,4 +1,4 @@
 # STATE
-Shipped: Vellum just-works pass, quiet paper motion, then library stamp (word “Vellum” gone) + home-screen paper icon.
-This turn: library shows the cream mark under the greeting. iOS apple-touch-icon is the same mark, not the Grok G. Editor unbranded.
-Still a prototype: local only. Real iPhone Safari keyboard not in this preview. Live: https://vellum-ib7s.vercel.app/ (this stamp not on that build until a push).
+Shipped: Vellum web desk (phone frame, stamp, local pages) plus a native SwiftUI iOS 26 app in `ios/VellumPad` — Notes chrome, Vellum paper, SwiftData, share .txt. Not Capacitor. Not App Review.
+This turn: first native Xcode target (com.jamiematheson.vellumpad 1.0.0 build 2).
+Still a prototype: web and iOS stores are separate. This Linux worker did not run the iOS Simulator. Live web: https://vellum-ib7s.vercel.app/
