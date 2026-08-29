@@ -7,11 +7,11 @@ struct EditorView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(PageTrash.self) private var trash
     @Query private var pages: [Page]
 
     @State private var focusMode = false
     @State private var showStyles = false
-    @State private var confirmDelete = false
     @State private var styleDetent: PresentationDetent = .medium
     @State private var keyboardPad: CGFloat = 0
     @State private var restingPad: CGFloat = 0
@@ -100,7 +100,7 @@ struct EditorView: View {
                             Label("Share as Text", systemImage: "square.and.arrow.up")
                         }
                         Button("Delete page", systemImage: "trash", role: .destructive) {
-                            confirmDelete = true
+                            deletePage(page)
                         }
                     } label: {
                         Label("More", systemImage: "ellipsis")
@@ -139,12 +139,6 @@ struct EditorView: View {
             .presentationDragIndicator(.visible)
             .presentationContentInteraction(.scrolls)
             .presentationBackground(paper.isDark ? VellumPalette.night : VellumPalette.paper)
-        }
-        .alert("Delete this page?", isPresented: $confirmDelete) {
-            Button("Delete page", role: .destructive) { deletePage(page) }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This page will be removed from this device. It cannot be undone.")
         }
         #if DEBUG
         .onAppear {
@@ -313,6 +307,7 @@ struct EditorView: View {
 
     private func deletePage(_ page: Page) {
         showStyles = false
+        trash.remember(page.trashSnapshot)
         modelContext.delete(page)
         try? modelContext.save()
         dismiss()

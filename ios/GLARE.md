@@ -21,8 +21,8 @@ These still need a phone-width watch:
 5. **Focus.** Eye stays on the system toolbar and turns Focus off. Not tapped.
 6. **Thumb hits.** 44pt minimum on style rows, ink, delete, word-count. Not measured.
 7. **Share sheet.** `FileRepresentation` writes a `.txt`. Not presented.
-8. **Delete alerts.** Cancel vs confirm not tapped.
-9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
+8. **Delete + undo.** Press/swipe removes the sheet (spring; Reduce Motion instant). “Removed page” + Undo. Confirm is a fail. Not watched.
+9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Empty desk / empty search: quiet cream sheet on the desk, Fraunces headline, one line. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
 10. **Editor is paper.** The whole editor is paper, edge to edge (under the toolbar, down to the word-count inset, out to the screen edges). No desk-grain frame. No rounded sheet on grain. Date / title / body origin unchanged. Closed-keyboard shot is not a pass. Not watched.
 11. **Rule alignment.** Title and body baselines should sit on `PaperRuling` lines/dots (pitch 32). Cream + Book and Ruled + Typewriter. Not watched.
 12. **TEXT_OVERLAP (wrap-while-typing).** Keyboard open: wrapping lines must sit below the previous line, not paint on top. Dismiss-keyboard cleaning the page is the tell (phone 20). Mini cannot inject typing (`simctl ui send-text` hangs; osascript keystroke paste is blocked). A still of the sample page is not wrap proof. Phone check of 22 is extra, not a substitute for Mini pixels. Not watched.

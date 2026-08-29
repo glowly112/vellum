@@ -34,7 +34,29 @@ enum ComposePolicy {
 }
 
 enum DeleteDecision {
-    static func shouldDelete(confirmed: Bool) -> Bool { confirmed }
+    /// Confirm dialog is a fail. Press / swipe removes the page.
+    static let confirms = false
+    static let undoKind = "snackbar"
+    static let undoCopy = "Removed page"
+    static let undoAction = "Undo"
+    static let animationKind = "spring"
+    static let reduceMotionIsInstant = true
+
+    static func shouldDelete(confirmed: Bool) -> Bool { true }
+}
+
+/// Snapshot so Undo can put the page back. Not a confirm payload.
+struct DeletedPage: Equatable, Sendable {
+    var pageID: UUID
+    var title: String
+    var body: String
+    var createdAt: Date
+    var updatedAt: Date
+    var fontId: String
+    var paperId: String
+    var inkId: String
+    var sizeId: String
+    var isPinned: Bool?
 }
 
 enum SeedPolicy {
@@ -229,6 +251,8 @@ enum LibraryLook {
     static let sheetMinHeight: Double = 176
     static let sheetCornerRadius: Double = 12
     static let deleteKind = "swipe-and-menu"
+    static let deleteConfirms = false
+    static let deleteAllowsFullSwipe = true
     static let pinKind = "swipe-and-menu"
 }
 
@@ -362,6 +386,12 @@ enum LibrarySheetCopy {
 }
 
 enum LibraryEmpty {
+    /// Quiet cream sheet on the desk. Not an SF `doc` / magnifying glass.
+    static let markKind = "paper-sheet"
+    static let markSystemImage: String? = nil
+    static let forbiddenMarks: [String] = ["doc", "magnifyingglass", "doc.text"]
+    static let composeStaysInChrome = true
+
     static func headline(searching: Bool) -> String {
         searching ? "Nothing matches" : "The desk is clear"
     }
@@ -370,6 +400,13 @@ enum LibraryEmpty {
         searching
             ? "Try a different word, or start a new page."
             : "A blank sheet, waiting. Start whenever you like."
+    }
+
+    static func showsClearSearch(searching: Bool) -> Bool { searching }
+
+    static func showsStartPage(searching: Bool) -> Bool {
+        _ = searching
+        return false
     }
 }
 

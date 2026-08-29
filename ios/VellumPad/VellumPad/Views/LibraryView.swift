@@ -3,11 +3,12 @@ import SwiftUI
 
 struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(PageTrash.self) private var trash
     @Query(sort: \Page.updatedAt, order: .reverse) private var pages: [Page]
     @State private var query = ""
     @State private var path: [UUID] = []
     @State private var composeLock = false
-    @State private var pagePendingDelete: Page?
 
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
@@ -50,23 +51,21 @@ struct LibraryView: View {
                     .accessibilityLabel("New page")
                 }
             }
+            .safeAreaInset(edge: .bottom, spacing: 8) {
+                if trash.last != nil {
+                    undoBar
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 4)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
             .onChange(of: path.count) { _, _ in
                 composeLock = false
             }
-            .alert("Delete this page?", isPresented: Binding(
-                get: { pagePendingDelete != nil },
-                set: { if !$0 { pagePendingDelete = nil } }
-            )) {
-                Button("Delete page", role: .destructive) {
-                    if let page = pagePendingDelete {
-                        deletePage(page)
-                    }
-                }
-                Button("Cancel", role: .cancel) {
-                    pagePendingDelete = nil
-                }
-            } message: {
-                Text("This page will be removed from this device. It cannot be undone.")
+            .task(id: trash.last?.pageID) {
+                guard trash.last != nil else { return }
+                try? await Task.sleep(for: .seconds(5))
+                if !Task.isCancelled { trash.last = nil }
             }
             #if DEBUG
             .onAppear {
@@ -106,9 +105,10 @@ struct LibraryView: View {
                             PaperSheet(page: page)
                         }
                         .buttonStyle(PaperSheetButtonStyle())
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        .transition(sheetRemoval)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: LibraryLook.deleteAllowsFullSwipe) {
                             Button("Delete", systemImage: "trash", role: .destructive) {
-                                pagePendingDelete = page
+                                removePage(page)
                             }
                         }
                         .swipeActions(edge: .leading) {
@@ -122,7 +122,7 @@ struct LibraryView: View {
                                 togglePin(page)
                             }
                             Button("Delete page", systemImage: "trash", role: .destructive) {
-                                pagePendingDelete = page
+                                removePage(page)
                             }
                         }
                         .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
@@ -143,24 +143,71 @@ struct LibraryView: View {
         .listSectionSpacing(22)
     }
 
+    /// Journal composition: mark, title, one line. Compose stays in chrome.
+    /// Grab: paper is the object. Craft: the empty is paper, not an SF icon.
     @ViewBuilder
     private var emptyState: some View {
         let searching = !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        ContentUnavailableView {
-            Label(
-                LibraryEmpty.headline(searching: searching),
-                systemImage: searching ? "magnifyingglass" : "doc"
-            )
-        } description: {
+        VStack(spacing: 0) {
+            Spacer(minLength: 20)
+            EmptyDeskMark()
+                .padding(.bottom, 22)
+            Text(LibraryEmpty.headline(searching: searching))
+                .font(VellumFonts.display(size: 28))
+                .foregroundStyle(VellumPalette.ink)
+                .multilineTextAlignment(.center)
             Text(LibraryEmpty.detail(searching: searching))
-        } actions: {
-            if searching {
+                .font(VellumFonts.ui(.subheadline))
+                .foregroundStyle(VellumPalette.inkSoft)
+                .multilineTextAlignment(.center)
+                .padding(.top, 8)
+                .padding(.horizontal, 36)
+            if LibraryEmpty.showsClearSearch(searching: searching) {
                 Button("Clear search") { query = "" }
+                    .font(VellumFonts.ui(.body, weight: .medium))
                     .frame(minHeight: HitTarget.minimum)
+                    .padding(.top, 16)
             }
-            Button("Start a page") { startPage() }
-                .frame(minHeight: HitTarget.minimum)
+            Spacer(minLength: 20)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(LibraryEmpty.headline(searching: searching)). \(LibraryEmpty.detail(searching: searching))")
+    }
+
+    private var undoBar: some View {
+        HStack(spacing: 12) {
+            Text(DeleteDecision.undoCopy)
+                .font(VellumFonts.ui(.subheadline, weight: .medium))
+            Spacer(minLength: 8)
+            Button(DeleteDecision.undoAction) {
+                undoLast()
+            }
+            .font(VellumFonts.ui(.subheadline, weight: .semibold))
+            .frame(minHeight: HitTarget.minimum)
+        }
+        .foregroundStyle(VellumPalette.paper)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
+        .background(
+            VellumPalette.ink.opacity(0.92),
+            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(DeleteDecision.undoCopy)
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private var sheetRemoval: AnyTransition {
+        if reduceMotion { return .opacity }
+        return .asymmetric(
+            insertion: .opacity,
+            removal: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.94))
+        )
+    }
+
+    private var deleteMotion: Animation? {
+        reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.84)
     }
 
     private func startPage() {
@@ -199,17 +246,29 @@ struct LibraryView: View {
         try? modelContext.save()
     }
 
-    private func deletePage(_ page: Page) {
+    private func removePage(_ page: Page) {
+        trash.remember(page.trashSnapshot)
         if path.last == page.pageID {
             path.removeLast()
         }
-        modelContext.delete(page)
-        try? modelContext.save()
-        pagePendingDelete = nil
+        withAnimation(deleteMotion) {
+            modelContext.delete(page)
+            try? modelContext.save()
+        }
+    }
+
+    private func undoLast() {
+        guard let deleted = trash.take() else { return }
+        let page = Page.restored(from: deleted)
+        withAnimation(deleteMotion) {
+            modelContext.insert(page)
+            try? modelContext.save()
+        }
     }
 }
 
 #Preview {
     LibraryView()
+        .environment(PageTrash())
         .modelContainer(for: Page.self, inMemory: true)
 }

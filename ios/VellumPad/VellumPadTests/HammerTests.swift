@@ -303,6 +303,13 @@ final class HammerTests: XCTestCase {
         let sheets = LibrarySheetCopy.sheets(pages: [], query: "", now: now)
         XCTAssertTrue(sheets.isEmpty)
         XCTAssertEqual(LibraryEmpty.headline(searching: false), "The desk is clear")
+        XCTAssertEqual(LibraryEmpty.detail(searching: false), "A blank sheet, waiting. Start whenever you like.")
+        XCTAssertEqual(LibraryEmpty.markKind, "paper-sheet")
+        XCTAssertNil(LibraryEmpty.markSystemImage)
+        XCTAssertFalse(LibraryEmpty.forbiddenMarks.contains(LibraryEmpty.markKind))
+        XCTAssertTrue(LibraryEmpty.composeStaysInChrome)
+        XCTAssertFalse(LibraryEmpty.showsStartPage(searching: false))
+        XCTAssertFalse(LibraryEmpty.showsClearSearch(searching: false))
     }
 
     func testLibraryOnePageIsAPaperSheetNotANotesRow() {
@@ -341,6 +348,11 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(LibrarySheetCopy.sheets(pages: pages, query: "river", now: now).count, 1)
         XCTAssertTrue(LibrarySheetCopy.sheets(pages: pages, query: "zebra", now: now).isEmpty)
         XCTAssertEqual(LibraryEmpty.headline(searching: true), "Nothing matches")
+        XCTAssertEqual(LibraryEmpty.markKind, "paper-sheet")
+        XCTAssertNil(LibraryEmpty.markSystemImage)
+        XCTAssertTrue(LibraryEmpty.showsClearSearch(searching: true))
+        XCTAssertFalse(LibraryEmpty.showsStartPage(searching: true))
+        XCTAssertTrue(LibraryEmpty.composeStaysInChrome)
     }
 
     func testLibraryComposeIsSystemNotACustomPill() {
@@ -351,10 +363,12 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(LibraryLook.greetingFamily, "Fraunces")
         XCTAssertNotEqual(LibraryLook.greetingFamily, "SF Pro")
         XCTAssertEqual(LibraryLook.deleteKind, "swipe-and-menu")
+        XCTAssertFalse(LibraryLook.deleteConfirms)
+        XCTAssertTrue(LibraryLook.deleteAllowsFullSwipe)
         XCTAssertEqual(LibraryLook.pinKind, "swipe-and-menu")
     }
 
-    func testLibraryPinLeadsAndDeleteNeedsConfirm() {
+    func testLibraryPinLeadsAndDeleteHasNoConfirm() {
         let pinned = LibraryPage(
             title: "Kept",
             body: "pin me",
@@ -376,8 +390,14 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(groups[0].pages.first?.title, "Kept")
         XCTAssertTrue(LibraryPin.isPinnedAfterToggle(false))
         XCTAssertFalse(LibraryPin.isPinnedAfterToggle(true))
-        XCTAssertFalse(DeleteDecision.shouldDelete(confirmed: false))
+        XCTAssertFalse(DeleteDecision.confirms, "confirm dialog is a fail")
+        XCTAssertTrue(DeleteDecision.shouldDelete(confirmed: false), "press/swipe deletes; cancel alert is gone")
         XCTAssertTrue(DeleteDecision.shouldDelete(confirmed: true))
+        XCTAssertEqual(DeleteDecision.undoKind, "snackbar")
+        XCTAssertEqual(DeleteDecision.undoCopy, "Removed page")
+        XCTAssertEqual(DeleteDecision.undoAction, "Undo")
+        XCTAssertEqual(DeleteDecision.animationKind, "spring")
+        XCTAssertTrue(DeleteDecision.reduceMotionIsInstant)
     }
 
     func testPrePinStoreOpensWithoutCrashing() throws {
@@ -446,9 +466,28 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(TypefaceRegistry.files.count, 6)
     }
 
-    func testDeleteConfirmCancelVsConfirm() {
-        XCTAssertFalse(DeleteDecision.shouldDelete(confirmed: false))
-        XCTAssertTrue(DeleteDecision.shouldDelete(confirmed: true))
+    func testDeleteHasNoConfirmAndUndoRestoresThePage() {
+        XCTAssertFalse(DeleteDecision.confirms)
+        XCTAssertTrue(DeleteDecision.shouldDelete(confirmed: false))
+        XCTAssertEqual(DeleteDecision.undoKind, "snackbar")
+        let id = UUID(uuidString: "A11CE001-0000-4000-8000-00000000DE01")!
+        let gone = DeletedPage(
+            pageID: id,
+            title: "River",
+            body: "pewter",
+            createdAt: now,
+            updatedAt: now,
+            fontId: Typeface.book.rawValue,
+            paperId: Paper.cream.rawValue,
+            inkId: Ink.charcoal.rawValue,
+            sizeId: TypeSize.m.rawValue,
+            isPinned: nil
+        )
+        let back = Page.restored(from: gone)
+        XCTAssertEqual(back.pageID, id)
+        XCTAssertEqual(back.title, "River")
+        XCTAssertEqual(back.body, "pewter")
+        XCTAssertFalse(back.pinOn)
     }
 
     func testDebugOpenFirstIsDebugOnlyAndReadsEnv() {

@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct VellumPadApp: App {
     private let container: ModelContainer
+    @State private var trash = PageTrash()
 
     init() {
         TypefaceRegistry.register()
@@ -21,6 +22,7 @@ struct VellumPadApp: App {
     var body: some Scene {
         WindowGroup {
             LibraryView()
+                .environment(trash)
         }
         .modelContainer(container)
     }

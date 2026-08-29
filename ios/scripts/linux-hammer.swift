@@ -55,6 +55,13 @@ enum LinuxHammer {
         let emptySheets = LibrarySheetCopy.sheets(pages: [LibraryPage](), query: "", now: now)
         expect(emptySheets.isEmpty, "1 empty desk has no sheets")
         expect(LibraryEmpty.headline(searching: false) == "The desk is clear", "1 empty desk copy")
+        expect(LibraryEmpty.detail(searching: false) == "A blank sheet, waiting. Start whenever you like.", "1 empty desk detail")
+        expect(LibraryEmpty.markKind == "paper-sheet", "1 empty mark is a paper sheet")
+        expect(LibraryEmpty.markSystemImage == nil, "1 empty is not an SF symbol")
+        expect(LibraryEmpty.forbiddenMarks.contains("doc"), "1 SF doc is a forbidden mark")
+        expect(!LibraryEmpty.forbiddenMarks.contains(LibraryEmpty.markKind), "1 empty mark is not a forbidden SF icon")
+        expect(LibraryEmpty.composeStaysInChrome, "1 compose stays in chrome")
+        expect(!LibraryEmpty.showsStartPage(searching: false), "1 no second Start a page")
 
         let onePage = [
             LibraryPage(title: "Late light on the river", body: "pewter water", updatedAt: now, paper: .cream, typeface: .book),
@@ -83,6 +90,10 @@ enum LinuxHammer {
         expect(LibrarySheetCopy.sheets(pages: onePage, query: "river", now: now).count == 1, "4 search open keeps a match")
         expect(LibrarySheetCopy.sheets(pages: onePage, query: "zebra", now: now).isEmpty, "4 search open empty match")
         expect(LibraryEmpty.headline(searching: true) == "Nothing matches", "4 search open empty copy")
+        expect(LibraryEmpty.markKind == "paper-sheet", "4 search empty is a paper sheet")
+        expect(LibraryEmpty.markSystemImage == nil, "4 search empty is not an SF symbol")
+        expect(LibraryEmpty.showsClearSearch(searching: true), "4 search empty keeps Clear search")
+        expect(!LibraryEmpty.showsStartPage(searching: true), "4 compose stays in chrome")
 
         expect(LibraryLook.composeKind == "system", "5 compose is system")
         expect(LibraryLook.composeSystemImage == "square.and.pencil", "5 compose is square.and.pencil not a pill")
@@ -90,6 +101,8 @@ enum LinuxHammer {
         expect(LibraryLook.composeKind != "custom-pill", "5 forbid custom + New page pill")
         expect(LibraryLook.greetingFamily == "Fraunces", "5 greeting is Fraunces not SF")
         expect(LibraryLook.deleteKind == "swipe-and-menu", "5 library delete is swipe and menu")
+        expect(!LibraryLook.deleteConfirms, "5 library delete has no confirm")
+        expect(LibraryLook.deleteAllowsFullSwipe, "5 swipe can finish the delete")
         expect(LibraryLook.pinKind == "swipe-and-menu", "5 library pin is swipe and menu")
 
         let pinned = LibraryPage(
@@ -337,8 +350,26 @@ enum LinuxHammer {
         expect(deskSeed != 0, "E6 desk grain seed is unsigned and non-zero")
         expect(deskSeed != PaperGrain.seed(for: .cream), "E6 desk seed is not cream paper")
 
-        expect(DeleteDecision.shouldDelete(confirmed: false) == false, "delete cancel")
-        expect(DeleteDecision.shouldDelete(confirmed: true) == true, "delete confirm")
+        expect(!DeleteDecision.confirms, "delete confirm is a fail")
+        expect(DeleteDecision.shouldDelete(confirmed: false), "delete press removes the page")
+        expect(DeleteDecision.undoKind == "snackbar", "delete undo is a snackbar")
+        expect(DeleteDecision.undoCopy == "Removed page", "delete undo copy")
+        expect(DeleteDecision.undoAction == "Undo", "delete undo action")
+        expect(DeleteDecision.animationKind == "spring", "delete animates out")
+        expect(DeleteDecision.reduceMotionIsInstant, "delete reduce-motion is instant")
+        let undone = DeletedPage(
+            pageID: UUID(uuidString: "A11CE001-0000-4000-8000-00000000DE01")!,
+            title: "River",
+            body: "pewter",
+            createdAt: now,
+            updatedAt: now,
+            fontId: "book",
+            paperId: "cream",
+            inkId: "charcoal",
+            sizeId: "m",
+            isPinned: nil
+        )
+        expect(undone.title == "River" && undone.body == "pewter", "delete undo snapshot keeps the page")
 
         expect(DebugOpenFirst.environmentKey == "VELLUM_OPEN_FIRST", "debug open-first env key")
         expect(!DebugOpenFirst.shouldOpenFirstPage(environment: [:], debugBuild: true), "debug open-first off without env")

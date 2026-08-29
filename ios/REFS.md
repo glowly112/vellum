@@ -18,3 +18,13 @@ Product shots of the current web desk (feel, not chrome):
 | Paper / type / ink / size picker | `vellum-styles.png` | Catalogue from `src/lib/catalog.ts`, visual swatches, type samples |
 
 Attached filenames live with the brief (`refs/vellum-ios/` in the agent workspace). They are not required in the app bundle.
+
+Empty + delete (library polish). Copy composition only. Files in `ios/refs/`.
+
+| Product route | Steal from | Image | Steal | Forbid |
+| --- | --- | --- | --- | --- |
+| Empty desk / empty search | [Apple Journal empty](https://mobbin.com/screens/edd2d9ad-9dac-4851-a078-f6b1b79abf03) | `empty-chrome-journal.jpg` | Composition: mark, title, one line; compose stays in chrome | Butterfly, purple FAB, SF `doc` |
+| Empty mark | [Grab drafts empty](https://mobbin.com/screens/83c0a32d-65e3-441d-9d8a-c532c338105e) | `empty-charm-paper.jpg` | Paper as the object (a small sheet / stack) | Yellow stickies, Grab type |
+| Empty is paper | [Craft empty canvas](https://mobbin.com/screens/b878c0d0-a1cf-4255-a8cc-bb1ef5b02ce0) | `empty-charm-craft-paper.jpg` | Grain / ruling on the sheet, not an icon on white | Notes empty-folder art |
+| Library swipe delete | Letterboxd films swipe | `delete-swipe.jpg` | System swipe reveals Delete; the row is gone | Second confirm |
+| Delete undo | [Wanderlog removed note](https://mobbin.com/flows/8314e492-162e-4281-8852-84f72255f64e) | `delete-undo-snackbar.jpg` | “Removed …” + Undo | Raycast “Permanently Delete?” modal |

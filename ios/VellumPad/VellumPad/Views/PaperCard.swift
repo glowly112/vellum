@@ -72,6 +72,49 @@ struct PaperSheet: View {
     }
 }
 
+/// Quiet blank cream sheet on the desk. Not an SF symbol.
+/// One faint rule; a second sheet sits behind so paper is the object.
+struct EmptyDeskMark: View {
+    var body: some View {
+        ZStack {
+            sheetCard
+                .offset(x: 7, y: 8)
+                .opacity(0.45)
+            sheetCard
+        }
+        .padding(.trailing, 7)
+        .padding(.bottom, 8)
+        .frame(width: 116, height: 144)
+        .accessibilityHidden(true)
+    }
+
+    private var sheetCard: some View {
+        RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius) - 2, style: .continuous)
+            .fill(VellumPalette.paper)
+            .overlay {
+                PaperBackdrop(paper: .cream, compact: true, drawsRuling: false)
+                    .clipShape(
+                        RoundedRectangle(
+                            cornerRadius: CGFloat(LibraryLook.sheetCornerRadius) - 2,
+                            style: .continuous
+                        )
+                    )
+            }
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(VellumPalette.rule.opacity(0.28))
+                    .frame(height: 1)
+                    .padding(.top, 36)
+                    .padding(.horizontal, 14)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius) - 2, style: .continuous)
+                    .strokeBorder(VellumPalette.ink.opacity(0.10), lineWidth: 1)
+            }
+            .shadow(color: VellumPalette.ink.opacity(0.10), radius: 6, y: 2)
+    }
+}
+
 struct PaperSheetButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

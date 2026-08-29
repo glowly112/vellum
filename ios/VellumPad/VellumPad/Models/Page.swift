@@ -65,6 +65,36 @@ final class Page: RecencyPage {
         EditorSnapshot(pageID: pageID, title: title, body: body, updatedAt: updatedAt)
     }
 
+    var trashSnapshot: DeletedPage {
+        DeletedPage(
+            pageID: pageID,
+            title: title,
+            body: body,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            fontId: fontId,
+            paperId: paperId,
+            inkId: inkId,
+            sizeId: sizeId,
+            isPinned: isPinned
+        )
+    }
+
+    static func restored(from deleted: DeletedPage) -> Page {
+        Page(
+            pageID: deleted.pageID,
+            title: deleted.title,
+            body: deleted.body,
+            createdAt: deleted.createdAt,
+            updatedAt: deleted.updatedAt,
+            fontId: deleted.fontId,
+            paperId: deleted.paperId,
+            inkId: deleted.inkId,
+            sizeId: deleted.sizeId,
+            isPinned: deleted.isPinned ?? false
+        )
+    }
+
     func apply(style: PageStyle) {
         fontId = style.typeface.rawValue
         paperId = style.paper.rawValue
