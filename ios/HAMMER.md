@@ -43,7 +43,7 @@ Apple `safeAreaInset`: shows specified content beside the modified view and incr
 | 2 | Footer copy | `66 words` lives in a bottom **`safeAreaInset`**. No paper · typeface on the inset (Night · Book is gone). |
 | 3 | Focus | Eye stays on the system toolbar and turns Focus off. Nav bar is not hidden. Word-count hides in focus. |
 | 4 | Chrome | System back, system `.sheet` starting at **medium**, `textformat` — not a circular web back or custom T. |
-| 5 | KB_COVER | No guessed pad (not 34 / 120). Word-count sits **on** the keys / predictive bar (a few points of air, not 16). Closed: above the home indicator. Body is `text-editor`. Style last section is **Size**, detent `medium-first`, scroll pad ≥ 44. Keyboard-open gutters are **paper**. Lift is `layout-guide`. |
+| 5 | KB_COVER | No guessed pad (not 34 / 120). Word-count is a **caption** (not a 44pt thumb control) and sits on the keys / predictive bar. Closed: above the home indicator. Body is `text-editor`. Style last section is **Size**. Gutters are **paper**. Lift is `layout-guide`. |
 | 6 | Desk grain | `PaperGrain.seed(forToken: "desk")` is unsigned and not the cream paper seed. |
 | 7 | Debug open-first | `VELLUM_OPEN_FIRST=1` opens the first page in Debug only. Release ignores the env. |
 | 8 | Debug focus-body | `VELLUM_FOCUS_BODY=1` focuses the body `TextEditor` in Debug only. Release never focuses. `keyboardOpenProven` stays false. |

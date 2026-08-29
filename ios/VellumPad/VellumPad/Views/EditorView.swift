@@ -267,7 +267,7 @@ struct EditorView: View {
                 .font(VellumFonts.ui(.caption, weight: .medium))
                 .tracking(0.4)
                 .foregroundStyle(ink.color.opacity(0.55))
-                .frame(maxWidth: .infinity, minHeight: CGFloat(EditorLook.minimumHit), alignment: .bottomLeading)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityLabel(footer.words)
     }

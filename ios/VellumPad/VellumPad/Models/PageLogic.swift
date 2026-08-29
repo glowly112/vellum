@@ -79,9 +79,10 @@ enum KeyboardChrome {
     static let liftKind = "layout-guide"
     static let liftJumpsAtAnimationStart = false
     static let textTracksKeyboard = true
-    /// Label sits on the keys. A 44pt slab + 16pt air above the pad was the band.
+    /// Caption on the keys. Build 11’s remaining band was `minimumHit` (44) on the Text.
     static let wordCountSitsOnKeyboard = true
-    static let wordCountAlign = "bottom"
+    static let wordCountKind = "caption"
+    static let wordCountUsesMinimumHit = false
     static let forbiddenWordCountAir: [Double] = [16, 34, 120]
 
     static func writingBottomPad(guidePad: Double) -> Double {
