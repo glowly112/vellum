@@ -18,6 +18,7 @@ struct StyleSheetView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
+                .padding(.bottom, CGFloat(StyleSheetLayout.scrollBottomPad))
             }
             .safeAreaPadding(.bottom)
             .background((style.paper.isDark ? VellumPalette.night : VellumPalette.paper).ignoresSafeArea(.container))

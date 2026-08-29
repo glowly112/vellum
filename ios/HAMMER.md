@@ -42,7 +42,8 @@ Apple `safeAreaInset`: shows specified content beside the modified view and incr
 | 2 | Footer copy | `66 words` and `Cream · Book` live in a bottom **`safeAreaInset`**, not glued inside a short card. |
 | 3 | Focus | Inset hides in focus. Toolbar Focus / styles stay system. |
 | 4 | Chrome | System back, system `.sheet`, `textformat` — not a circular web back or custom T. |
-| 5 | KB_COVER | No guessed pad (not 34 / 120). Body is `text-editor`. Style last section is **Size**. Layout contract is real; Mini pixels later. |
+| 5 | KB_COVER | No guessed pad (not 34 / 120). Word-count air only when keyboard lift > 0. Body is `text-editor`. Style last section is **Size**, detent `large-first`, scroll pad ≥ 44. |
 | 6 | Desk grain | `PaperGrain.seed(forToken: "desk")` is unsigned and not the cream paper seed. |
 | 7 | Debug open-first | `VELLUM_OPEN_FIRST=1` opens the first page in Debug only. Release ignores the env. |
 | 8 | Debug focus-body | `VELLUM_FOCUS_BODY=1` focuses the body `TextEditor` in Debug only. Release never focuses. `keyboardOpenProven` stays false. |
+| 9 | Rule pitch | Shared `PaperRuling.pitch` 32. Body line box is one pitch, title is two. Editor dots use the same pitch. Compact library steps stay 22 / 16. |

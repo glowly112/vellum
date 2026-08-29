@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct EditorView: View {
     let pageID: UUID
@@ -11,6 +12,8 @@ struct EditorView: View {
     @State private var focusMode = false
     @State private var showStyles = false
     @State private var confirmDelete = false
+    @State private var styleDetent: PresentationDetent = .large
+    @State private var keyboardLift: CGFloat = 0
     @FocusState private var field: Field?
 
     private enum Field: Hashable {
@@ -57,8 +60,11 @@ struct EditorView: View {
             footer: footer
         )
         .background {
-            PaperBackdrop(paper: paper, ruleOffset: 86)
+            PaperBackdrop(paper: paper, drawsRuling: false)
                 .ignoresSafeArea(.container)
+        }
+        .background {
+            KeyboardLiftReader { keyboardLift = $0 }
         }
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("")
@@ -117,7 +123,7 @@ struct EditorView: View {
                 ),
                 onDelete: { deletePage(page) }
             )
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.medium, .large], selection: $styleDetent)
             .presentationDragIndicator(.visible)
             .presentationContentInteraction(.scrolls)
             .presentationBackground(paper.isDark ? VellumPalette.night : VellumPalette.paper)
@@ -180,6 +186,7 @@ struct EditorView: View {
             .font(VellumFonts.title(typeface, size: size))
             .foregroundStyle(ink.color)
             .tint(ink.color)
+            .lineSpacing(rulingSpacing(typeface: typeface, points: size.titlePoints, pitches: PaperRuling.titlePitches))
             .textInputAutocapitalization(.sentences)
             .submitLabel(.next)
             .focused($field, equals: .title)
@@ -191,7 +198,8 @@ struct EditorView: View {
                 .foregroundStyle(ink.color)
                 .tint(ink.color)
                 .scrollContentBackground(.hidden)
-                .lineSpacing(CGFloat(size.bodyPoints * (size.bodyLeading - 1)))
+                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                .contentMargins(.top, 0, for: .scrollContent)
                 .textInputAutocapitalization(.sentences)
                 .focused($field, equals: .body)
                 .padding(.top, 8)
@@ -211,13 +219,30 @@ struct EditorView: View {
         .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
         .padding(.trailing, CGFloat(EditorLook.typeTrailing))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background {
+            if paper.ruling != .none {
+                PaperBackdrop(
+                    paper: paper,
+                    ruleOffset: CGFloat(PaperRuling.firstRuleOffset),
+                    drawsFill: false
+                )
+            }
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if EditorSheetCopy.showsFooter(focus: focusMode) {
                 wordCountInset(footer: footer, ink: ink)
                     .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
                     .padding(.trailing, CGFloat(EditorLook.typeTrailing))
+                    .padding(.bottom, CGFloat(KeyboardAvoidance.wordCountBottomPad(keyboardLift: Double(keyboardLift))))
             }
         }
+    }
+
+    /// Extra `lineSpacing` so the line box equals `pitch * pitches` (UIFont when we have it).
+    private func rulingSpacing(typeface: Typeface, points: Double, pitches: Double) -> CGFloat {
+        let target = CGFloat(PaperRuling.pitch * pitches)
+        let font = UIFont(name: typeface.familyName, size: points) ?? .systemFont(ofSize: points)
+        return max(0, target - font.lineHeight)
     }
 
     /// Apple `safeAreaInset`: content sits beside the column and grows the safe
@@ -275,6 +300,7 @@ struct EditorView: View {
 
     private func openStyles() {
         field = nil
+        styleDetent = .large
         showStyles = true
     }
 
@@ -283,5 +309,28 @@ struct EditorView: View {
         modelContext.delete(page)
         try? modelContext.save()
         dismiss()
+    }
+}
+
+/// Reads the keyboard-only bottom safe area (container ignored). Zero when the
+/// keyboard is down. Not a guessed 34 / 120.
+private struct KeyboardLiftReader: View {
+    var onChange: (CGFloat) -> Void
+
+    var body: some View {
+        GeometryReader { geo in
+            Color.clear
+                .preference(key: KeyboardLiftKey.self, value: geo.safeAreaInsets.bottom)
+        }
+        .ignoresSafeArea(.container, edges: .bottom)
+        .onPreferenceChange(KeyboardLiftKey.self, perform: onChange)
+        .allowsHitTesting(false)
+    }
+}
+
+private struct KeyboardLiftKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }

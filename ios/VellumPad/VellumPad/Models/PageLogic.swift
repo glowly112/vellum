@@ -46,12 +46,22 @@ enum SeedPolicy {
 /// Style sheet order. Size is last so it stays reachable when the keyboard is up.
 enum StyleSheetLayout {
     static let sections: [String] = ["Paper", "Type", "Ink", "Size"]
+    static let lastSectionReachable = true
+    /// Open large so Typewriter and Size are not clipped on a medium detent.
+    static let detentKind = "large-first"
+    static let scrollBottomPad: Double = 56
 }
 
 /// Keyboard inset is SwiftUI's safe area (includes the system keyboard).
 /// A non-nil guessed pad is a just-works fail (KB_COVER).
 enum KeyboardAvoidance {
     static let guessedBottomPoints: Double? = nil
+    /// Extra air between word-count and the keyboard. Not a keyboard height (not 34 / 120).
+    static let wordCountAir: Double = 16
+
+    static func wordCountBottomPad(keyboardLift: Double) -> Double {
+        keyboardLift > 0 ? wordCountAir : 0
+    }
 }
 
 /// Library merge: paper sheet is the object; chrome stays system iOS 26.

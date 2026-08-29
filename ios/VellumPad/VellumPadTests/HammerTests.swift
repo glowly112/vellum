@@ -119,6 +119,50 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(HitTarget.minimum, 44)
     }
 
+    func testRuledAndDottedTypeSitsOnSharedPitch() {
+        XCTAssertEqual(PaperRuling.pitch, 32)
+        XCTAssertEqual(PaperRuling.compactPitch, 22)
+        XCTAssertEqual(PaperRuling.compactDotPitch, 16)
+        XCTAssertEqual(PaperRuling.firstRuleOffset, 64)
+        XCTAssertEqual(PaperRuling.step(ruling: .lines, compact: false), 32)
+        XCTAssertEqual(PaperRuling.step(ruling: .dots, compact: false), 32, "editor dots share the type pitch")
+        XCTAssertEqual(PaperRuling.step(ruling: .lines, compact: true), 22, "library swatch lines stay 22")
+        XCTAssertEqual(PaperRuling.step(ruling: .dots, compact: true), 16, "library swatch dots stay 16")
+        for size in TypeSize.allCases {
+            XCTAssertEqual(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints), PaperRuling.pitch)
+            XCTAssertTrue(PaperRuling.sitsOnRule(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints)))
+            XCTAssertEqual(PaperRuling.titleLineHeight(titlePoints: size.titlePoints), PaperRuling.pitch * 2)
+            XCTAssertTrue(PaperRuling.sitsOnRule(PaperRuling.titleLineHeight(titlePoints: size.titlePoints)))
+            XCTAssertEqual(size.ruleHeight, CGFloat(PaperRuling.pitch))
+        }
+        XCTAssertEqual(Paper.ruled.ruling, .lines)
+        XCTAssertEqual(Paper.dotted.ruling, .dots)
+        XCTAssertNotEqual(EditorLook.deskPeek, 6)
+        XCTAssertEqual(EditorLook.grainReveal, "none")
+    }
+
+    func testWordCountSitsAboveKeyboardWithoutGuessedPad() {
+        XCTAssertNil(KeyboardAvoidance.guessedBottomPoints)
+        XCTAssertNil(EditorLook.guessedKeyboardPad)
+        XCTAssertGreaterThan(KeyboardAvoidance.wordCountAir, 0)
+        XCTAssertNotEqual(KeyboardAvoidance.wordCountAir, 34)
+        XCTAssertNotEqual(KeyboardAvoidance.wordCountAir, 120)
+        XCTAssertEqual(KeyboardAvoidance.wordCountBottomPad(keyboardLift: 0), 0)
+        XCTAssertEqual(KeyboardAvoidance.wordCountBottomPad(keyboardLift: 280), KeyboardAvoidance.wordCountAir)
+        XCTAssertFalse(EditorLook.forbiddenGuessedPads.contains(34))
+        XCTAssertFalse(EditorLook.forbiddenGuessedPads.contains(120))
+        XCTAssertFalse(EditorLook.keyboardOpenProven, "Linux has no Mini keyboard pixels")
+    }
+
+    func testStyleSheetLastRowsAreReachable() {
+        XCTAssertEqual(StyleSheetLayout.sections.last, "Size")
+        XCTAssertTrue(StyleSheetLayout.lastSectionReachable)
+        XCTAssertEqual(StyleSheetLayout.detentKind, "large-first")
+        XCTAssertGreaterThanOrEqual(StyleSheetLayout.scrollBottomPad, 44)
+        XCTAssertTrue(Typeface.allCases.map(\.name).contains("Typewriter"))
+        XCTAssertEqual(Typeface.allCases.last?.name, "Mono")
+    }
+
     func testLibraryEmptyDeskHasNoSheets() {
         let sheets = LibrarySheetCopy.sheets(pages: [], query: "", now: now)
         XCTAssertTrue(sheets.isEmpty)

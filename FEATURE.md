@@ -1,14 +1,14 @@
 # Feature
-Job: Whole editor is paper. Drop the desk-grain frame (`deskPeek` 6). Type origin stays.
-Non-goals: Library changes, merging PR #4, claiming keyboard-open or the editor done, shifting date / title / body
-Touched: EditorLook + EditorView + hammer/linux-hammer + docs
-Reuse: Writing column, word-count `safeAreaInset`, system chrome, `VELLUM_OPEN_FIRST`, `VELLUM_FOCUS_BODY`
-Risk: Shifting type; putting desk grain back; calling the editor done
-Done: Paper is the view background, edge to edge. `grainReveal` is `none`. Type paddings stay 24 / 56 lined / 24, date top 8.
-Not done: Mini keyboard-open pixels. `keyboardOpenProven` stays false.
+Job: Fix Jamie’s TestFlight 1.0.0 (6) fails — rules, keyboard air, Page sheet clip. Build 7.
+Non-goals: Library changes, desk-frame postcard, merging PR #4, claiming the editor done
+Touched: PaperRuling + EditorView + PaperBackdrop + StyleSheetView + hammer + build 7
+Reuse: Paper-full editor, word-count `safeAreaInset`, system chrome, debug flags
+Risk: Guessed 34 / 120 pads; shifting library cards; calling keyboard-open proven
+Done: Shared rule pitch 32 for backdrop + title/body. Word-count air when keyboard lift > 0. Page sheet opens large with scroll pad. Tests for all three.
+Not done: Mini keyboard-open pixels. `keyboardOpenProven` stays false on Linux.
 Steps:
-1. Tests first: `paper-full`, `grainReveal == none`, `deskPeek == 0`, type origin locked, keyboard undone
-2. Drop `DeskBackdrop` / rounded sheet / `deskPeek` on EditorView. `PaperBackdrop` ignores container safe area
-3. prove.sh
-Status: paper-full this turn. Keyboard-open and editor-done stay false.
-Verified this turn: prove.sh after the paper fill.
+1. Tests first: rule alignment, word-count above keyboard, last sheet row reachable
+2. Shared `PaperRuling` token; keyboard air from system keyboard safe area; large-first detent
+3. prove.sh. Bump CURRENT_PROJECT_VERSION to 7
+Status: TestFlight fixes this turn. Editor-done stays false.
+Verified this turn: prove.sh after the three fixes.

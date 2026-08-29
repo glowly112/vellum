@@ -14,8 +14,8 @@ SIMCTL_CHILD_VELLUM_OPEN_FIRST=1 SIMCTL_CHILD_VELLUM_FOCUS_BODY=1 xcrun simctl l
 
 These still need a phone-width watch:
 
-1. **KB_COVER (editor).** `TextEditor` fills the column. Word-count is a `safeAreaInset` in the **system** keyboard safe area (no 34pt / 120pt guess). Not watched with a keyboard up.
-2. **KB_COVER (style sheet).** Keyboard dismissed before present. Size last. Scroll uses `.safeAreaPadding(.bottom)`. Not watched with a leftover keyboard.
+1. **KB_COVER (editor).** Word-count should sit clearly above the system keyboard (air from keyboard lift, not 34 / 120). Not watched with a keyboard up. `keyboardOpenProven` stays false here.
+2. **KB_COVER (style sheet).** Page sheet opens large. Typewriter and Size must scroll into view. Size last. Not watched on device.
 3. **Liquid Glass.** `.toolbarBackground(.hidden)` is gone. Toolbar / search / compose / Done are system controls. Not seen on device glass.
 4. **OFL faces.** Literata / Fraunces / Caveat / Special Elite / Source Sans 3 / IBM Plex Mono are bundled and registered. Rendering not seen.
 5. **Focus.** Hides the system nav bar. Tap the top of the sheet to return. Not tapped.
@@ -24,5 +24,6 @@ These still need a phone-width watch:
 8. **Delete alerts.** Cancel vs confirm not tapped.
 9. **Library sheets.** `PaperSheet` should read as a page (cream/sage/ruled, stamps, page type), not a Notes row. Greeting should be Fraunces italic. Search + compose must still be system Liquid Glass. Not watched.
 10. **Editor is paper.** The whole editor is paper, edge to edge (under the toolbar, down to the word-count inset, out to the screen edges). No desk-grain frame. No rounded sheet on grain. Date / title / body origin unchanged. Closed-keyboard shot is not a pass. Not watched.
+11. **Rule alignment.** Title and body baselines should sit on `PaperRuling` lines/dots (pitch 32). Cream + Book and Ruled + Typewriter. Not watched.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**.
