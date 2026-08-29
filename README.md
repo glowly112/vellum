@@ -66,7 +66,7 @@ npm run build
 npm run preview
 ```
 
-Native iOS (Xcode 26, iOS 26 SDK) — open `ios/VellumPad/VellumPad.xcodeproj`. Display name **Vellum Pad**, bundle ID `com.jamiematheson.vellumpad`, version 1.0.0 (4). Catalogue type is the same OFL faces as the web desk (`ios/VellumPad/VellumPad/Fonts`). Prove: `xcodebuild -project ios/VellumPad/VellumPad.xcodeproj -scheme VellumPad -destination 'generic/platform=iOS' -configuration Debug build`. The production pass bar is false until a Simulator keyboard pass.
+Native iOS (Xcode 26, iOS 26 SDK) — open `ios/VellumPad/VellumPad.xcodeproj`. Display name **Vellum Pad**, bundle ID `com.jamiematheson.vellumpad`, version 1.0.0 (5). Catalogue type is the same OFL faces as the web desk (`ios/VellumPad/VellumPad/Fonts`). Prove: `xcodebuild -project ios/VellumPad/VellumPad.xcodeproj -scheme VellumPad -destination 'generic/platform=iOS' -configuration Debug build`. The production pass bar is false until a Simulator keyboard pass.
 
 ## Where to change things
 
