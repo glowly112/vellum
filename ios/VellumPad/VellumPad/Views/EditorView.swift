@@ -491,6 +491,7 @@ private struct CaretHairlineFollower: UIViewRepresentable {
         uiView.air = air
         uiView.following = following
         uiView.nudge()
+        DispatchQueue.main.async { uiView.nudge() }
     }
 }
 
