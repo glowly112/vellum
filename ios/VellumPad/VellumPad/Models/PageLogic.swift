@@ -86,6 +86,10 @@ enum KeyboardChrome {
     static let forbiddenWordCountAir: [Double] = [16, 34, 120]
     /// Open pad is guide minus resting. Full guide is one home-indicator too tall.
     static let openPadIsKeyboardOnly = true
+    /// Keyboard open: caret / last line sits on the word-count, like Notes.
+    /// Not pinning the page to the bottom. Origin stays 24 / 56 / 24, date top 8.
+    static let caretFollowsWordCount = true
+    static let pinsPageToBottom = false
 
     /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
     static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
@@ -105,6 +109,13 @@ enum KeyboardChrome {
     static func keyboardOnlyLift(guidePad: Double, restingPad: Double) -> Double {
         guard restingPad > 0 else { return 0 }
         return max(0, guidePad - restingPad)
+    }
+
+    /// Scroll room so the caret line can sit at the bottom of the field.
+    /// Derived from the visible editor, not a guessed 34 / 120.
+    static func caretScrollPad(visibleHeight: Double, lineHeight: Double) -> Double {
+        guard visibleHeight > 0, lineHeight > 0 else { return 0 }
+        return max(0, visibleHeight - lineHeight)
     }
 }
 

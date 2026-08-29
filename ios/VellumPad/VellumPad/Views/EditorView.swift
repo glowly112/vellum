@@ -209,6 +209,16 @@ struct EditorView: View {
                 .padding(.bottom, 8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .frame(minHeight: CGFloat(EditorLook.bodyMinHeight))
+                .background {
+                    let lift = KeyboardChrome.keyboardOnlyLift(
+                        guidePad: Double(keyboardPad),
+                        restingPad: Double(restingPad)
+                    )
+                    CaretFollowsWordCount(
+                        lineHeight: CGFloat(PaperRuling.bodyLineHeight(bodyPoints: size.bodyPoints)),
+                        active: field == .body && lift > 0
+                    )
+                }
                 .overlay(alignment: .topLeading) {
                     if page.body.isEmpty && field != .body {
                         Text("Begin writing…")
@@ -421,5 +431,110 @@ private final class KeyboardPadUIView: UIView {
         if last.isFinite, abs(pad - last) < 0.25 { return }
         last = pad
         onPad?(pad)
+    }
+}
+
+/// When the keyboard is open and the body is focused, the caret line sits
+/// just above the word-count. Short pages stay at the locked origin until then.
+/// Does not pin the page to the bottom. Not a guessed 34 / 120.
+private struct CaretFollowsWordCount: UIViewRepresentable {
+    var lineHeight: CGFloat
+    var active: Bool
+
+    func makeUIView(context: Context) -> CaretFollowView {
+        let view = CaretFollowView()
+        view.isUserInteractionEnabled = false
+        view.backgroundColor = .clear
+        view.lineHeight = lineHeight
+        view.active = active
+        return view
+    }
+
+    func updateUIView(_ uiView: CaretFollowView, context: Context) {
+        uiView.lineHeight = lineHeight
+        uiView.active = active
+        uiView.apply()
+    }
+}
+
+private final class CaretFollowView: UIView {
+    var lineHeight: CGFloat = 32
+    var active = false
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        apply()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        apply()
+    }
+
+    func apply() {
+        guard window != nil else { return }
+        guard let textView = nearestTextView() else { return }
+        textView.contentInsetAdjustmentBehavior = .never
+
+        if !active {
+            if textView.contentInset.top != 0 || textView.contentOffset != .zero {
+                textView.contentInset = .zero
+                textView.verticalScrollIndicatorInsets = .zero
+                textView.setContentOffset(.zero, animated: false)
+            }
+            return
+        }
+
+        let visible = bounds.height > 1 ? bounds.height : textView.bounds.height
+        let pad = CGFloat(
+            KeyboardChrome.caretScrollPad(visibleHeight: Double(visible), lineHeight: Double(lineHeight))
+        )
+        if abs(textView.contentInset.top - pad) > 0.5 {
+            var inset = textView.contentInset
+            inset.top = pad
+            inset.bottom = 0
+            textView.contentInset = inset
+            textView.verticalScrollIndicatorInsets.top = pad
+        }
+        scrollCaretToWordCount(in: textView)
+    }
+
+    private func scrollCaretToWordCount(in textView: UITextView) {
+        let caret: CGRect
+        if let range = textView.selectedTextRange {
+            caret = textView.caretRect(for: range.end)
+        } else {
+            caret = textView.caretRect(for: textView.endOfDocument)
+        }
+        guard !caret.isNull, caret.maxY.isFinite else { return }
+        let height = textView.bounds.height
+        guard height > 0 else { return }
+        let desired = caret.maxY - height + lineHeight
+        let minOffset = -textView.adjustedContentInset.top
+        let maxOffset = max(
+            minOffset,
+            textView.contentSize.height + textView.adjustedContentInset.bottom - height
+        )
+        let y = min(max(desired, minOffset), maxOffset)
+        if abs(textView.contentOffset.y - y) > 0.5 {
+            textView.setContentOffset(CGPoint(x: 0, y: y), animated: false)
+        }
+    }
+
+    private func nearestTextView() -> UITextView? {
+        var ancestor: UIView? = superview
+        while let view = ancestor {
+            if let found = findTextView(in: view) { return found }
+            ancestor = view.superview
+        }
+        return nil
+    }
+
+    private func findTextView(in view: UIView) -> UITextView? {
+        if let textView = view as? UITextView { return textView }
+        for child in view.subviews {
+            if let found = findTextView(in: child) { return found }
+        }
+        return nil
     }
 }
