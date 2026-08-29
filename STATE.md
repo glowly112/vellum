@@ -1,6 +1,6 @@
 # STATE
-Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 12, display name Velin). Not Capacitor. Not App Review.
-This turn: Jamie’s Mini sim of build 11 — glyphs at y 1468–1493, predictive bar at y 1620, gap ~42pt. That is `EditorLook.minimumHit` on the word-count Text. Caption has no 44pt frame. Closed stays above the home indicator. Paper gutters and layout-guide tracking stay. Bundle id `com.jamiematheson.vellumpad`. Build is 12. PR #4 not merged. `keyboardOpenProven` stays false on Linux.
+Shipped: web desk on Vercel. Native SwiftUI project in ios/VellumPad (1.0.0 build 13, display name Velin). Not Capacitor. Not App Review.
+This turn: Jamie’s Mini sim of build 12 — same caption Y as 11. Gap ~42pt is the pad (full keyboardLayoutGuide is one home-indicator too tall). Open lift is guide minus resting. Closed stays on the resting home-indicator pad. No guessed 34 / 42 / 44. Caption is still a caption. Paper gutters and layout-guide tracking stay. Bundle id `com.jamiematheson.vellumpad`. Build is 13. PR #4 not merged. `keyboardOpenProven` stays false on Linux.
 Launch (Debug install):
 `SIMCTL_CHILD_VELLUM_OPEN_FIRST=1 SIMCTL_CHILD_VELLUM_FOCUS_BODY=1 xcrun simctl launch <UDID> com.jamiematheson.vellumpad`
 Do not use `simctl launch --setenv` (Invalid device).

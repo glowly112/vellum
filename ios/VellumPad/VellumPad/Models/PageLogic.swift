@@ -84,9 +84,14 @@ enum KeyboardChrome {
     static let wordCountKind = "caption"
     static let wordCountUsesMinimumHit = false
     static let forbiddenWordCountAir: [Double] = [16, 34, 120]
+    /// Open pad is guide minus resting. Full guide is one home-indicator too tall.
+    static let openPadIsKeyboardOnly = true
 
-    static func writingBottomPad(guidePad: Double) -> Double {
-        max(0, guidePad)
+    /// Closed: resting (home indicator). Open: keyboard-only. No guessed 34 / 42 / 44.
+    static func writingBottomPad(guidePad: Double, restingPad: Double = 0) -> Double {
+        let lift = keyboardOnlyLift(guidePad: guidePad, restingPad: restingPad)
+        if lift > 0 { return lift }
+        return max(0, guidePad)
     }
 
     /// First measured resting inset (home indicator). Not a guessed 34.

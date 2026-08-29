@@ -243,7 +243,10 @@ struct EditorView: View {
                     .padding(.bottom, CGFloat(KeyboardAvoidance.wordCountBottomPad(keyboardLift: lift)))
             }
         }
-        .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(guidePad: Double(keyboardPad))))
+        .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(
+            guidePad: Double(keyboardPad),
+            restingPad: Double(restingPad)
+        )))
         .ignoresSafeArea(.keyboard)
         .ignoresSafeArea(.container, edges: .bottom)
     }
