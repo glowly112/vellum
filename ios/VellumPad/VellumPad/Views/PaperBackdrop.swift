@@ -90,23 +90,26 @@ struct DeskBackdrop: View {
         .allowsHitTesting(false)
     }
 
-    /// Paper/wood tooth. Denser and a bit louder on cream so it is not a wall.
-    /// Night already has contrast; keep that quieter. No lined rhythm.
+    /// Paper/wood tooth. Mixed ink + lift ellipses. No lined rhythm, no fibre.
+    /// Night is not quieter — Jamie could not see those specks from a phone.
     private func drawTooth(context: GraphicsContext, size: CGSize, dark: Bool) {
         var rng = SeededRandom(seed: PaperGrain.seed(forToken: "desk"))
         let area = size.width * size.height
-        let spacing = dark ? 70.0 : 42.0
-        let count = min(Int(area / spacing), dark ? 1400 : 2800)
+        let spacing = dark ? DeskToothLook.darkSpacing : DeskToothLook.lightSpacing
+        let cap = dark ? DeskToothLook.darkMax : DeskToothLook.lightMax
+        let count = min(Int(area / spacing), cap)
         let ink = dark ? Color.white : VellumPalette.ink
         let lift = dark ? Color.white : VellumPalette.paper
-        let inkCap = dark ? 0.08 : 0.16
-        let liftCap = dark ? 0.05 : 0.22
+        let inkCap = dark ? DeskToothLook.darkInkCap : DeskToothLook.lightInkCap
+        let liftCap = dark ? DeskToothLook.darkLiftCap : DeskToothLook.lightLiftCap
 
         for i in 0..<count {
             let px = CGFloat(rng.next()) * size.width
             let py = CGFloat(rng.next()) * size.height
             let tooth = i.isMultiple(of: 7)
-            let side = tooth ? CGFloat(1.6 + rng.next() * 1.4) : CGFloat(1.0 + rng.next() * 0.6)
+            let side = tooth
+                ? CGFloat(DeskToothLook.toothMin + rng.next() * DeskToothLook.toothSpan)
+                : CGFloat(DeskToothLook.sideMin + rng.next() * DeskToothLook.sideSpan)
             let rect = CGRect(x: px, y: py, width: side, height: side * (0.7 + rng.next() * 0.5))
             let highlight = rng.next() > 0.55
             let color = highlight

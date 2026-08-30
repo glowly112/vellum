@@ -430,6 +430,25 @@ enum DeskLook {
     static let drawsFibreStrokes = false
 }
 
+/// Library desk tooth. Readable paper/wood specks, not a flat wall.
+/// Random ellipses only. No fibre / pinstripe / starfield.
+enum DeskToothLook {
+    static let kind = "random-ellipse"
+    static let drawsFibre = false
+    static let lightSpacing = 26.0
+    static let darkSpacing = 36.0
+    static let lightMax = 4500
+    static let darkMax = 3200
+    static let lightInkCap = 0.30
+    static let lightLiftCap = 0.36
+    static let darkInkCap = 0.22
+    static let darkLiftCap = 0.16
+    static let sideMin = 1.2
+    static let sideSpan = 0.8
+    static let toothMin = 2.0
+    static let toothSpan = 1.6
+}
+
 enum LibraryPin {
     static func isPinnedAfterToggle(_ current: Bool) -> Bool { !current }
 }

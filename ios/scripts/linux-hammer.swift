@@ -246,6 +246,10 @@ enum LinuxHammer {
         expect(DeskLook.vignetteKind == "edge-darken", "7 vignette is edge-darken")
         expect(!DeskLook.forbiddenVignettes.contains(DeskLook.vignetteKind), "7 no starfield / wellness / copilot")
         expect(!DeskLook.drawsFibreStrokes, "7 desk has no fibre strokes")
+        expect(DeskToothLook.kind == "random-ellipse" && !DeskToothLook.drawsFibre, "7 tooth is random ellipses, not fibre")
+        expect(DeskToothLook.lightSpacing == 26 && DeskToothLook.lightInkCap == 0.30 && DeskToothLook.lightLiftCap == 0.36, "7 light tooth is louder")
+        expect(DeskToothLook.darkSpacing == 36 && DeskToothLook.darkInkCap == 0.22 && DeskToothLook.darkLiftCap == 0.16, "7 night tooth is visible")
+        expect(DeskToothLook.lightSpacing < 42 && DeskToothLook.darkSpacing < 70, "7 tooth spacing is tighter than the quiet miss")
         expect(LibraryEmpty.markPaper == "cream" && !LibraryEmpty.markDrawsRuling, "7 empty mark is unruled cream")
         expect(LibraryEmpty.markKind == "paper-stamp" && LibraryEmpty.markHasRustMargin, "7 empty stamp is cream + rust + V")
 
