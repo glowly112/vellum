@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Full-screen brand intro on the Velin desk. Not a sheet over the library.
-/// Each page teaches the product with real writing — not an empty cream card.
+/// Full-screen product intro. Not a sheet over the library.
+/// Each page teaches with real writing — not an empty cream card. Not a name mark.
 struct WelcomeView: View {
     var onFinished: () -> Void
 
@@ -142,18 +142,6 @@ struct WelcomeView: View {
 
     private var headline: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if page == 0 {
-                HStack(alignment: .center, spacing: 10) {
-                    EmptyDeskMark()
-                        .scaleEffect(0.55, anchor: .leading)
-                        .frame(width: 44, height: 44)
-                    Text(WelcomeCopy.kicker)
-                        .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
-                        .foregroundStyle(VellumPalette.rust)
-                        .textCase(.uppercase)
-                        .tracking(1.4)
-                }
-            }
             Text(current.title)
                 .font(VellumFonts.page(.editorial, size: 32, relativeTo: .title))
                 .italic()
@@ -168,7 +156,6 @@ struct WelcomeView: View {
 
     private var spoken: String {
         var parts: [String] = []
-        if page == 0 { parts.append(WelcomeCopy.kicker) }
         parts.append(current.title)
         if !current.line.isEmpty { parts.append(current.line) }
         if page == 0 {
@@ -244,7 +231,7 @@ struct WelcomeView: View {
     }
 }
 
-/// Compact catalog card for the welcome desk. Cream papers stay cream.
+/// Compact catalog card for the welcome library. Cream papers stay cream.
 private struct WelcomeMiniCard: View {
     let title: String
     let snippet: String

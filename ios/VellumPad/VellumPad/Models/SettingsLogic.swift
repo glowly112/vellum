@@ -128,15 +128,26 @@ enum DeskHaptics {
 }
 
 enum WelcomeCopy {
-    static let kicker = "Velin"
+    static let kicker = ""
     static let pages: [(title: String, line: String)] = [
-        ("A desk.", "Pages you keep."),
+        ("Pages you keep.", ""),
         ("Write on paper.", "Type and ink live on the page."),
         ("Import.", "They keep their date."),
     ]
     static let skip = "Skip"
     static let turn = "Turn page"
     static let done = "Done"
+
+    static var userFacing: [String] {
+        [kicker, skip, turn, done] + pages.flatMap { [$0.title, $0.line] }
+    }
+
+    static func containsAppNameOrDesk(_ text: String) -> Bool {
+        let lower = text.lowercased()
+        return lower.contains("velin")
+            || lower.contains("vellum")
+            || lower.contains("desk")
+    }
 }
 
 enum WelcomePreview {
@@ -162,7 +173,7 @@ enum WelcomePreview {
 
 enum WelcomeLook {
     static let kind = "brand-root"
-    static let surface = "paper-on-desk"
+    static let surface = "product-preview"
     static let motionKind = "page-turn"
     static let reduceMotionIsInstant = true
     static let skipOnEveryPage = true
@@ -171,8 +182,9 @@ enum WelcomeLook {
     static let isRoot = true
     static let coversLibrary = true
     static let libraryBehind = false
-    static let hasStamp = true
-    static let stampLetter = "V"
+    static let hasStamp = false
+    static let showsAppName = false
+    static let stampLetter = ""
     static let blankSheets = false
     static let teachesProduct = true
     /// WelcomeMiniCard page text. Must not be `body` — that is View.body.
