@@ -297,6 +297,10 @@ enum LibraryGreeting {
     static let airKind = "safeAreaPadding"
     static let airUsesSystemDefault = true
     static let hugsIsland = false
+    /// Air under the serif greeting so the date line is not glued.
+    /// Title-to-subtitle, not island air. Not a guessed 34.
+    static let belowGreeting: Double = 16
+    static let belowGreetingKind = "title-to-subtitle"
 
     /// Extra top air so italic Fraunces ascenders clear the system line box.
     /// Unmeasured → 0. Not a guessed 34.

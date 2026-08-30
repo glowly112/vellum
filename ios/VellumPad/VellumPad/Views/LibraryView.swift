@@ -45,6 +45,7 @@ struct LibraryView: View {
                         .font(VellumFonts.display())
                         .foregroundStyle(VellumPalette.onDesk)
                         .padding(.top, VellumFonts.greetingTopAir())
+                        .padding(.bottom, CGFloat(LibraryGreeting.belowGreeting))
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .accessibilityHidden(true)
