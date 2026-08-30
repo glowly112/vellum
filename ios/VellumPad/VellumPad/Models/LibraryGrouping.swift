@@ -105,10 +105,11 @@ enum PageCopy {
 
     static func whenLabel(_ date: Date, now: Date = .now) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(date) {
+        if cal.isDate(date, inSameDayAs: now) {
             return date.formatted(date: .omitted, time: .shortened)
         }
-        if cal.isDateInYesterday(date) {
+        if let yesterday = cal.date(byAdding: .day, value: -1, to: now),
+           cal.isDate(date, inSameDayAs: yesterday) {
             return "Yesterday"
         }
         return date.formatted(.dateTime.day().month(.abbreviated))
