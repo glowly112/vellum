@@ -23,7 +23,7 @@ enum ImportLook {
     static let fileImporterHost = "connections"
     static let pickHint = "Pick an exported file."
     static let hasSourceMarks = true
-    static let sourceMarkKind = "drawn"
+    static let sourceMarkKind = "app-icon"
     static let hasShareExtension = false
     static let appGroup = "group.com.jamiematheson.vellumpad"
     static let urlScheme = "velin"
@@ -173,13 +173,17 @@ enum ImportDating {
 }
 
 enum ImportMarkLook {
-    static let kind = "drawn"
+    static let kind = "app-icon"
     static let usesSF = false
     static let usesGenericCircle = false
-    static let notes = "yellow-pad"
-    static let journal = "brown-book"
-    static let notion = "n"
+    static let usesDrawnPaths = false
+    static let notes = "notes"
+    static let journal = "journal"
+    static let notion = "notion"
     static let file = "paper"
+    static let imagesets = [notes, journal, notion]
+    static let pointSize = 38.0
+    static let cornerRatio = 0.22
 }
 
 enum ImportCopy {
