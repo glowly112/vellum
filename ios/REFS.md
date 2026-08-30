@@ -9,6 +9,7 @@ Chrome is stock iOS 26 (Notes / Craft). Paper, type, ink, and page cards stay Ve
 | Editor long-page rail | [Apple Books edge scrubber](https://mobbin.com/screens/2620cbb8-a769-46f3-95d6-b1800eb4a4f7) | `books-edge-scrubber.webp` | Right-edge vertical rail placement on a long page | Books menus, “pages left in chapter” pills, GET bars, serif-on-white Books look. Charm stays Velin paper |
 | Editor paper | [Apple Notes blank ruled sheet](https://mobbin.com/screens/dc7e5d8a-f469-41cc-98c7-2aff7e58b84c) | `paper-notes.jpg` | Quiet floating chrome, keyboard-aware `TextEditor` | A cream card with a desk-grain frame, or a Notes page that lost the paper. The whole editor is paper, edge to edge. Type origin stays. |
 | Page style (`.sheet`) | [Craft paper / grid picker](https://mobbin.com/screens/30f97d2c-670f-4290-a1ee-c714b4b58772) | `style-craft.jpg` | Native sheet or popover with swatches for paper / type / ink / size | Custom web drawer; Craft’s own backgrounds, grids, or Smart Align |
+| Bring in (`BringInSheet`) | [Apple Notes share](https://mobbin.com/screens/f22d177b-8059-4209-b028-2073fbba6a7a) | — | Share a note out; named sources on paper | Notes filter list, folders, accounts, a Settings screen |
 
 Product shots of the current web desk (feel, not chrome):
 

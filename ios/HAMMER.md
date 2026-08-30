@@ -15,6 +15,17 @@ This Linux worker cannot run that. Logic cases are `VellumPadTests/HammerTests.s
 | 7 | Delete | Press / swipe and the page is gone. No confirm. Spring out; Reduce Motion is instant. Undo snackbar. Pin / unpin, compose insert, grouping, and focus chrome share the same spring (`DeskMotion`). Insertion moves, not only removal. |
 | 8 | Share `.txt` | System share sheet. Empty title → `Untitled page.txt`. |
 
+## Bring in (this turn)
+
+Logic in `ImportLogic` / `LibraryGrouping`. Recency uses **`updatedAt`**. Import must set both `createdAt` and `updatedAt` to the source date. `.now` is a fail.
+
+| # | Case | What must happen |
+| --- | --- | --- |
+| 1 | Recency | Page sourced 1 day ago → Yesterday. 3 days → This week. 20 days → Earlier. Stamping `.now` lands in Today (the miss). |
+| 2 | Notion CSV | `Created time` / `Last edited time` parse. Last edited drives `updatedAt`. |
+| 3 | Duplicates | Same title + body is skipped, not stacked. |
+| 4 | Empty | Empty file is **Nothing to bring in.** — a real error, not a crash. No invented date. |
+
 ## Library sheets (this turn, 7)
 
 Logic in `LibrarySheetCopy` / `LibraryEmpty` / `PaperGrain`. Run: `ios/scripts/prove.sh` (linux-hammer is the test target on this VM).

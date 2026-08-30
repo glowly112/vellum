@@ -20,6 +20,20 @@
                ReferencedContainer = "container:VellumPad.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A11CE0200000000000000006"
+               BuildableName = "ShareToVelin.appex"
+               BlueprintName = "ShareToVelin"
+               ReferencedContainer = "container:VellumPad.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

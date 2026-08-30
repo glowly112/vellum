@@ -522,6 +522,80 @@ enum LinuxHammer {
         expect(PagePlainText.fileName(title: "UI/UX", body: "") == "UI-UX.txt", "share sanitizes slash")
         expect(PagePlainText.contents(title: "Title", body: "Body") == "Title\n\nBody", "share txt body")
 
+        expect(!ImportLook.isLiveSync && !ImportLook.hasAccounts, "import is one-shot, no accounts")
+        expect(!ImportLook.hasSettingsScreen && !ImportLook.usesPrivateNotesKit, "import is not settings or NotesKit")
+        expect(!ImportLook.usesNotionOAuth && ImportLook.writesBothDates, "import writes both dates, no OAuth")
+        expect(ImportLook.storeName == "vellum-pages" && ImportLook.displayName == "Velin", "import keeps Velin store")
+        expect(LibraryLook.bringInSystemImage == "square.and.arrow.down", "bring in is a system button")
+        expect(LibraryLook.bringInKind == "system" && LibraryLook.bringInTitle == "Bring in", "bring in is not a settings row")
+
+        let yesterday = now.addingTimeInterval(-1 * 24 * 60 * 60)
+        let threeDays = now.addingTimeInterval(-3 * 24 * 60 * 60)
+        let twentyDays = now.addingTimeInterval(-20 * 24 * 60 * 60)
+        expect(LibraryGrouping.section(for: yesterday, now: now) == .yesterday, "import 1 day ago is Yesterday")
+        expect(LibraryGrouping.section(for: threeDays, now: now) == .thisWeek, "import 3 days ago is This week")
+        expect(LibraryGrouping.section(for: twentyDays, now: now) == .earlier, "import 20 days ago is Earlier")
+        expect(LibraryGrouping.section(for: now, now: now) == .today, "import stamped .now is Today — a miss")
+        expect(LibraryGrouping.section(for: yesterday, now: now) != .today, "backdate must not land in Today")
+
+        switch ImportDating.bind(created: yesterday, updated: yesterday, fileDate: nil, now: now) {
+        case .failure:
+            expect(false, "sourced date binds")
+        case .success(let dates):
+            expect(dates.created == yesterday && dates.updated == yesterday, "import writes both source dates")
+            expect(!ImportDating.usesNow(dates.updated, now: now), "import must not write .now")
+            expect(LibraryGrouping.section(for: dates.updated, now: now) == .yesterday, "bound date groups as Yesterday")
+        }
+        switch ImportDating.bind(created: nil, updated: nil, fileDate: nil, now: now) {
+        case .failure(let error):
+            expect(error == .noDate, "missing date is noDate, not .now")
+        case .success:
+            expect(false, "missing date must not invent .now")
+        }
+
+        let notionCSV = """
+        Name,Created time,Last edited time,Text
+        "River light","April 10, 2026 9:00 AM","April 11, 2026 3:15 PM","pewter water"
+        """
+        switch ImportRead.csv(Data(notionCSV.utf8), fileDate: nil, source: .notion, now: now) {
+        case .failure:
+            expect(false, "Notion CSV parses")
+        case .success(let drafts):
+            expect(drafts.count == 1 && drafts[0].title == "River light", "Notion CSV title")
+            expect(drafts[0].body == "pewter water", "Notion CSV body")
+            let created = ImportDating.parse("April 10, 2026 9:00 AM")
+            let edited = ImportDating.parse("April 11, 2026 3:15 PM")
+            expect(created != nil && drafts[0].createdAt == created, "Notion CSV Created time parsed")
+            expect(edited != nil && drafts[0].updatedAt == edited, "Notion CSV Last edited time parsed")
+            expect(!ImportDating.usesNow(drafts[0].updatedAt, now: now), "Notion CSV is not stamped .now")
+            expect(LibraryGrouping.section(for: drafts[0].updatedAt, now: now) == .earlier, "Notion CSV groups as Earlier")
+        }
+
+        let sourced = ImportDraft(title: "River", body: "pewter", createdAt: yesterday, updatedAt: yesterday, source: .notes)
+        let dupes = ImportDecision.plan(drafts: [sourced, sourced], existing: [])
+        expect(dupes.keep.count == 1 && dupes.skipped == 1, "duplicate title+body skipped in batch")
+        let again = ImportDecision.plan(drafts: [sourced], existing: [("River", "pewter")])
+        expect(again.keep.isEmpty && again.skipped == 1, "duplicate against the desk is skipped")
+
+        switch ImportRead.file(name: "empty.txt", data: Data(), fileDate: now, source: .notes, now: now) {
+        case .failure(let error):
+            expect(error == .empty && error.copy == "Nothing to bring in.", "empty file is a real error")
+        case .success:
+            expect(false, "empty file must not crash or succeed")
+        }
+        switch ImportRead.file(name: "blank.txt", data: Data("   \n".utf8), fileDate: now, source: .journal, now: now) {
+        case .failure(let error):
+            expect(error == .empty, "whitespace file is empty, not a crash")
+        case .success:
+            expect(false, "whitespace file must not become a page")
+        }
+        switch ImportRead.file(name: "Export.zip", data: Data([0x50, 0x4B, 0x03, 0x04]), fileDate: now, source: .notion, now: now) {
+        case .failure(let error):
+            expect(error == .needsUnzip, "zip asks to unzip, not a crash")
+        case .success:
+            expect(false, "zip must not parse as a page")
+        }
+
         if failures == 0 {
             print("linux-hammer: 0 failures")
             exit(0)

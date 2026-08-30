@@ -711,4 +711,91 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(PagePlainText.contents(title: "Title", body: "Body"), "Title\n\nBody")
         XCTAssertEqual(PagePlainText.contents(title: "", body: "only body"), "only body")
     }
+
+    func testImportBackdatesAndSkipsDuplicates() {
+        XCTAssertFalse(ImportLook.isLiveSync)
+        XCTAssertFalse(ImportLook.hasAccounts)
+        XCTAssertFalse(ImportLook.hasSettingsScreen)
+        XCTAssertFalse(ImportLook.usesPrivateNotesKit)
+        XCTAssertFalse(ImportLook.usesNotionOAuth)
+        XCTAssertTrue(ImportLook.writesBothDates)
+        XCTAssertEqual(ImportLook.storeName, "vellum-pages")
+        XCTAssertEqual(ImportLook.displayName, "Velin")
+        XCTAssertEqual(LibraryLook.bringInSystemImage, "square.and.arrow.down")
+        XCTAssertEqual(LibraryLook.bringInKind, "system")
+        XCTAssertEqual(LibraryLook.bringInTitle, "Bring in")
+
+        let yesterday = now.addingTimeInterval(-1 * 24 * 60 * 60)
+        let threeDays = now.addingTimeInterval(-3 * 24 * 60 * 60)
+        let twentyDays = now.addingTimeInterval(-20 * 24 * 60 * 60)
+        XCTAssertEqual(LibraryGrouping.section(for: yesterday, now: now), .yesterday)
+        XCTAssertEqual(LibraryGrouping.section(for: threeDays, now: now), .thisWeek)
+        XCTAssertEqual(LibraryGrouping.section(for: twentyDays, now: now), .earlier)
+        XCTAssertEqual(LibraryGrouping.section(for: now, now: now), .today, ".now is Today — a fail for backdate")
+        XCTAssertNotEqual(LibraryGrouping.section(for: yesterday, now: now), .today)
+
+        switch ImportDating.bind(created: yesterday, updated: yesterday, fileDate: nil, now: now) {
+        case .failure:
+            XCTFail("sourced date should bind")
+        case .success(let dates):
+            XCTAssertEqual(dates.created, yesterday)
+            XCTAssertEqual(dates.updated, yesterday)
+            XCTAssertFalse(ImportDating.usesNow(dates.updated, now: now))
+            XCTAssertEqual(LibraryGrouping.section(for: dates.updated, now: now), .yesterday)
+        }
+        if case .success = ImportDating.bind(created: nil, updated: nil, fileDate: nil, now: now) {
+            XCTFail("missing date must not invent .now")
+        }
+
+        let csv = """
+        Name,Created time,Last edited time,Text
+        "River light","April 10, 2026 9:00 AM","April 11, 2026 3:15 PM","pewter water"
+        """
+        switch ImportRead.csv(Data(csv.utf8), fileDate: nil, source: .notion, now: now) {
+        case .failure(let error):
+            XCTFail("Notion CSV should parse: \(error)")
+        case .success(let drafts):
+            XCTAssertEqual(drafts.count, 1)
+            XCTAssertEqual(drafts[0].title, "River light")
+            XCTAssertEqual(drafts[0].body, "pewter water")
+            XCTAssertEqual(drafts[0].createdAt, ImportDating.parse("April 10, 2026 9:00 AM"))
+            XCTAssertEqual(drafts[0].updatedAt, ImportDating.parse("April 11, 2026 3:15 PM"))
+            XCTAssertFalse(ImportDating.usesNow(drafts[0].updatedAt, now: now))
+            XCTAssertEqual(LibraryGrouping.section(for: drafts[0].updatedAt, now: now), .earlier)
+        }
+
+        let sourced = ImportDraft(
+            title: "River",
+            body: "pewter",
+            createdAt: yesterday,
+            updatedAt: yesterday,
+            source: .notes
+        )
+        let batch = ImportDecision.plan(drafts: [sourced, sourced], existing: [])
+        XCTAssertEqual(batch.keep.count, 1)
+        XCTAssertEqual(batch.skipped, 1)
+        let again = ImportDecision.plan(drafts: [sourced], existing: [("River", "pewter")])
+        XCTAssertTrue(again.keep.isEmpty)
+        XCTAssertEqual(again.skipped, 1)
+
+        switch ImportRead.file(name: "empty.txt", data: Data(), fileDate: now, source: .notes, now: now) {
+        case .failure(let error):
+            XCTAssertEqual(error, .empty)
+            XCTAssertEqual(error.copy, "Nothing to bring in.")
+        case .success:
+            XCTFail("empty file must not crash or succeed")
+        }
+        switch ImportRead.file(name: "blank.txt", data: Data("   \n".utf8), fileDate: now, source: .journal, now: now) {
+        case .failure(let error):
+            XCTAssertEqual(error, .empty)
+        case .success:
+            XCTFail("whitespace file must not become a page")
+        }
+        switch ImportRead.file(name: "Export.zip", data: Data([0x50, 0x4B, 0x03, 0x04]), fileDate: now, source: .notion, now: now) {
+        case .failure(let error):
+            XCTAssertEqual(error, .needsUnzip)
+        case .success:
+            XCTFail("zip must not parse as a page")
+        }
+    }
 }

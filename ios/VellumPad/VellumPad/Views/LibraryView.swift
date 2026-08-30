@@ -9,6 +9,11 @@ struct LibraryView: View {
     @State private var query = ""
     @State private var path: [UUID] = []
     @State private var composeLock = false
+    @State private var bringInOpen = false
+    @State private var bringInSource: ImportSource = .notes
+    @State private var pickingFiles = false
+    @State private var bringInMessage = ""
+    @State private var bringInIsError = false
 
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
@@ -59,6 +64,14 @@ struct LibraryView: View {
                 ToolbarItem(placement: .subtitle) {
                     deskSubtitle
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(LibraryLook.bringInTitle, systemImage: LibraryLook.bringInSystemImage) {
+                        bringInMessage = ""
+                        bringInIsError = false
+                        withAnimation(deskMotion) { bringInOpen = true }
+                    }
+                    .accessibilityLabel(LibraryLook.bringInTitle)
+                }
                 DefaultToolbarItem(kind: .search, placement: .bottomBar)
                 ToolbarSpacer(.flexible, placement: .bottomBar)
                 ToolbarItem(placement: .bottomBar) {
@@ -67,6 +80,31 @@ struct LibraryView: View {
                     }
                     .accessibilityLabel("New page")
                 }
+            }
+            .sheet(isPresented: $bringInOpen) {
+                BringInSheet(
+                    onPick: { source in
+                        bringInSource = source
+                        pickingFiles = true
+                    },
+                    message: bringInMessage,
+                    isError: bringInIsError
+                )
+            }
+            .fileImporter(
+                isPresented: $pickingFiles,
+                allowedContentTypes: ImportPicker.types(for: bringInSource),
+                allowsMultipleSelection: true
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    applyImport(BringInFiles.drafts(from: urls, source: bringInSource))
+                case .failure:
+                    showBringIn(ImportError.unreadable.copy, error: true)
+                }
+            }
+            .onOpenURL { url in
+                handleIncoming(url)
             }
             .safeAreaInset(edge: .bottom, spacing: 8) {
                 if trash.last != nil {
@@ -79,6 +117,7 @@ struct LibraryView: View {
             .animation(deskMotion, value: trash.last?.pageID)
             .onAppear {
                 discardBlankDrafts(except: Set(path))
+                drainInbox()
             }
             .onChange(of: path) { _, newPath in
                 composeLock = false
@@ -344,6 +383,66 @@ struct LibraryView: View {
         withAnimation(deskMotion) {
             modelContext.insert(page)
             try? modelContext.save()
+        }
+    }
+
+    private func handleIncoming(_ url: URL) {
+        if url.isFileURL {
+            applyImport(BringInFiles.drafts(from: [url], source: .file), reveal: true)
+            return
+        }
+        if url.scheme == ImportInbox.urlScheme {
+            applyImport(ImportInbox.drafts(from: ImportInbox.items(from: url)), reveal: true)
+        }
+    }
+
+    private func drainInbox() {
+        let items = ImportInbox.take()
+        guard !items.isEmpty else { return }
+        applyImport(ImportInbox.drafts(from: items), reveal: true)
+    }
+
+    private func applyImport(_ result: Result<[ImportDraft], ImportError>, reveal: Bool = false) {
+        if reveal {
+            withAnimation(deskMotion) { bringInOpen = true }
+        }
+        switch result {
+        case .failure(let error):
+            showBringIn(error.copy, error: true)
+        case .success(let drafts):
+            let existing = pages.map { (title: $0.title, body: $0.body) }
+            let plan = ImportDecision.plan(drafts: drafts, existing: existing)
+            if plan.keep.isEmpty {
+                showBringIn(ImportCopy.result(brought: 0, skipped: plan.skipped), error: plan.skipped == 0)
+                return
+            }
+            let style = StylePreferences.last
+            withAnimation(deskMotion) {
+                for draft in plan.keep {
+                    modelContext.insert(
+                        Page(
+                            title: draft.title,
+                            body: draft.body,
+                            createdAt: draft.createdAt,
+                            updatedAt: draft.updatedAt,
+                            fontId: style.typeface.rawValue,
+                            paperId: style.paper.rawValue,
+                            inkId: style.resolvedInk.rawValue,
+                            sizeId: style.size.rawValue
+                        )
+                    )
+                }
+                try? modelContext.save()
+            }
+            showBringIn(ImportCopy.result(brought: plan.keep.count, skipped: plan.skipped), error: false)
+        }
+    }
+
+    private func showBringIn(_ message: String, error: Bool) {
+        bringInMessage = message
+        bringInIsError = error
+        if !bringInOpen {
+            withAnimation(deskMotion) { bringInOpen = true }
         }
     }
 }

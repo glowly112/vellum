@@ -9,6 +9,7 @@
 /* Begin PBXFileReference section */
 		A11CE0010000000000000001 /* VellumPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VellumPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A11CE0100000000000000001 /* VellumPadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VellumPadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A11CE0200000000000000001 /* ShareToVelin.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareToVelin.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,6 +17,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				A11CE00100000000000000E1 /* Exceptions for Info.plist */,
+				A11CE02000000000000000E2 /* ImportLogic for ShareToVelin */,
 			);
 			path = VellumPad;
 			sourceTree = "<group>";
@@ -23,6 +25,14 @@
 		A11CE0100000000000000002 /* VellumPadTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VellumPadTests;
+			sourceTree = "<group>";
+		};
+		A11CE0200000000000000002 /* ShareToVelin */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A11CE02000000000000000E1 /* Exceptions for Share Info.plist */,
+			);
+			path = ShareToVelin;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -34,6 +44,20 @@
 				Info.plist,
 			);
 			target = A11CE0010000000000000006 /* VellumPad */;
+		};
+		A11CE02000000000000000E1 /* Exceptions for Share Info.plist */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A11CE0200000000000000006 /* ShareToVelin */;
+		};
+		A11CE02000000000000000E2 /* ImportLogic for ShareToVelin */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/ImportLogic.swift,
+			);
+			target = A11CE0200000000000000006 /* ShareToVelin */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -52,6 +76,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A11CE0200000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -60,6 +91,7 @@
 			children = (
 				A11CE0010000000000000002 /* VellumPad */,
 				A11CE0100000000000000002 /* VellumPadTests */,
+				A11CE0200000000000000002 /* ShareToVelin */,
 				A11CE0010000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -69,6 +101,7 @@
 			children = (
 				A11CE0010000000000000001 /* VellumPad.app */,
 				A11CE0100000000000000001 /* VellumPadTests.xctest */,
+				A11CE0200000000000000001 /* ShareToVelin.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -83,10 +116,12 @@
 				A11CE0010000000000000007 /* Sources */,
 				A11CE0010000000000000003 /* Frameworks */,
 				A11CE0010000000000000008 /* Resources */,
+				A11CE0010000000000000010 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A11CE020000000000000001A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A11CE0010000000000000002 /* VellumPad */,
@@ -117,6 +152,26 @@
 			productReference = A11CE0100000000000000001 /* VellumPadTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A11CE0200000000000000006 /* ShareToVelin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A11CE020000000000000000A /* Build configuration list for PBXNativeTarget "ShareToVelin" */;
+			buildPhases = (
+				A11CE0200000000000000007 /* Sources */,
+				A11CE0200000000000000003 /* Frameworks */,
+				A11CE0200000000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A11CE0200000000000000002 /* ShareToVelin */,
+			);
+			name = ShareToVelin;
+			productName = ShareToVelin;
+			productReference = A11CE0200000000000000001 /* ShareToVelin.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -133,6 +188,9 @@
 					A11CE0100000000000000006 = {
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = A11CE0010000000000000006;
+					};
+					A11CE0200000000000000006 = {
+						CreatedOnToolsVersion = 26.0;
 					};
 				};
 			};
@@ -152,6 +210,7 @@
 			targets = (
 				A11CE0010000000000000006 /* VellumPad */,
 				A11CE0100000000000000006 /* VellumPadTests */,
+				A11CE0200000000000000006 /* ShareToVelin */,
 			);
 		};
 /* End PBXProject section */
@@ -165,6 +224,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A11CE0100000000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A11CE0200000000000000008 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -188,6 +254,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A11CE0200000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXContainerItemProxy section */
@@ -198,6 +271,13 @@
 			remoteGlobalIDString = A11CE0010000000000000006;
 			remoteInfo = VellumPad;
 		};
+		A11CE0200000000000000019 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A11CE0010000000000000009 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A11CE0200000000000000006;
+			remoteInfo = ShareToVelin;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXTargetDependency section */
@@ -206,7 +286,30 @@
 			target = A11CE0010000000000000006 /* VellumPad */;
 			targetProxy = A11CE0100000000000000019 /* PBXContainerItemProxy */;
 		};
+		A11CE020000000000000001A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A11CE0200000000000000006 /* ShareToVelin */;
+			targetProxy = A11CE0200000000000000019 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXBuildFile section */
+		A11CE020000000000000001B /* ShareToVelin.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A11CE0200000000000000001 /* ShareToVelin.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A11CE0010000000000000010 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A11CE020000000000000001B /* ShareToVelin.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		A11CE001000000000000000C /* Debug */ = {
@@ -337,6 +440,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VellumPad/VellumPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_TEAM = M3V2YYMTV6;
@@ -374,6 +478,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VellumPad/VellumPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_TEAM = M3V2YYMTV6;
@@ -427,6 +532,66 @@
 			};
 			name = Debug;
 		};
+		A11CE020000000000000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareToVelin/ShareToVelin.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 27;
+				DEVELOPMENT_TEAM = M3V2YYMTV6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareToVelin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Velin;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jamiematheson.vellumpad.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A11CE020000000000000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareToVelin/ShareToVelin.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 27;
+				DEVELOPMENT_TEAM = M3V2YYMTV6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareToVelin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Velin;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jamiematheson.vellumpad.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		A11CE010000000000000000F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -474,6 +639,15 @@
 			buildConfigurations = (
 				A11CE010000000000000000E /* Debug */,
 				A11CE010000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A11CE020000000000000000A /* Build configuration list for PBXNativeTarget "ShareToVelin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A11CE020000000000000000E /* Debug */,
+				A11CE020000000000000000F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
