@@ -17,8 +17,8 @@ enum SettingsLook {
     static let welcomeRow = "Welcome"
     static let aboutCopy = "Pages stay on this iPhone."
     static let marketingVersion = "1.0.0"
-    static let buildNumber = "31"
-    static let versionLabel = "1.0.0 (31)"
+    static let buildNumber = "32"
+    static let versionLabel = "1.0.0 (32)"
     static let lockDefault = false
     static let awakeDefault = false
     static let hapticsDefault = true
@@ -175,7 +175,7 @@ enum WelcomeLook {
     static let kind = "brand-root"
     static let surface = "product-preview"
     static let motionKind = "page-turn"
-    static let openingBeat = "stamp-bounce"
+    static let openingBeat = "sheet-then-letterpress"
     static let reduceMotionIsInstant = true
     static let skipOnEveryPage = true
     static let pageCount = 3
@@ -190,9 +190,23 @@ enum WelcomeLook {
     static let stampWritesName = false
     static let bounceResponse = DeskMotion.response
     static let bounceDamping = DeskMotion.damping
-    /// After the spring settles, auto-advance to Pages you keep.
-    static let bounceSettle = 0.95
-    static let bounceStartScale = 0.78
+    /// Cream sheet lands first, then the 80pt stamp presses. Not a giant V.
+    static let sheetArrives = true
+    static let sheetOwnsScreen = true
+    static let sheetSettle = 0.55
+    static let letterpress = true
+    static let letterpressHaptic = true
+    static let scalesStampUp = false
+    static let stampSide = 80.0
+    static let stampFillsMiddle = false
+    /// Letterpress: proud then press. Not a grow-up from 0.78.
+    static let bounceStartScale = 1.16
+    static let bounceStartOffset = -14.0
+    static let bounceSettle = 0.55
+    static let openingSettle = 1.15
+    static let exitKind = "page-turn"
+    static let skipExitKind = "spring-fade"
+    static let exitIsCut = false
     static let autoAdvanceAfterStamp = true
     static let cardsArrive = true
     static let staggerStep = 0.08
@@ -218,6 +232,40 @@ enum WelcomeTypewriter {
         if revealed >= full.count { return full }
         let end = full.index(full.startIndex, offsetBy: revealed)
         return String(full[..<end])
+    }
+}
+
+/// How welcome leaves. Done turns into the library. Skip is quicker. Not a cut.
+enum WelcomeExit: String, Equatable, Sendable {
+    case skip
+    case done
+}
+
+/// Turn page / Done capsule. Never cream-on-cream. Skip stays onDesk.
+enum WelcomeChromeLook {
+    static let turnFillLight = "ink"
+    static let turnFillLightHex = "2C2419"
+    static let turnLabelLight = "paper"
+    static let turnLabelLightHex = "F3EBDD"
+    static let turnFillDark = "rust"
+    static let turnFillDarkHex = "C45C4A"
+    static let turnLabelDark = "paper"
+    static let turnLabelDarkHex = "F3EBDD"
+    static let usesOnDeskFill = false
+    static let creamOnCream = false
+    static let skipUsesOnDesk = true
+
+    static func turnFillKind(scheme: String) -> String {
+        scheme == "dark" ? turnFillDark : turnFillLight
+    }
+
+    static func turnLabelKind(scheme: String) -> String { "paper" }
+
+    static func contrasts(scheme: String) -> Bool {
+        let fill = turnFillKind(scheme: scheme)
+        let label = turnLabelKind(scheme: scheme)
+        return fill != "paper" && fill != "onDesk" && fill != "cream"
+            && label == "paper"
     }
 }
 

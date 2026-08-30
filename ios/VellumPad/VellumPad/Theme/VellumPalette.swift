@@ -89,6 +89,15 @@ enum VellumPalette {
         scheme == .dark ? night : deskDay
     }
 
+    /// Turn page / Done. Never onDesk — that is cream-on-cream in Dark.
+    static func welcomeTurnFill(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? rust : ink
+    }
+
+    static func welcomeTurnLabel(for scheme: ColorScheme) -> Color {
+        paper
+    }
+
     static func lift(for scheme: ColorScheme) -> Color {
         scheme == .dark
             ? Color.black.opacity(0.50)

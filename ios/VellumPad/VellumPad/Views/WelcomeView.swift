@@ -1,15 +1,16 @@
 import SwiftUI
 
 /// Full-screen product intro. Not a sheet over the library.
-/// Stamp bounce, then the three lessons. Writing on cream sheets stays charcoal.
+/// Cream sheet arrives, then the 80pt stamp letterpresses. Writing stays charcoal.
 struct WelcomeView: View {
-    var onFinished: () -> Void
+    var onFinished: (WelcomeExit) -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
     @State private var showingStamp = WelcomeLook.hasStamp
-    @State private var stampLanded = false
+    @State private var sheetLanded = false
+    @State private var stampPressed = false
     @State private var page = 0
 
     private var scheme: ColorScheme {
@@ -30,8 +31,7 @@ struct WelcomeView: View {
                 VStack(spacing: 0) {
                     Spacer(minLength: max(16, geo.size.height * 0.05))
                     if showingStamp {
-                        stampBeat
-                            .frame(maxWidth: .infinity, maxHeight: min(geo.size.height * 0.72, 560))
+                        openingBeat(in: geo.size)
                     } else {
                         pageBody(in: geo.size)
                             .id(page)
@@ -59,13 +59,39 @@ struct WelcomeView: View {
         !showingStamp && page >= WelcomeCopy.pages.count - 1
     }
 
-    private var stampBeat: some View {
-        EmptyDeskMark()
-            .scaleEffect(stampLanded || reduceMotion ? 1 : WelcomeLook.bounceStartScale)
-            .offset(y: stampLanded || reduceMotion ? 0 : 22)
-            .opacity(stampLanded || reduceMotion ? 1 : 0.4)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            .accessibilityHidden(true)
+    /// Desk is already behind. A cream sheet owns the field, then the 80pt stamp presses.
+    private func openingBeat(in size: CGSize) -> some View {
+        ZStack {
+            openingSheet(in: size)
+            EmptyDeskMark()
+                .scaleEffect(stampPressed || reduceMotion ? 1 : WelcomeLook.bounceStartScale)
+                .offset(y: stampPressed || reduceMotion ? 0 : CGFloat(WelcomeLook.bounceStartOffset))
+                .opacity(stampPressed || reduceMotion ? 1 : 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: min(size.height * 0.78, 640))
+        .accessibilityHidden(true)
+    }
+
+    /// Full cream catalog sheet. Drops / unfolds onto the desk. Not a giant V.
+    private func openingSheet(in size: CGSize) -> some View {
+        let landed = sheetLanded || reduceMotion
+        return PaperBackdrop(paper: .cream, compact: false, drawsRuling: false)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(VellumPalette.ink.opacity(0.08), lineWidth: 1)
+            }
+            .shadow(color: lift, radius: 18, y: 10)
+            .padding(.horizontal, 18)
+            .frame(maxWidth: .infinity, maxHeight: min(size.height * 0.78, 640))
+            .offset(y: landed ? 0 : -56)
+            .scaleEffect(x: 1, y: landed ? 1 : 0.86, anchor: .top)
+            .rotation3DEffect(
+                .degrees(landed ? 0 : 22),
+                axis: (x: 1, y: 0, z: 0),
+                anchor: .top,
+                perspective: 0.45
+            )
     }
 
     @ViewBuilder
@@ -213,7 +239,7 @@ struct WelcomeView: View {
     private var chrome: some View {
         HStack {
             Button(WelcomeCopy.skip) {
-                finish()
+                finish(.skip)
             }
             .font(VellumFonts.page(.book, size: 16, relativeTo: .body))
             .foregroundStyle(deskInk)
@@ -227,10 +253,10 @@ struct WelcomeView: View {
                     advance()
                 }
                 .font(VellumFonts.page(.book, size: 16, relativeTo: .body))
-                .foregroundStyle(VellumPalette.paper)
+                .foregroundStyle(VellumPalette.welcomeTurnLabel(for: scheme))
                 .padding(.horizontal, 18)
                 .frame(minHeight: CGFloat(HitTarget.minimum))
-                .background(deskInk, in: Capsule())
+                .background(VellumPalette.welcomeTurnFill(for: scheme), in: Capsule())
                 .accessibilityLabel(isLast ? WelcomeCopy.done : WelcomeCopy.turn)
             }
         }
@@ -267,37 +293,41 @@ struct WelcomeView: View {
     private func runOpeningBeat() {
         guard showingStamp else { return }
         if reduceMotion {
-            stampLanded = true
+            sheetLanded = true
+            stampPressed = true
             Task { @MainActor in
                 await Task.yield()
                 showingStamp = false
             }
             return
         }
-        stampLanded = false
+        sheetLanded = false
+        stampPressed = false
         Task { @MainActor in
             await Task.yield()
-            withAnimation(bounceMotion) { stampLanded = true }
+            withAnimation(bounceMotion) { sheetLanded = true }
+            try? await Task.sleep(for: .seconds(WelcomeLook.sheetSettle))
+            guard showingStamp else { return }
+            if WelcomeLook.letterpressHaptic { DeskHapticsPlay.tick() }
+            withAnimation(bounceMotion) { stampPressed = true }
             try? await Task.sleep(for: .seconds(WelcomeLook.bounceSettle))
             guard showingStamp else { return }
             showingStamp = false
-            // Advance to Pages you keep. Do not finish() — that skipped Mini.
         }
     }
 
     private func advance() {
         DeskHapticsPlay.tick()
         if isLast {
-            finish()
+            finish(.done)
             return
         }
         page += 1
     }
 
-    /// Skip / Done only. Stamp bounce must not call this.
-    private func finish() {
-        WelcomeGate.finish()
-        onFinished()
+    /// Skip / Done only. The opening beat must not call this.
+    private func finish(_ exit: WelcomeExit) {
+        onFinished(exit)
     }
 }
 
@@ -404,7 +434,7 @@ private struct WelcomeArrive: ViewModifier {
 }
 
 /// Mesh page-turn: the sheet hinges on its leading edge.
-private struct WelcomeTurn: ViewModifier {
+struct WelcomeTurn: ViewModifier {
     var progress: Double
 
     func body(content: Content) -> some View {
