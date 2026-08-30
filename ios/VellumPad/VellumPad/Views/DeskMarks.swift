@@ -117,3 +117,139 @@ private struct DeskPinTick: View {
         .frame(width: 9, height: 12)
     }
 }
+
+/// Drawn source marks for Connections. Not SF. Not generic circles.
+struct ImportSourceMark: View {
+    let source: ImportSource
+
+    var body: some View {
+        Group {
+            switch source {
+            case .notes: NotesPadMark()
+            case .journal: JournalBookMark()
+            case .notion: NotionNMark()
+            case .file: FilePaperMark()
+            }
+        }
+        .frame(width: 36, height: 36)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Apple Notes yellow pad.
+private struct NotesPadMark: View {
+    var body: some View {
+        Canvas { context, size in
+            let pad = CGRect(x: 3, y: 2, width: size.width - 6, height: size.height - 5)
+            let fill = Color(red: 0.98, green: 0.86, blue: 0.38)
+            context.fill(
+                Path(roundedRect: pad, cornerRadius: 3.5),
+                with: .color(fill)
+            )
+            let head = CGRect(x: pad.minX, y: pad.minY, width: pad.width, height: 7)
+            context.fill(
+                Path(roundedRect: head, cornerRadius: 3.5),
+                with: .color(Color(red: 0.93, green: 0.76, blue: 0.22))
+            )
+            let rule = Color(red: 0.78, green: 0.62, blue: 0.18).opacity(0.55)
+            var y = pad.minY + 13
+            while y < pad.maxY - 3 {
+                var line = Path()
+                line.move(to: CGPoint(x: pad.minX + 4, y: y))
+                line.addLine(to: CGPoint(x: pad.maxX - 4, y: y))
+                context.stroke(line, with: .color(rule), lineWidth: 0.8)
+                y += 5
+            }
+            context.stroke(
+                Path(roundedRect: pad, cornerRadius: 3.5),
+                with: .color(VellumPalette.ink.opacity(0.18)),
+                lineWidth: 0.8
+            )
+        }
+    }
+}
+
+/// Apple Journal brown book.
+private struct JournalBookMark: View {
+    var body: some View {
+        Canvas { context, size in
+            let cover = CGRect(x: 4, y: 3, width: size.width - 7, height: size.height - 6)
+            let brown = Color(red: 0.45, green: 0.28, blue: 0.16)
+            context.fill(
+                Path(roundedRect: cover, cornerRadius: 3),
+                with: .color(brown)
+            )
+            let spine = CGRect(x: cover.minX, y: cover.minY, width: 5, height: cover.height)
+            context.fill(
+                Path(roundedRect: spine, cornerRadius: 2),
+                with: .color(Color(red: 0.32, green: 0.19, blue: 0.10))
+            )
+            let page = CGRect(x: cover.maxX - 3.5, y: cover.minY + 2, width: 2.4, height: cover.height - 4)
+            context.fill(Path(page), with: .color(VellumPalette.ivory))
+            var band = Path()
+            band.move(to: CGPoint(x: cover.minX + 9, y: cover.midY))
+            band.addLine(to: CGPoint(x: cover.maxX - 5, y: cover.midY))
+            context.stroke(
+                band,
+                with: .color(Color(red: 0.78, green: 0.62, blue: 0.34)),
+                style: StrokeStyle(lineWidth: 1.6, lineCap: .round)
+            )
+        }
+    }
+}
+
+/// Notion N on cream paper.
+private struct NotionNMark: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .fill(VellumPalette.ivory)
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .strokeBorder(VellumPalette.ink.opacity(0.55), lineWidth: 1.2)
+            NotionNStroke()
+        }
+    }
+}
+
+private struct NotionNStroke: View {
+    var body: some View {
+        Canvas { context, size in
+            var n = Path()
+            n.move(to: CGPoint(x: size.width * 0.30, y: size.height * 0.74))
+            n.addLine(to: CGPoint(x: size.width * 0.30, y: size.height * 0.26))
+            n.addLine(to: CGPoint(x: size.width * 0.70, y: size.height * 0.74))
+            n.addLine(to: CGPoint(x: size.width * 0.70, y: size.height * 0.26))
+            context.stroke(
+                n,
+                with: .color(VellumPalette.ink),
+                style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round)
+            )
+        }
+        .frame(width: 22, height: 22)
+    }
+}
+
+private struct FilePaperMark: View {
+    var body: some View {
+        Canvas { context, size in
+            let sheet = CGRect(x: 6, y: 4, width: size.width - 12, height: size.height - 8)
+            context.fill(
+                Path(roundedRect: sheet, cornerRadius: 2.5),
+                with: .color(VellumPalette.paper)
+            )
+            context.stroke(
+                Path(roundedRect: sheet, cornerRadius: 2.5),
+                with: .color(VellumPalette.ink.opacity(0.22)),
+                lineWidth: 0.8
+            )
+            var y = sheet.minY + 8
+            while y < sheet.maxY - 5 {
+                var line = Path()
+                line.move(to: CGPoint(x: sheet.minX + 3, y: y))
+                line.addLine(to: CGPoint(x: sheet.maxX - 3, y: y))
+                context.stroke(line, with: .color(VellumPalette.ink.opacity(0.16)), lineWidth: 0.7)
+                y += 4.5
+            }
+        }
+    }
+}

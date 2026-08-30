@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -69,5 +70,41 @@ enum BringInFiles {
     private static func keeps(_ url: URL) -> Bool {
         let ext = url.pathExtension.lowercased()
         return ["txt", "text", "md", "markdown", "html", "htm", "csv", "zip", "pdf"].contains(ext)
+    }
+}
+
+enum ImportApply {
+    @MainActor
+    static func ingest(
+        _ result: Result<[ImportDraft], ImportError>,
+        existing: [(title: String, body: String)],
+        modelContext: ModelContext
+    ) -> (message: String, isError: Bool) {
+        switch result {
+        case .failure(let error):
+            return (error.copy, true)
+        case .success(let drafts):
+            let plan = ImportDecision.plan(drafts: drafts, existing: existing)
+            if plan.keep.isEmpty {
+                return (ImportCopy.result(brought: 0, skipped: plan.skipped), plan.skipped == 0)
+            }
+            let style = StylePreferences.last
+            for draft in plan.keep {
+                modelContext.insert(
+                    Page(
+                        title: draft.title,
+                        body: draft.body,
+                        createdAt: draft.createdAt,
+                        updatedAt: draft.updatedAt,
+                        fontId: style.typeface.rawValue,
+                        paperId: style.paper.rawValue,
+                        inkId: style.resolvedInk.rawValue,
+                        sizeId: style.size.rawValue
+                    )
+                )
+            }
+            try? modelContext.save()
+            return (ImportCopy.result(brought: plan.keep.count, skipped: plan.skipped), false)
+        }
     }
 }

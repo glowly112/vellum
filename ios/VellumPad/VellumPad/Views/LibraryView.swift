@@ -16,9 +16,7 @@ struct LibraryView: View {
     @State private var pickingFiles = false
     @State private var bringInMessage = ""
     @State private var bringInIsError = false
-    @AppStorage(DeskSettings.welcomeKey) private var replayWelcome = SettingsLook.welcomeDefault
     @State private var deskUnlocked = !DeskSettings.lockDesk()
-    @State private var showWelcome = WelcomeGate.shouldPresent()
 
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
@@ -89,20 +87,12 @@ struct LibraryView: View {
             .sheet(isPresented: $settingsOpen) {
                 SettingsSheet(
                     openConnections: $openConnections,
-                    onPick: { source in
-                        bringInSource = source
-                        pickingFiles = true
-                    },
                     message: bringInMessage,
                     isError: bringInIsError
                 )
             }
             .overlay {
-                if showWelcome {
-                    WelcomeView {
-                        withAnimation(deskMotion) { showWelcome = false }
-                    }
-                } else if DeskSettings.lockDesk() && !deskUnlocked {
+                if DeskSettings.lockDesk() && !deskUnlocked {
                     DeskLockCover {
                         deskUnlocked = true
                     }
@@ -135,24 +125,12 @@ struct LibraryView: View {
             .onAppear {
                 discardBlankDrafts(except: Set(path))
                 drainInbox()
-                #if DEBUG
-                if DebugOpenFirst.shouldOpenFirstPage() {
-                    WelcomeGate.finish()
-                    showWelcome = false
-                }
-                #endif
             }
             .onChange(of: settingsOpen) { _, on in
                 if !on { openConnections = false }
             }
-            .onChange(of: replayWelcome) { _, on in
-                if on {
-                    settingsOpen = false
-                    withAnimation(deskMotion) { showWelcome = true }
-                }
-            }
             .onChange(of: scenePhase) { _, phase in
-                guard DeskSettings.lockDesk(), !showWelcome else { return }
+                guard DeskSettings.lockDesk() else { return }
                 if phase == .background {
                     deskUnlocked = false
                 }
@@ -450,36 +428,9 @@ struct LibraryView: View {
             openConnections = true
             withAnimation(deskMotion) { settingsOpen = true }
         }
-        switch result {
-        case .failure(let error):
-            showBringIn(error.copy, error: true)
-        case .success(let drafts):
-            let existing = pages.map { (title: $0.title, body: $0.body) }
-            let plan = ImportDecision.plan(drafts: drafts, existing: existing)
-            if plan.keep.isEmpty {
-                showBringIn(ImportCopy.result(brought: 0, skipped: plan.skipped), error: plan.skipped == 0)
-                return
-            }
-            let style = StylePreferences.last
-            withAnimation(deskMotion) {
-                for draft in plan.keep {
-                    modelContext.insert(
-                        Page(
-                            title: draft.title,
-                            body: draft.body,
-                            createdAt: draft.createdAt,
-                            updatedAt: draft.updatedAt,
-                            fontId: style.typeface.rawValue,
-                            paperId: style.paper.rawValue,
-                            inkId: style.resolvedInk.rawValue,
-                            sizeId: style.size.rawValue
-                        )
-                    )
-                }
-                try? modelContext.save()
-            }
-            showBringIn(ImportCopy.result(brought: plan.keep.count, skipped: plan.skipped), error: false)
-        }
+        let existing = pages.map { (title: $0.title, body: $0.body) }
+        let outcome = ImportApply.ingest(result, existing: existing, modelContext: modelContext)
+        showBringIn(outcome.message, error: outcome.isError)
     }
 
     private func showBringIn(_ message: String, error: Bool) {

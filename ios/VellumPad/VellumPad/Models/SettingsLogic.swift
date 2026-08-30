@@ -17,8 +17,8 @@ enum SettingsLook {
     static let welcomeRow = "Welcome"
     static let aboutCopy = "Pages stay on this iPhone."
     static let marketingVersion = "1.0.0"
-    static let buildNumber = "28"
-    static let versionLabel = "1.0.0 (28)"
+    static let buildNumber = "29"
+    static let versionLabel = "1.0.0 (29)"
     static let lockDefault = false
     static let awakeDefault = false
     static let hapticsDefault = true
@@ -29,10 +29,12 @@ enum SettingsLook {
     static let hasTags = false
     static let hasNotifications = false
     static let hasConfirmToDelete = false
-    static let hasThemePicker = false
+    static let hasThemePicker = true
     static let hasMarkdown = false
     static let hasProfile = false
+    /// Default tile is System. Light / Dark persist an override.
     static let followsSystemAppearance = true
+    static let appearanceKey = AppearanceLook.key
 }
 
 enum DeskSettings {
@@ -83,10 +85,11 @@ enum DeskHaptics {
 }
 
 enum WelcomeCopy {
+    static let kicker = "Velin"
     static let pages: [(title: String, line: String)] = [
         ("A desk.", "Pages you keep."),
         ("Write on paper.", ""),
-        ("Bring thoughts in.", "They keep their date."),
+        ("Import.", "They keep their date."),
     ]
     static let skip = "Skip"
     static let turn = "Turn page"
@@ -94,12 +97,55 @@ enum WelcomeCopy {
 }
 
 enum WelcomeLook {
-    static let kind = "paper-on-desk"
+    static let kind = "brand-root"
+    static let surface = "paper-on-desk"
     static let motionKind = "page-turn"
     static let reduceMotionIsInstant = true
     static let skipOnEveryPage = true
     static let pageCount = 3
     static let defaultsKey = "vellum.welcome.seen"
+    static let isRoot = true
+    static let coversLibrary = true
+    static let libraryBehind = false
+    static let hasStamp = true
+    static let stampLetter = "V"
+}
+
+enum AppearanceLook {
+    static let key = "vellum.settings.appearance"
+    static let systemRaw = "system"
+    static let lightRaw = "light"
+    static let darkRaw = "dark"
+    static let defaultRaw = "system"
+    static let tiles = ["System", "Light", "Dark"]
+    static let persists = true
+
+    static func raw(in defaults: UserDefaults = .standard) -> String {
+        defaults.string(forKey: key) ?? defaultRaw
+    }
+
+    static func setRaw(_ value: String, in defaults: UserDefaults = .standard) {
+        defaults.set(value, forKey: key)
+    }
+
+    /// nil follows the device. `"light"` / `"dark"` force the window.
+    static func preferredColorScheme(in defaults: UserDefaults = .standard) -> String? {
+        switch raw(in: defaults) {
+        case lightRaw: return "light"
+        case darkRaw: return "dark"
+        default: return nil
+        }
+    }
+
+    static func lightForcesLight(in defaults: UserDefaults = .standard) -> Bool {
+        raw(in: defaults) == lightRaw && preferredColorScheme(in: defaults) == "light"
+    }
+
+    static func darkForcesNightDesk(in defaults: UserDefaults = .standard) -> Bool {
+        raw(in: defaults) == darkRaw
+            && preferredColorScheme(in: defaults) == "dark"
+            && DeskLook.darkDesk == "night"
+    }
 }
 
 enum WelcomeGate {

@@ -1,4 +1,5 @@
 import LocalAuthentication
+import SwiftData
 import SwiftUI
 
 private enum SettingsRoute: Hashable {
@@ -9,7 +10,6 @@ private enum SettingsRoute: Hashable {
 struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var openConnections: Bool
-    var onPick: (ImportSource) -> Void
     var message: String
     var isError: Bool
 
@@ -17,6 +17,7 @@ struct SettingsSheet: View {
     @AppStorage(DeskSettings.awakeKey) private var keepAwake = SettingsLook.awakeDefault
     @AppStorage(DeskSettings.hapticsKey) private var haptics = SettingsLook.hapticsDefault
     @AppStorage(DeskSettings.welcomeKey) private var replayWelcome = SettingsLook.welcomeDefault
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
     @State private var path = NavigationPath()
 
     var body: some View {
@@ -28,6 +29,8 @@ struct SettingsSheet: View {
                 }
 
                 Section(SettingsLook.deskTitle) {
+                    appearanceTiles
+                        .listRowBackground(VellumPalette.ivory)
                     Toggle(SettingsLook.lockRow, isOn: $lockDesk)
                         .listRowBackground(VellumPalette.ivory)
                     Toggle(SettingsLook.awakeRow, isOn: $keepAwake)
@@ -61,9 +64,8 @@ struct SettingsSheet: View {
             }
             .navigationDestination(for: SettingsRoute.self) { _ in
                 ConnectionsPage(
-                    onPick: onPick,
-                    message: message,
-                    isError: isError
+                    incomingMessage: message,
+                    incomingIsError: isError
                 )
             }
             .onChange(of: openConnections) { _, on in
@@ -90,6 +92,48 @@ struct SettingsSheet: View {
         .presentationBackground(VellumPalette.paper)
     }
 
+    private var appearanceTiles: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Appearance")
+                .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
+                .foregroundStyle(VellumPalette.inkSoft)
+            HStack(spacing: 10) {
+                appearanceTile(AppearanceLook.systemRaw, title: "System")
+                appearanceTile(AppearanceLook.lightRaw, title: "Light")
+                appearanceTile(AppearanceLook.darkRaw, title: "Dark")
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func appearanceTile(_ raw: String, title: String) -> some View {
+        let selected = appearanceRaw == raw
+        return Button {
+            DeskHapticsPlay.tick()
+            appearanceRaw = raw
+        } label: {
+            VStack(spacing: 8) {
+                AppearanceDeskPreview(mode: raw)
+                    .frame(height: 74)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(
+                                selected ? VellumPalette.rust : VellumPalette.ink.opacity(0.12),
+                                lineWidth: selected ? 2 : 0.8
+                            )
+                    }
+                Text(title)
+                    .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
+                    .foregroundStyle(selected ? VellumPalette.rust : VellumPalette.ink)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
     private func confirmLock() async {
         let ok = await DeskLock.evaluate()
         if !ok {
@@ -98,11 +142,53 @@ struct SettingsSheet: View {
     }
 }
 
-/// Named sources on paper. Craft Integrations layout, Velin sources.
+/// Mini desk mock for System / Light / Dark. Cream catalog sheets stay cream.
+private struct AppearanceDeskPreview: View {
+    let mode: String
+
+    var body: some View {
+        ZStack {
+            deskFill
+            VStack(spacing: 4) {
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(VellumPalette.ivory)
+                    .frame(height: 16)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(VellumPalette.paper)
+                    .frame(height: 16)
+            }
+            .padding(8)
+        }
+    }
+
+    @ViewBuilder
+    private var deskFill: some View {
+        switch mode {
+        case AppearanceLook.darkRaw:
+            VellumPalette.night
+        case AppearanceLook.lightRaw:
+            Color(red: 0xE6 / 255, green: 0xD7 / 255, blue: 0xC0 / 255)
+        default:
+            HStack(spacing: 0) {
+                Color(red: 0xE6 / 255, green: 0xD7 / 255, blue: 0xC0 / 255)
+                VellumPalette.night
+            }
+        }
+    }
+}
+
+/// Named sources on paper. Logo, name, Import. File picker lives here so it presents.
 struct ConnectionsPage: View {
-    var onPick: (ImportSource) -> Void
-    var message: String
-    var isError: Bool
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Page.updatedAt, order: .reverse) private var pages: [Page]
+
+    var incomingMessage: String
+    var incomingIsError: Bool
+
+    @State private var pickingFiles = false
+    @State private var activeSource: ImportSource = .notes
+    @State private var message = ""
+    @State private var isError = false
 
     private let sources: [ImportSource] = [.notes, .journal, .notion]
 
@@ -111,10 +197,10 @@ struct ConnectionsPage: View {
             Section {
                 ForEach(sources, id: \.self) { source in
                     Button {
-                        DeskHapticsPlay.tick()
-                        onPick(source)
+                        startImport(source)
                     } label: {
-                        HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        HStack(alignment: .center, spacing: 12) {
+                            ImportSourceMark(source: source)
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(source.title)
                                     .font(VellumFonts.page(.editorial, size: 20, relativeTo: .title3))
@@ -128,15 +214,19 @@ struct ConnectionsPage: View {
                             Text(LibraryLook.bringInTitle)
                                 .font(VellumFonts.page(.book, size: 15, relativeTo: .subheadline))
                                 .foregroundStyle(VellumPalette.rust)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(VellumPalette.inkFaint)
                         }
                         .padding(.vertical, 6)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("\(source.title). \(source.hint)")
+                    .accessibilityLabel("\(LibraryLook.bringInTitle) \(source.title). \(source.hint)")
                     .listRowBackground(VellumPalette.ivory)
                 }
             } footer: {
                 VStack(alignment: .leading, spacing: 8) {
+                    Text(ImportCopy.pickHint)
                     Text(ImportCopy.keepsDate)
                     if !message.isEmpty {
                         Text(message)
@@ -154,6 +244,44 @@ struct ConnectionsPage: View {
         .background(VellumPalette.paper.ignoresSafeArea(.container))
         .navigationTitle(SettingsLook.connectionsTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .fileImporter(
+            isPresented: $pickingFiles,
+            allowedContentTypes: ImportPicker.types(for: activeSource),
+            allowsMultipleSelection: true
+        ) { result in
+            switch result {
+            case .success(let urls):
+                applyImport(BringInFiles.drafts(from: urls, source: activeSource))
+            case .failure:
+                message = ImportError.unreadable.copy
+                isError = true
+            }
+        }
+        .onAppear {
+            if !incomingMessage.isEmpty {
+                message = incomingMessage
+                isError = incomingIsError
+            }
+        }
+        .onChange(of: incomingMessage) { _, next in
+            if !next.isEmpty {
+                message = next
+                isError = incomingIsError
+            }
+        }
+    }
+
+    private func startImport(_ source: ImportSource) {
+        DeskHapticsPlay.tick()
+        activeSource = source
+        pickingFiles = true
+    }
+
+    private func applyImport(_ result: Result<[ImportDraft], ImportError>) {
+        let existing = pages.map { (title: $0.title, body: $0.body) }
+        let outcome = ImportApply.ingest(result, existing: existing, modelContext: modelContext)
+        message = outcome.message
+        isError = outcome.isError
     }
 }
 

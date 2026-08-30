@@ -5,6 +5,9 @@ import SwiftUI
 struct VellumPadApp: App {
     private let container: ModelContainer
     @State private var trash = PageTrash()
+    @AppStorage(WelcomeLook.defaultsKey) private var welcomeSeen = false
+    @AppStorage(DeskSettings.welcomeKey) private var replayWelcome = SettingsLook.welcomeDefault
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
 
     init() {
         TypefaceRegistry.register()
@@ -21,9 +24,34 @@ struct VellumPadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            LibraryView()
-                .environment(trash)
+            Group {
+                if showsWelcome {
+                    WelcomeView {
+                        WelcomeGate.finish()
+                    }
+                } else {
+                    LibraryView()
+                }
+            }
+            .environment(trash)
+            .preferredColorScheme(preferredScheme)
         }
         .modelContainer(container)
+    }
+
+    /// Welcome is the root until Skip / Done. Library is not underneath.
+    private var showsWelcome: Bool {
+        #if DEBUG
+        if DebugOpenFirst.shouldOpenFirstPage() { return false }
+        #endif
+        return !welcomeSeen || replayWelcome
+    }
+
+    private var preferredScheme: ColorScheme? {
+        switch appearanceRaw {
+        case AppearanceLook.lightRaw: return .light
+        case AppearanceLook.darkRaw: return .dark
+        default: return nil
+        }
     }
 }

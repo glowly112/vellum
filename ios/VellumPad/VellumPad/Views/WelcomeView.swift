@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// First-open paper sheets on the Velin desk. Skip or finish — never again.
+/// Full-screen brand intro on the Velin desk. Not a sheet over the library.
 struct WelcomeView: View {
     var onFinished: () -> Void
 
@@ -8,21 +8,24 @@ struct WelcomeView: View {
     @State private var page = 0
 
     var body: some View {
-        ZStack {
-            DeskBackdrop()
-                .ignoresSafeArea(.container)
+        GeometryReader { geo in
+            ZStack {
+                DeskBackdrop()
+                    .ignoresSafeArea(.container)
 
-            VStack(spacing: 0) {
-                Spacer(minLength: 24)
-                sheet
-                    .id(page)
-                    .transition(turn)
-                Spacer(minLength: 16)
-                chrome
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 28)
+                VStack(spacing: 0) {
+                    Spacer(minLength: max(20, geo.size.height * 0.07))
+                    sheets(in: geo.size)
+                        .id(page)
+                        .transition(turn)
+                    Spacer(minLength: 16)
+                    chrome
+                        .padding(.horizontal, 28)
+                        .padding(.bottom, 28)
+                }
             }
         }
+        .ignoresSafeArea(.container, edges: .bottom)
         .animation(turnMotion, value: page)
     }
 
@@ -34,10 +37,44 @@ struct WelcomeView: View {
         page >= WelcomeCopy.pages.count - 1
     }
 
+    private var isBrand: Bool { page == 0 }
+
+    private func sheets(in size: CGSize) -> some View {
+        let width = size.width * 0.90
+        let height = min(size.height * 0.64, 520)
+        return ZStack {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(VellumPalette.paper)
+                .shadow(color: VellumPalette.ink.opacity(0.10), radius: 14, y: 8)
+                .rotationEffect(.degrees(2.4))
+                .offset(x: 10, y: 12)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(VellumPalette.ivory)
+                .shadow(color: VellumPalette.ink.opacity(0.08), radius: 10, y: 6)
+                .rotationEffect(.degrees(-1.6))
+                .offset(x: -8, y: 6)
+            sheet
+        }
+        .frame(width: width, height: height)
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(spoken)
+    }
+
     private var sheet: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
+            if isBrand {
+                EmptyDeskMark()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 8)
+                Text(WelcomeCopy.kicker)
+                    .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
+                    .foregroundStyle(VellumPalette.rust)
+                    .textCase(.uppercase)
+                    .tracking(1.4)
+            }
             Text(current.title)
-                .font(VellumFonts.page(.editorial, size: 28, relativeTo: .title))
+                .font(VellumFonts.page(.editorial, size: isBrand ? 36 : 30, relativeTo: .title))
                 .italic()
                 .foregroundStyle(VellumPalette.ink)
             if !current.line.isEmpty {
@@ -51,13 +88,19 @@ struct WelcomeView: View {
         .padding(28)
         .background(VellumPalette.ivory)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: VellumPalette.ink.opacity(0.14), radius: 18, y: 10)
-        .padding(.horizontal, 28)
-        .frame(minHeight: 360)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(
-            current.line.isEmpty ? current.title : "\(current.title) \(current.line)"
-        )
+        .shadow(color: VellumPalette.ink.opacity(0.16), radius: 20, y: 12)
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(VellumPalette.ink.opacity(0.08), lineWidth: 1)
+        }
+    }
+
+    private var spoken: String {
+        var parts: [String] = []
+        if isBrand { parts.append(WelcomeCopy.kicker) }
+        parts.append(current.title)
+        if !current.line.isEmpty { parts.append(current.line) }
+        return parts.joined(separator: ". ")
     }
 
     private var chrome: some View {

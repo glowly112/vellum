@@ -382,7 +382,7 @@ enum LibraryLook {
     static let bringInKind = "connections"
     static let bringInPlacement = "settings"
     static let bringInSystemImage = "square.and.arrow.down"
-    static let bringInTitle = "Bring in"
+    static let bringInTitle = "Import"
     static let settingsKind = "system"
     static let settingsSystemImage = "gearshape"
     static let settingsPlacement = "topBarTrailing"
@@ -413,7 +413,7 @@ enum PaperLook {
 /// Library desk follows system appearance. Catalog paper fills do not remap.
 enum DeskLook {
     static let followsSystemColorScheme = true
-    static let hasSettingsToggle = false
+    static let hasSettingsToggle = true
     static let remapsCatalogPaper = false
     static let lightDesk = "cream"
     static let darkDesk = "night"

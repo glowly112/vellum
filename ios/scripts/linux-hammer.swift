@@ -528,24 +528,40 @@ enum LinuxHammer {
         expect(ImportLook.writesBothDates, "import writes both dates")
         expect(ImportLook.storeName == "vellum-pages" && ImportLook.displayName == "Velin", "import keeps Velin store")
         expect(!ImportLook.hasShareExtension, "this archive does not ship Share to Velin")
-        expect(LibraryLook.bringInKind == "connections" && LibraryLook.bringInPlacement == "settings", "bring in lives in Connections")
+        expect(LibraryLook.bringInKind == "connections" && LibraryLook.bringInPlacement == "settings", "import lives in Connections")
         expect(LibraryLook.settingsSystemImage == "gearshape" && LibraryLook.settingsPlacement == "topBarTrailing", "settings gear is trailing")
-        expect(LibraryLook.bringInTitle == "Bring in", "bring in title stays")
+        expect(LibraryLook.bringInTitle == "Import" && ImportLook.bringInTitle == "Import", "user-facing title is Import")
+        expect(ImportLook.presentsFileImporter && ImportLook.fileImporterHost == "connections", "Import presents fileImporter from Connections")
+        expect(ImportLook.pickHint == "Pick an exported file.", "honest pick hint")
+        expect(ImportLook.hasSourceMarks && ImportLook.sourceMarkKind == "drawn", "source marks are drawn")
+        expect(!ImportMarkLook.usesSF && !ImportMarkLook.usesGenericCircle, "marks are not SF or generic circles")
+        expect(ImportMarkLook.notes == "yellow-pad" && ImportMarkLook.journal == "brown-book" && ImportMarkLook.notion == "n", "Notes pad, Journal book, Notion N")
 
         expect(SettingsLook.gearSystemImage == "gearshape", "settings gear is system")
         expect(SettingsLook.sections == ["Connections", "Desk", "About"], "settings sections")
         expect(!SettingsLook.hasAccounts && !SettingsLook.hasICloud, "no accounts or iCloud")
         expect(!SettingsLook.hasFolders && !SettingsLook.hasTags, "no folders or tags")
-        expect(!SettingsLook.hasThemePicker && SettingsLook.followsSystemAppearance, "no Light/Dark override")
+        expect(SettingsLook.hasThemePicker && AppearanceLook.tiles == ["System", "Light", "Dark"], "System / Light / Dark tiles")
+        expect(AppearanceLook.key == "vellum.settings.appearance", "appearance key persists")
         expect(!SettingsLook.hasNotifications && !SettingsLook.hasConfirmToDelete, "no notifications or confirm-to-delete")
         expect(!SettingsLook.hasMarkdown && !SettingsLook.hasProfile, "no markdown or profile")
         expect(SettingsLook.aboutCopy == "Pages stay on this iPhone.", "about copy")
-        expect(SettingsLook.versionLabel == "1.0.0 (28)", "about version is 1.0.0 (28)")
-        expect(SettingsLook.buildNumber == "28", "build number is 28")
+        expect(SettingsLook.versionLabel == "1.0.0 (29)", "about version is 1.0.0 (29)")
+        expect(SettingsLook.buildNumber == "29", "build number is 29")
         expect(SettingsLook.welcomeRow == "Welcome" && !SettingsLook.welcomeDefault, "Welcome toggle is off by default")
         expect(!SettingsLook.lockDefault && !SettingsLook.awakeDefault, "lock and awake off by default")
         expect(SettingsLook.hapticsDefault && DeskHaptics.respectsSystem, "haptics on, respects system")
-        expect(!DeskLook.hasSettingsToggle, "no appearance settings toggle")
+        expect(DeskLook.hasSettingsToggle, "appearance tiles live on Desk")
+        expect(DeskLook.darkDesk == "night" && !DeskLook.remapsCatalogPaper, "dark is night desk; catalog sheets stay cream")
+
+        let appearanceSuite = "vellum.hammer.appearance"
+        let appearance = UserDefaults(suiteName: appearanceSuite)!
+        appearance.removePersistentDomain(forName: appearanceSuite)
+        expect(AppearanceLook.preferredColorScheme(in: appearance) == nil, "default System follows the device")
+        AppearanceLook.setRaw(AppearanceLook.lightRaw, in: appearance)
+        expect(AppearanceLook.lightForcesLight(in: appearance), "Light forces light")
+        AppearanceLook.setRaw(AppearanceLook.darkRaw, in: appearance)
+        expect(AppearanceLook.darkForcesNightDesk(in: appearance), "Dark forces night desk")
 
         let suite = "vellum.hammer.settings"
         let defaults = UserDefaults(suiteName: suite)!
@@ -570,9 +586,12 @@ enum LinuxHammer {
         DeskSettings.setReplayWelcome(true, in: defaults)
         expect(WelcomeGate.shouldPresent(in: defaults), "they can turn Welcome on again")
         expect(WelcomeCopy.pages.count == 3, "welcome is three pages")
+        expect(WelcomeCopy.kicker == "Velin", "welcome brands Velin")
         expect(WelcomeCopy.pages[0] == ("A desk.", "Pages you keep."), "welcome page 1")
         expect(WelcomeCopy.pages[1] == ("Write on paper.", ""), "welcome page 2")
-        expect(WelcomeCopy.pages[2] == ("Bring thoughts in.", "They keep their date."), "welcome page 3")
+        expect(WelcomeCopy.pages[2] == ("Import.", "They keep their date."), "welcome page 3")
+        expect(WelcomeLook.kind == "brand-root" && WelcomeLook.isRoot && WelcomeLook.coversLibrary, "welcome is the root, not a library overlay")
+        expect(!WelcomeLook.libraryBehind && WelcomeLook.hasStamp && WelcomeLook.stampLetter == "V", "no library behind welcome; paper stamp V")
         expect(WelcomeLook.motionKind == "page-turn" && WelcomeLook.reduceMotionIsInstant, "welcome turns; Reduce Motion is instant")
         expect(WelcomeLook.skipOnEveryPage && WelcomeLook.defaultsKey == "vellum.welcome.seen", "skip lives on every page; flag is vellum.welcome.seen")
 
@@ -626,7 +645,7 @@ enum LinuxHammer {
 
         switch ImportRead.file(name: "empty.txt", data: Data(), fileDate: now, source: .notes, now: now) {
         case .failure(let error):
-            expect(error == .empty && error.copy == "Nothing to bring in.", "empty file is a real error")
+            expect(error == .empty && error.copy == "Nothing to import.", "empty file is a real error")
         case .success:
             expect(false, "empty file must not crash or succeed")
         }

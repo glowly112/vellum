@@ -18,7 +18,12 @@ enum ImportLook {
     static let emptyIsError = true
     static let skipsDuplicates = true
     static let bringInKind = "system-sheet"
-    static let bringInTitle = "Bring in"
+    static let bringInTitle = "Import"
+    static let presentsFileImporter = true
+    static let fileImporterHost = "connections"
+    static let pickHint = "Pick an exported file."
+    static let hasSourceMarks = true
+    static let sourceMarkKind = "drawn"
     static let hasShareExtension = false
     static let appGroup = "group.com.jamiematheson.vellumpad"
     static let urlScheme = "velin"
@@ -41,10 +46,19 @@ enum ImportSource: String, CaseIterable, Sendable {
 
     var hint: String {
         switch self {
-        case .notes: "A note you exported, or shared as text."
-        case .journal: "An entry you saved as text."
-        case .notion: "CSV export, or Markdown."
-        case .file: "A page you saved as a file."
+        case .notes: "Pick a Notes export."
+        case .journal: "Pick a Journal export."
+        case .notion: "Pick a Notion CSV or Markdown."
+        case .file: "Pick an exported file."
+        }
+    }
+
+    var markKind: String {
+        switch self {
+        case .notes: ImportMarkLook.notes
+        case .journal: ImportMarkLook.journal
+        case .notion: ImportMarkLook.notion
+        case .file: ImportMarkLook.file
         }
     }
 }
@@ -59,15 +73,15 @@ enum ImportError: Error, Equatable, Sendable {
     var copy: String {
         switch self {
         case .empty:
-            return "Nothing to bring in."
+            return "Nothing to import."
         case .noDate:
             return "This page has no date. Velin won’t guess one."
         case .unreadable:
             return "Velin couldn’t read that file."
         case .needsUnzip:
-            return "Unzip the Notion export, then bring in the CSV or Markdown."
+            return "Unzip the Notion export, then import the CSV or Markdown."
         case .needsText:
-            return "Export that as text, then bring it in."
+            return "Export that as text, then import it."
         }
     }
 }
@@ -158,16 +172,27 @@ enum ImportDating {
     }
 }
 
+enum ImportMarkLook {
+    static let kind = "drawn"
+    static let usesSF = false
+    static let usesGenericCircle = false
+    static let notes = "yellow-pad"
+    static let journal = "brown-book"
+    static let notion = "n"
+    static let file = "paper"
+}
+
 enum ImportCopy {
     static let keepsDate = "A page keeps the date it was written."
+    static let pickHint = ImportLook.pickHint
     static let shareHint = "Or share a note to Velin."
 
     static func result(brought: Int, skipped: Int) -> String {
         if brought == 0, skipped > 0 { return "Already on the desk." }
-        if brought == 1, skipped == 0 { return "Brought 1 page." }
-        if brought > 1, skipped == 0 { return "Brought \(brought) pages." }
+        if brought == 1, skipped == 0 { return "Imported 1 page." }
+        if brought > 1, skipped == 0 { return "Imported \(brought) pages." }
         if brought > 0, skipped > 0 {
-            return "Brought \(brought). \(skipped) already here."
+            return "Imported \(brought). \(skipped) already here."
         }
         return ImportError.empty.copy
     }
