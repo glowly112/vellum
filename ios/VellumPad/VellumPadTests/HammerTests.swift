@@ -801,6 +801,8 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(WelcomeCopy.pages[2].line, "They keep their date.")
         XCTAssertFalse(WelcomeLook.blankSheets)
         XCTAssertTrue(WelcomeLook.teachesProduct)
+        XCTAssertEqual(WelcomeLook.miniCardTextProperty, "snippet")
+        XCTAssertNotEqual(WelcomeLook.miniCardTextProperty, "body")
         XCTAssertTrue(WelcomePreview.teachesProduct)
         XCTAssertFalse(WelcomePreview.blankSheets)
         XCTAssertTrue(WelcomePreview.usesSampleCopy)

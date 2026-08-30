@@ -599,6 +599,7 @@ enum LinuxHammer {
         expect(WelcomeCopy.pages[1] == ("Write on paper.", "Type and ink live on the page."), "welcome page 2")
         expect(WelcomeCopy.pages[2] == ("Import.", "They keep their date."), "welcome page 3")
         expect(!WelcomeLook.blankSheets && WelcomeLook.teachesProduct, "welcome teaches the product, not blank sheets")
+        expect(WelcomeLook.miniCardTextProperty == "snippet" && WelcomeLook.miniCardTextProperty != "body", "mini-card text property is not named body")
         expect(WelcomePreview.libraryTitles == [SampleDeskCopy.typeTitle, SampleDeskCopy.bookTitle, SampleDeskCopy.handTitle], "welcome library uses sample titles")
         expect(WelcomePreview.editorTitle == SampleDeskCopy.bookTitle && WelcomePreview.editorBody.contains(SampleDeskCopy.bookBody), "welcome editor uses sample writing")
         expect(WelcomePreview.importSources == ["Notes", "Journal", "Notion"], "welcome import shows source marks")

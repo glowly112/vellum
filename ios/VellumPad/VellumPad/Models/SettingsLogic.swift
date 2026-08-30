@@ -160,6 +160,8 @@ enum WelcomeLook {
     static let stampLetter = "V"
     static let blankSheets = false
     static let teachesProduct = true
+    /// WelcomeMiniCard page text. Must not be `body` — that is View.body.
+    static let miniCardTextProperty = "snippet"
 }
 
 enum AppearanceLook {

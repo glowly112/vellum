@@ -56,19 +56,19 @@ struct WelcomeView: View {
             VStack(spacing: 8) {
                 WelcomeMiniCard(
                     title: SampleDeskCopy.typeTitle,
-                    body: SampleDeskCopy.typeBody,
+                    snippet: SampleDeskCopy.typeBody,
                     typeface: .typewriter,
                     paper: .ruled
                 )
                 WelcomeMiniCard(
                     title: SampleDeskCopy.bookTitle,
-                    body: SampleDeskCopy.bookBody,
+                    snippet: SampleDeskCopy.bookBody,
                     typeface: .book,
                     paper: .cream
                 )
                 WelcomeMiniCard(
                     title: SampleDeskCopy.handTitle,
-                    body: SampleDeskCopy.handBody,
+                    snippet: SampleDeskCopy.handBody,
                     typeface: .hand,
                     paper: .sage
                 )
@@ -247,7 +247,7 @@ struct WelcomeView: View {
 /// Compact catalog card for the welcome desk. Cream papers stay cream.
 private struct WelcomeMiniCard: View {
     let title: String
-    let body: String
+    let snippet: String
     let typeface: Typeface
     let paper: Paper
 
@@ -259,7 +259,7 @@ private struct WelcomeMiniCard: View {
                 .font(VellumFonts.page(typeface, size: titleSize, relativeTo: .headline))
                 .foregroundStyle(paper.defaultInk.color)
                 .lineLimit(1)
-            Text(body)
+            Text(snippet)
                 .font(VellumFonts.page(typeface, size: snippetSize, relativeTo: .subheadline))
                 .foregroundStyle(paper.defaultInk.color.opacity(0.85))
                 .lineLimit(2)
