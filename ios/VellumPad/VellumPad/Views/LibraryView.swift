@@ -51,6 +51,15 @@ struct LibraryView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .accessibilityHidden(true)
                 }
+                // Date · pages: stock subtitle slots, Fraunces roman.
+                // `.navigationSubtitle` stays for VoiceOver; these take
+                // the draw so the line is not SF under the greeting.
+                ToolbarItem(placement: .largeSubtitle) {
+                    deskSubtitle
+                }
+                ToolbarItem(placement: .subtitle) {
+                    deskSubtitle
+                }
                 DefaultToolbarItem(kind: .search, placement: .bottomBar)
                 ToolbarSpacer(.flexible, placement: .bottomBar)
                 ToolbarItem(placement: .bottomBar) {
@@ -106,6 +115,15 @@ struct LibraryView: View {
         let date = Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
         let noun = count == 1 ? "page" : "pages"
         return "\(date)  ·  \(count) \(noun)"
+    }
+
+    /// Quiet catalog meta. Roman, subheadline, on-desk soft. Not a headline.
+    private var deskSubtitle: some View {
+        Text(subtitle)
+            .font(VellumFonts.deskMeta())
+            .foregroundStyle(VellumPalette.onDeskSoft)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityHidden(true)
     }
 
     private var pageList: some View {

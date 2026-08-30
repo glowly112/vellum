@@ -32,6 +32,13 @@ enum VellumFonts {
             .italic()
     }
 
+    /// Date · pages under the greeting. Fraunces roman at subheadline.
+    /// Same desk family, quieter role — not italic, not largeTitle, not SF.
+    static func deskMeta() -> Font {
+        let points = UIFont.preferredFont(forTextStyle: .subheadline).pointSize
+        return .custom(Typeface.editorial.familyName, size: points, relativeTo: .subheadline)
+    }
+
     /// How far italic Fraunces overshoots the system large-title ascender.
     static func greetingTopAir() -> CGFloat {
         let system = UIFont.preferredFont(forTextStyle: .largeTitle)

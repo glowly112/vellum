@@ -315,6 +315,14 @@ enum LibraryGreeting {
     /// Title-to-subtitle, not island air. Not a guessed 34.
     static let belowGreeting: Double = 16
     static let belowGreetingKind = "title-to-subtitle"
+    /// Stock `ToolbarItem(.largeSubtitle)` / `.subtitle`. Not a homemade draw.
+    /// Fraunces roman at subheadline — quiet meta, not a second greeting.
+    static let subtitleFamily = Typeface.editorial.familyName
+    static let subtitleStyle = "roman"
+    static let subtitleSizeKind = "subheadline"
+    static let subtitleUsesStockSlot = true
+    static let subtitleIsItalic = false
+    static let subtitleForbiddenFamily = "SF Pro"
 
     /// Extra top air so italic Fraunces ascenders clear the system line box.
     /// Unmeasured → 0. Not a guessed 34.
