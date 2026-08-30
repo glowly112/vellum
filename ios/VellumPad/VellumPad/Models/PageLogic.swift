@@ -262,6 +262,12 @@ enum LibraryGreeting {
     static let emptyUsesScrollView = true
     static let greetingIgnoresSafeArea = false
     static let deskFillIgnoresSafeArea = true
+    /// Extra air under the island: SwiftUI `safeAreaPadding(.top)` with
+    /// the system default length (`nil`), not a guessed 34.
+    /// https://developer.apple.com/documentation/swiftui/view/safeareapadding(_:_:)
+    static let airKind = "safeAreaPadding"
+    static let airUsesSystemDefault = true
+    static let hugsIsland = false
 
     /// Extra top air so italic Fraunces ascenders clear the system line box.
     /// Unmeasured → 0. Not a guessed 34.

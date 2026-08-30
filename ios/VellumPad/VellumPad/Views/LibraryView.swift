@@ -63,8 +63,12 @@ struct LibraryView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .onChange(of: path.count) { _, _ in
+            .onAppear {
+                discardBlankDrafts(except: Set(path))
+            }
+            .onChange(of: path) { _, newPath in
                 composeLock = false
+                discardBlankDrafts(except: Set(newPath))
             }
             .task(id: trash.last?.pageID) {
                 guard trash.last != nil else { return }
@@ -92,7 +96,7 @@ struct LibraryView: View {
     #endif
 
     private var subtitle: String {
-        let count = pages.count
+        let count = pages.filter { LibraryListing.hasInk(title: $0.title, body: $0.body) }.count
         let date = Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
         let noun = count == 1 ? "page" : "pages"
         return "\(date)  ·  \(count) \(noun)"
@@ -145,6 +149,7 @@ struct LibraryView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .listSectionSpacing(22)
+        .safeAreaPadding(.top)
     }
 
     /// WWDC25: large titles live at the top of the content scroll view.
@@ -157,6 +162,7 @@ struct LibraryView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollContentBackground(.hidden)
+        .safeAreaPadding(.top)
     }
 
     /// Journal composition: mark, title, one line. Compose stays in chrome.
@@ -255,6 +261,20 @@ struct LibraryView: View {
         modelContext.insert(page)
         try? modelContext.save()
         path.append(page.pageID)
+    }
+
+    /// Blank Untitled / 0-word drafts are not a populated desk. Drop them
+    /// when they are not open so they do not persist as a lonely card.
+    private func discardBlankDrafts(except open: Set<UUID>) {
+        let blanks = pages.filter { page in
+            !open.contains(page.pageID)
+                && !LibraryListing.hasInk(title: page.title, body: page.body)
+        }
+        guard !blanks.isEmpty else { return }
+        for page in blanks {
+            modelContext.delete(page)
+        }
+        try? modelContext.save()
     }
 
     private func togglePin(_ page: Page) {

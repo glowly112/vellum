@@ -51,6 +51,7 @@ enum LibraryGrouping {
         now: Date = .now
     ) -> [(section: LibrarySection, pages: [P])] {
         let filtered = pages
+            .filter { LibraryListing.hasInk(title: $0.title, body: $0.body) }
             .filter { matchesQuery(title: $0.title, body: $0.body, query: query) }
             .sorted { $0.updatedAt > $1.updatedAt }
 
@@ -63,6 +64,19 @@ enum LibraryGrouping {
             guard let list = map[key], !list.isEmpty else { return nil }
             return (key, list)
         }
+    }
+}
+
+/// A page is not a library card until there is ink (a title or any words).
+/// Blank Untitled / 0 words is the empty desk, not a postcard.
+enum LibraryListing {
+    static func hasInk(title: String, body: String) -> Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || PageCopy.wordCount(title, body) > 0
+    }
+
+    static func showsInLibrary(title: String, body: String) -> Bool {
+        hasInk(title: title, body: body)
     }
 }
 

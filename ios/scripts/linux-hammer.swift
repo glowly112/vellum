@@ -54,6 +54,18 @@ enum LinuxHammer {
 
         let emptySheets = LibrarySheetCopy.sheets(pages: [LibraryPage](), query: "", now: now)
         expect(emptySheets.isEmpty, "1 empty desk has no sheets")
+        expect(!LibraryListing.hasInk(title: "", body: ""), "1 blank untitled has no ink")
+        expect(!LibraryListing.showsInLibrary(title: "", body: ""), "1 blank untitled is not a library card")
+        expect(
+            LibrarySheetCopy.sheets(
+                pages: [LibraryPage(title: "", body: "", updatedAt: now, paper: .ivory, typeface: .book)],
+                query: "",
+                now: now
+            ).isEmpty,
+            "1 Untitled / 0 words is the empty desk"
+        )
+        expect(LibraryListing.hasInk(title: "Kept", body: ""), "1 a title is ink")
+        expect(LibraryListing.hasInk(title: "", body: "a line"), "1 a body is ink")
         expect(LibraryEmpty.headline(searching: false) == "The desk is clear", "1 empty desk copy")
         expect(LibraryEmpty.detail(searching: false) == "A blank sheet, waiting. Start whenever you like.", "1 empty desk detail")
         expect(LibraryEmpty.markKind == "paper-sheet", "1 empty mark is a paper sheet")
@@ -116,6 +128,9 @@ enum LinuxHammer {
         expect(LibraryGreeting.italicOvershoot(systemAscender: 28, faceAscender: 28) == 0, "5 no overshoot when ascenders match")
         expect(LibraryGreeting.italicOvershoot(systemAscender: 0, faceAscender: 32) == 0, "5 unmeasured overshoot is 0")
         expect(LibraryGreeting.italicOvershoot(systemAscender: 28, faceAscender: 32) != 34, "5 overshoot is not a 34 guess")
+        expect(LibraryGreeting.airKind == "safeAreaPadding", "5 greeting air is safeAreaPadding")
+        expect(LibraryGreeting.airUsesSystemDefault, "5 greeting air uses the system default, not 34")
+        expect(!LibraryGreeting.hugsIsland, "5 greeting must not hug the island")
         expect(LibraryLook.deleteKind == "swipe-and-menu", "5 library delete is swipe and menu")
         expect(!LibraryLook.deleteConfirms, "5 library delete has no confirm")
         expect(LibraryLook.deleteAllowsFullSwipe, "5 swipe can finish the delete")

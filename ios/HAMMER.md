@@ -21,11 +21,11 @@ Logic in `LibrarySheetCopy` / `LibraryEmpty` / `PaperGrain`. Run: `ios/scripts/p
 
 | # | Case | What must happen |
 | --- | --- | --- |
-| 1 | Empty desk | No sheets. Copy: **The desk is clear**. Mark is a quiet cream **paper-sheet**, not SF `doc`. Compose stays in chrome. First paint: greeting fully visible (fail `GREETING_CLIP`). Empty hosts a scroll view so the large title can sit there. |
+| 1 | Empty desk | No sheets. Copy: **The desk is clear**. Mark is a quiet cream **paper-sheet**, not SF `doc`. Compose stays in chrome. Blank Untitled / 0 words is **not** a card. First paint: greeting fully visible (fail `GREETING_CLIP`). Empty hosts a scroll view so the large title can sit there. |
 | 2 | One page | One **paper-sheet** (not a Notes `notes-row`, not an `Aa` stamp). Face is the type name. Height ≥ 160. |
 | 3 | Long title | Title stays on the sheet, unrewritten. Still `paper-sheet`. |
 | 4 | Search open | Match stays. Miss → no sheets + **Nothing matches**. |
-| 5 | Compose | System `square.and.pencil`, prompt **Search pages**. Fail a custom `+ New page` pill. Greeting is Fraunces on the stock large-title slot (system largeTitle size, not 34). First paint empty **and** with pages: full glyphs. Fail `GREETING_CLIP`. Do not hide the nav bar. |
+| 5 | Compose | System `square.and.pencil`, prompt **Search pages**. Fail a custom `+ New page` pill. Greeting is Fraunces on the stock large-title slot (system largeTitle size, not 34). Extra air is `safeAreaPadding(.top)` with the system default — do not hug the island. First paint empty **and** with pages: full glyphs. Fail `GREETING_CLIP`. Do not hide the nav bar. |
 | 6 | Paper / type | Sage + Hand sheet carries those, face **Hand**, footer `N words · Sage`, Caveat family. |
 | 7 | Grain seed | `PaperGrain.seed` is unsigned and distinct per paper. Fail `UInt64(hashValue)`. |
 | 8 | Delete / pin | Swipe + context menu. Delete has **no confirm**. Undo snackbar. Pin toggles a stored flag and a **Pinned** section. |

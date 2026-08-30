@@ -302,6 +302,19 @@ final class HammerTests: XCTestCase {
     func testLibraryEmptyDeskHasNoSheets() {
         let sheets = LibrarySheetCopy.sheets(pages: [], query: "", now: now)
         XCTAssertTrue(sheets.isEmpty)
+        XCTAssertFalse(LibraryListing.hasInk(title: "", body: ""))
+        XCTAssertFalse(LibraryListing.hasInk(title: "   ", body: "\n"))
+        XCTAssertFalse(LibraryListing.showsInLibrary(title: "", body: ""))
+        XCTAssertTrue(
+            LibrarySheetCopy.sheets(
+                pages: [LibraryPage(title: "", body: "", updatedAt: now, paper: .ivory, typeface: .book)],
+                query: "",
+                now: now
+            ).isEmpty,
+            "Untitled / 0 words is the empty desk, not a postcard"
+        )
+        XCTAssertTrue(LibraryListing.hasInk(title: "Kept", body: ""))
+        XCTAssertTrue(LibraryListing.hasInk(title: "", body: "a line"))
         XCTAssertEqual(LibraryEmpty.headline(searching: false), "The desk is clear")
         XCTAssertEqual(LibraryEmpty.detail(searching: false), "A blank sheet, waiting. Start whenever you like.")
         XCTAssertEqual(LibraryEmpty.markKind, "paper-sheet")
@@ -378,6 +391,9 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(LibraryGreeting.italicOvershoot(systemAscender: 28, faceAscender: 28), 0)
         XCTAssertEqual(LibraryGreeting.italicOvershoot(systemAscender: 0, faceAscender: 32), 0)
         XCTAssertNotEqual(LibraryGreeting.italicOvershoot(systemAscender: 28, faceAscender: 32), 34)
+        XCTAssertEqual(LibraryGreeting.airKind, "safeAreaPadding")
+        XCTAssertTrue(LibraryGreeting.airUsesSystemDefault, "safeAreaPadding(.top) uses the system default, not 34")
+        XCTAssertFalse(LibraryGreeting.hugsIsland)
         XCTAssertEqual(LibraryLook.deleteKind, "swipe-and-menu")
         XCTAssertFalse(LibraryLook.deleteConfirms)
         XCTAssertTrue(LibraryLook.deleteAllowsFullSwipe)
