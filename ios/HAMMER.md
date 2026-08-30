@@ -27,7 +27,7 @@ Logic in `LibrarySheetCopy` / `LibraryEmpty` / `PaperGrain`. Run: `ios/scripts/p
 | 4 | Search open | Match stays. Miss → no sheets + **Nothing matches**. |
 | 5 | Compose | System `square.and.pencil`, prompt **Search pages**. Fail a custom `+ New page` pill. Greeting is Fraunces on the stock large-title slot (system largeTitle size, not 34). Extra air is `safeAreaPadding(.top)` with the system default — do not hug the island. First paint empty **and** with pages: full glyphs. Fail `GREETING_CLIP`. Do not hide the nav bar. |
 | 6 | Paper / type | Sage + Hand sheet carries those as the writing face, not a **Hand** chip. Footer is quiet `when · paper` (not a word count). Caveat family. First-launch samples are desk notes, not journal prose. |
-| 7 | Grain seed | `PaperGrain.seed` is unsigned and distinct per paper. Fail `UInt64(hashValue)`. |
+| 7 | Grain seed | `PaperGrain.seed` is unsigned and distinct per paper. Fail `UInt64(hashValue)`. No vertical fibre / pinstripe (18pt strokes). Grain speckle stays. Ruled paper keeps **horizontal** rules. Desk follows system colorScheme (cream / night). Catalog paper fills do not remap. Empty mark stays a light cream sheet. |
 | 8 | Delete / pin | Swipe + context menu. Delete has **no confirm**. Undo snackbar. Pin toggles a stored flag and a **Pinned** section. |
 
 ## Editor writing column (this turn)

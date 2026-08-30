@@ -1,8 +1,40 @@
 import SwiftUI
+import UIKit
 
 /// Colour tokens from `src/styles.css`. Paper stays Vellum; chrome uses system tint.
+/// Desk / on-desk chrome follow system colorScheme. Catalog paper fills do not.
 enum VellumPalette {
-    static let desk = Color(red: 0xE6 / 255, green: 0xD7 / 255, blue: 0xC0 / 255)
+    /// Cream desk in light; existing night (warm wood) in dark. Not system gray.
+    static let desk = Color(uiColor: UIColor { traits in
+        if traits.userInterfaceStyle == .dark {
+            return UIColor(red: 0x1C / 255, green: 0x19 / 255, blue: 0x15 / 255, alpha: 1)
+        }
+        return UIColor(red: 0xE6 / 255, green: 0xD7 / 255, blue: 0xC0 / 255, alpha: 1)
+    })
+
+    /// Greeting, empty copy, meta on the desk.
+    static let onDesk = Color(uiColor: UIColor { traits in
+        if traits.userInterfaceStyle == .dark {
+            return UIColor(red: 0xF3 / 255, green: 0xEB / 255, blue: 0xDD / 255, alpha: 1)
+        }
+        return UIColor(red: 0x2C / 255, green: 0x24 / 255, blue: 0x19 / 255, alpha: 1)
+    })
+
+    static let onDeskSoft = Color(uiColor: UIColor { traits in
+        if traits.userInterfaceStyle == .dark {
+            return UIColor(red: 0xC4 / 255, green: 0xB8 / 255, blue: 0xA6 / 255, alpha: 1)
+        }
+        return UIColor(red: 0x6B / 255, green: 0x5D / 255, blue: 0x4D / 255, alpha: 1)
+    })
+
+    /// Sheet lift on the desk. Stronger on night wood so cream cards still sit.
+    static let lift = Color(uiColor: UIColor { traits in
+        if traits.userInterfaceStyle == .dark {
+            return UIColor.black.withAlphaComponent(0.50)
+        }
+        return UIColor(red: 0x2C / 255, green: 0x24 / 255, blue: 0x19 / 255, alpha: 0.12)
+    })
+
     static let paper = Color(red: 0xF3 / 255, green: 0xEB / 255, blue: 0xDD / 255)
     static let ivory = Color(red: 0xF7 / 255, green: 0xF1 / 255, blue: 0xE6 / 255)
     static let ruled = Color(red: 0xF4 / 255, green: 0xEC / 255, blue: 0xDC / 255)

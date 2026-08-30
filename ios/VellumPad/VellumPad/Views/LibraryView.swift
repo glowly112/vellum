@@ -40,7 +40,7 @@ struct LibraryView: View {
                 ToolbarItem(placement: .largeTitle) {
                     Text(PageCopy.greeting())
                         .font(VellumFonts.display())
-                        .foregroundStyle(VellumPalette.ink)
+                        .foregroundStyle(VellumPalette.onDesk)
                         .padding(.top, VellumFonts.greetingTopAir())
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -123,7 +123,7 @@ struct LibraryView: View {
                             Button(page.pinOn ? "Unpin" : "Pin", systemImage: page.pinOn ? "pin.slash" : "pin") {
                                 togglePin(page)
                             }
-                            .tint(VellumPalette.inkSoft)
+                            .tint(VellumPalette.onDeskSoft)
                         }
                         .contextMenu {
                             Button(page.pinOn ? "Unpin" : "Pin", systemImage: page.pinOn ? "pin.slash" : "pin") {
@@ -142,7 +142,7 @@ struct LibraryView: View {
                         Text(group.section.title)
                             .font(VellumFonts.ui(.caption, weight: .semibold))
                             .tracking(1.4)
-                            .foregroundStyle(VellumPalette.inkSoft)
+                            .foregroundStyle(VellumPalette.onDeskSoft)
                             .textCase(.uppercase)
                     }
                 }
@@ -178,12 +178,12 @@ struct LibraryView: View {
                 .padding(.bottom, 22)
             Text(LibraryEmpty.headline(searching: searching))
                 .font(VellumFonts.display(size: 28))
-                .foregroundStyle(VellumPalette.ink)
+                .foregroundStyle(VellumPalette.onDesk)
                 .multilineTextAlignment(.center)
             if !detail.isEmpty {
                 Text(detail)
                     .font(VellumFonts.ui(.subheadline))
-                    .foregroundStyle(VellumPalette.inkSoft)
+                    .foregroundStyle(VellumPalette.onDeskSoft)
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
                     .padding(.horizontal, 36)
@@ -191,6 +191,7 @@ struct LibraryView: View {
             if LibraryEmpty.showsClearSearch(searching: searching) {
                 Button("Clear search") { query = "" }
                     .font(VellumFonts.ui(.body, weight: .medium))
+                    .foregroundStyle(VellumPalette.onDesk)
                     .frame(minHeight: HitTarget.minimum)
                     .padding(.top, 16)
             }

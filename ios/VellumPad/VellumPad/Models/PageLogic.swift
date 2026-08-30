@@ -325,6 +325,27 @@ enum LibraryLook {
     static let forbiddenFaceChips = ["BOOK", "HAND", "TYPEWRITER"]
 }
 
+/// Paper fill + grain + horizontal rules. Vertical fibre every 18pt was a pinstripe.
+enum PaperLook {
+    static let drawsFibreStrokes = false
+    static let forbiddenFibreStep: Double = 18
+    static let keepsGrainSpeckle = true
+    static let keepsHorizontalRules = true
+}
+
+/// Library desk follows system appearance. Catalog paper fills do not remap.
+enum DeskLook {
+    static let followsSystemColorScheme = true
+    static let hasSettingsToggle = false
+    static let remapsCatalogPaper = false
+    static let lightDesk = "cream"
+    static let darkDesk = "night"
+    static let emptyMarkPaper = "cream"
+    static let emptyMarkStaysLight = true
+    static let editorSurface = "page-paper"
+    static let preferredColorScheme: String? = nil
+}
+
 enum LibraryPin {
     static func isPinnedAfterToggle(_ current: Bool) -> Bool { !current }
 }
@@ -459,6 +480,8 @@ enum LibraryEmpty {
     static let markSystemImage: String? = nil
     static let forbiddenMarks: [String] = ["doc", "magnifyingglass", "doc.text"]
     static let composeStaysInChrome = true
+    static let markPaper = "cream"
+    static let markDrawsRuling = false
 
     static func headline(searching: Bool) -> String {
         searching ? "Nothing matches" : "Empty"

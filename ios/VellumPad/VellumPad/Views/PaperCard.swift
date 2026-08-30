@@ -57,7 +57,7 @@ struct PaperSheet: View {
             RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous)
                 .strokeBorder(VellumPalette.ink.opacity(sheet.paper.isDark ? 0.28 : 0.10), lineWidth: 1)
         }
-        .shadow(color: VellumPalette.ink.opacity(0.12), radius: 8, y: 3)
+        .shadow(color: VellumPalette.lift, radius: 8, y: 3)
         .contentShape(RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(sheet.title), \(sheet.footer)")
@@ -103,7 +103,7 @@ struct EmptyDeskMark: View {
                 RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius) - 2, style: .continuous)
                     .strokeBorder(VellumPalette.ink.opacity(0.10), lineWidth: 1)
             }
-            .shadow(color: VellumPalette.ink.opacity(0.10), radius: 6, y: 2)
+            .shadow(color: VellumPalette.lift, radius: 6, y: 2)
     }
 }
 

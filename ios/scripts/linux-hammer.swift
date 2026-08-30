@@ -203,6 +203,18 @@ enum LinuxHammer {
             if seed == 0 || !grainSeen.insert(seed).inserted { grainOK = false }
         }
         expect(grainOK, "7 paper grain seed is unsigned and distinct")
+        expect(!PaperLook.drawsFibreStrokes, "7 no vertical fibre strokes")
+        expect(PaperLook.forbiddenFibreStep == 18, "7 18pt fibre step is forbidden")
+        expect(PaperLook.keepsGrainSpeckle, "7 grain speckle stays")
+        expect(PaperLook.keepsHorizontalRules, "7 ruled paper keeps horizontal rules")
+        expect(DeskLook.followsSystemColorScheme, "7 desk follows system colorScheme")
+        expect(!DeskLook.hasSettingsToggle, "7 no appearance settings toggle")
+        expect(!DeskLook.remapsCatalogPaper, "7 cream sheets stay cream on a night desk")
+        expect(DeskLook.darkDesk == "night", "7 dark desk is night, not system gray")
+        expect(DeskLook.emptyMarkStaysLight && DeskLook.emptyMarkPaper == "cream", "7 empty mark stays a cream sheet")
+        expect(DeskLook.editorSurface == "page-paper", "7 editor is the page paper, not a desk frame")
+        expect(DeskLook.preferredColorScheme == nil, "7 no forced preferredColorScheme")
+        expect(LibraryEmpty.markPaper == "cream" && !LibraryEmpty.markDrawsRuling, "7 empty mark is unruled cream")
 
         expect(EditorLook.surfaceKind == "paper-full", "E1 whole editor is paper")
         expect(EditorLook.surfaceKind != "sheet-on-desk", "E1 not a card on a desk")

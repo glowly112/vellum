@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Full-bleed paper: fill, fibre, ruled lines or dots. Not a wooden desk frame.
+/// Full-bleed paper: fill, grain speckle, ruled lines or dots. Not a wooden desk frame.
+/// Do not draw near-vertical fibre strokes — they read as pinstripe ruling.
 struct PaperBackdrop: View {
     let paper: Paper
     var compact: Bool = false
@@ -12,17 +13,6 @@ struct PaperBackdrop: View {
         Canvas { context, size in
             if drawsFill {
                 context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(paper.fill))
-
-                let fibreOpacity = paper.isDark ? 0.04 : (compact ? 0.035 : 0.028)
-                let fibreColor = paper.isDark ? Color.white.opacity(fibreOpacity) : VellumPalette.ink.opacity(fibreOpacity)
-                var x: CGFloat = 0
-                while x < size.width + size.height {
-                    var path = Path()
-                    path.move(to: CGPoint(x: x, y: 0))
-                    path.addLine(to: CGPoint(x: x - size.height * 0.08, y: size.height))
-                    context.stroke(path, with: .color(fibreColor), lineWidth: 1)
-                    x += 18
-                }
 
                 let grainOpacity = paper.isDark ? 0.10 : (compact ? 0.04 : 0.07)
                 if size.width > 0, size.height > 0 {
@@ -82,32 +72,26 @@ struct PaperBackdrop: View {
     }
 }
 
-/// Grain desk behind the editor sheet. Not a paper fill; not `UInt64(hashValue)`.
+/// Grain desk behind library chrome. Not a paper fill; not `UInt64(hashValue)`.
+/// Fill follows system appearance (cream / night). No vertical fibre.
 struct DeskBackdrop: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Canvas { context, size in
             context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(VellumPalette.desk))
 
-            let fibre = VellumPalette.ink.opacity(0.03)
-            var x: CGFloat = 0
-            while x < size.width + size.height {
-                var path = Path()
-                path.move(to: CGPoint(x: x, y: 0))
-                path.addLine(to: CGPoint(x: x - size.height * 0.08, y: size.height))
-                context.stroke(path, with: .color(fibre), lineWidth: 1)
-                x += 18
-            }
-
             if size.width > 0, size.height > 0 {
                 var rng = SeededRandom(seed: PaperGrain.seed(forToken: "desk"))
                 let count = Int((size.width * size.height) / 110)
+                let speck = colorScheme == .dark ? Color.white : VellumPalette.ink
                 for _ in 0..<min(count, 900) {
                     let px = CGFloat(rng.next()) * size.width
                     let py = CGFloat(rng.next()) * size.height
                     let rect = CGRect(x: px, y: py, width: 1.1, height: 1.1)
                     context.fill(
                         Path(ellipseIn: rect),
-                        with: .color(VellumPalette.ink.opacity(0.055 * rng.next()))
+                        with: .color(speck.opacity(0.055 * rng.next()))
                     )
                 }
             }

@@ -491,6 +491,27 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(Typeface.book.familyName, "Literata")
     }
 
+    func testPaperHasNoFibreAndDeskFollowsSystem() {
+        XCTAssertFalse(PaperLook.drawsFibreStrokes)
+        XCTAssertEqual(PaperLook.forbiddenFibreStep, 18)
+        XCTAssertTrue(PaperLook.keepsGrainSpeckle)
+        XCTAssertTrue(PaperLook.keepsHorizontalRules)
+        XCTAssertTrue(DeskLook.followsSystemColorScheme)
+        XCTAssertFalse(DeskLook.hasSettingsToggle)
+        XCTAssertFalse(DeskLook.remapsCatalogPaper)
+        XCTAssertEqual(DeskLook.lightDesk, "cream")
+        XCTAssertEqual(DeskLook.darkDesk, "night")
+        XCTAssertEqual(DeskLook.emptyMarkPaper, "cream")
+        XCTAssertTrue(DeskLook.emptyMarkStaysLight)
+        XCTAssertEqual(DeskLook.editorSurface, "page-paper")
+        XCTAssertNil(DeskLook.preferredColorScheme)
+        XCTAssertEqual(LibraryEmpty.markPaper, "cream")
+        XCTAssertFalse(LibraryEmpty.markDrawsRuling)
+        XCTAssertNotEqual(Paper.cream.rawValue, Paper.night.rawValue)
+        XCTAssertFalse(Paper.cream.isDark)
+        XCTAssertTrue(Paper.night.isDark)
+    }
+
     func testPaperGrainSeedDoesNotTrapOnEveryPaper() {
         var seen: Set<UInt64> = []
         for paper in Paper.allCases {
