@@ -142,7 +142,9 @@ struct ConnectionsPage: View {
                         Text(message)
                             .foregroundStyle(isError ? VellumPalette.rust : VellumPalette.ink)
                     }
-                    Text(ImportCopy.shareHint)
+                    if ImportLook.hasShareExtension {
+                        Text(ImportCopy.shareHint)
+                    }
                 }
                 .font(VellumFonts.page(.book, size: 14, relativeTo: .footnote))
                 .foregroundStyle(VellumPalette.inkSoft)

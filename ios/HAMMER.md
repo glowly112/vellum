@@ -28,7 +28,7 @@ Logic in `ImportLogic` / `LibraryGrouping`. Recency uses **`updatedAt`**. Import
 
 ## Settings + welcome (this turn)
 
-Logic in `SettingsLogic` / `WelcomeGate`. Build is 28.
+Logic in `SettingsLogic` / `WelcomeGate`. Build is 28. This Internal does not archive ShareToVelin.
 
 | # | Case | What must happen |
 | --- | --- | --- |

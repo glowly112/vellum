@@ -729,6 +729,7 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(LibraryLook.settingsPlacement, "topBarTrailing")
         XCTAssertTrue(ImportLook.livesInConnections)
         XCTAssertFalse(ImportLook.hasSettingsScreen)
+        XCTAssertFalse(ImportLook.hasShareExtension)
 
         XCTAssertEqual(SettingsLook.sections, ["Connections", "Desk", "About"])
         XCTAssertFalse(SettingsLook.hasAccounts)

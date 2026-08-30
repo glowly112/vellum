@@ -527,6 +527,7 @@ enum LinuxHammer {
         expect(!ImportLook.usesPrivateNotesKit && !ImportLook.usesNotionOAuth, "import is not NotesKit or OAuth")
         expect(ImportLook.writesBothDates, "import writes both dates")
         expect(ImportLook.storeName == "vellum-pages" && ImportLook.displayName == "Velin", "import keeps Velin store")
+        expect(!ImportLook.hasShareExtension, "this archive does not ship Share to Velin")
         expect(LibraryLook.bringInKind == "connections" && LibraryLook.bringInPlacement == "settings", "bring in lives in Connections")
         expect(LibraryLook.settingsSystemImage == "gearshape" && LibraryLook.settingsPlacement == "topBarTrailing", "settings gear is trailing")
         expect(LibraryLook.bringInTitle == "Bring in", "bring in title stays")

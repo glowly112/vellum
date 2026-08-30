@@ -19,7 +19,7 @@ enum ImportLook {
     static let skipsDuplicates = true
     static let bringInKind = "system-sheet"
     static let bringInTitle = "Bring in"
-    static let hasShareExtension = true
+    static let hasShareExtension = false
     static let appGroup = "group.com.jamiematheson.vellumpad"
     static let urlScheme = "velin"
 }
