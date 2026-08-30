@@ -54,5 +54,7 @@ enum VellumPalette {
 
     static let rule = Color(red: 0x9A / 255, green: 0xA8 / 255, blue: 0xB8 / 255)
     static let margin = Color(red: 0xC4 / 255, green: 0x5C / 255, blue: 0x5C / 255)
+    /// Web Mark rust. Not the lined-paper margin.
+    static let rust = Color(red: 0xC4 / 255, green: 0x5C / 255, blue: 0x4A / 255)
     static let danger = Color(red: 0x8F / 255, green: 0x3A / 255, blue: 0x32 / 255)
 }

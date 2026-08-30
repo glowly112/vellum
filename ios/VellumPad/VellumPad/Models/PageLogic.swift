@@ -486,13 +486,17 @@ enum LibrarySheetCopy {
 }
 
 enum LibraryEmpty {
-    /// Quiet cream sheet on the desk. Not an SF `doc` / magnifying glass.
-    static let markKind = "paper-sheet"
+    /// Desk stamp: cream sheet, rust margin, serif V. Not a stacked empty-state card.
+    /// Not an SF `doc` / magnifying glass. The name is not written as Vellum.
+    static let markKind = "paper-stamp"
     static let markSystemImage: String? = nil
     static let forbiddenMarks: [String] = ["doc", "magnifyingglass", "doc.text"]
     static let composeStaysInChrome = true
     static let markPaper = "cream"
     static let markDrawsRuling = false
+    static let markLetter = "V"
+    static let markWritesName = false
+    static let markHasRustMargin = true
 
     static func headline(searching: Bool) -> String {
         searching ? "Nothing matches" : "Empty"

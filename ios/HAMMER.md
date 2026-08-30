@@ -21,7 +21,7 @@ Logic in `LibrarySheetCopy` / `LibraryEmpty` / `PaperGrain`. Run: `ios/scripts/p
 
 | # | Case | What must happen |
 | --- | --- | --- |
-| 1 | Empty desk | No sheets. Copy: **Empty**. No second poetic line (`detail` empty). Mark is a quiet cream **paper-sheet**, not SF `doc`. Compose stays in chrome. Blank Untitled / 0 words is **not** a card. First paint: greeting fully visible (fail `GREETING_CLIP`). Empty hosts a scroll view so the large title can sit there. |
+| 1 | Empty desk | No sheets. Copy: **Empty**. No second poetic line (`detail` empty). Mark is the **paper-stamp** (cream, rust margin, serif V — not the word Vellum), not a stacked empty-state card, not SF `doc`. Compose stays in chrome. Blank Untitled / 0 words is **not** a card. First paint: greeting fully visible (fail `GREETING_CLIP`). Empty hosts a scroll view so the large title can sit there. |
 | 2 | One page | One **paper-sheet** (not a Notes `notes-row`, not an `Aa` stamp). No BOOK/HAND/TYPEWRITER chip. Height ≥ 160. |
 | 3 | Long title | Title stays on the sheet, unrewritten. Still `paper-sheet`. |
 | 4 | Search open | Match stays. Miss → no sheets + **Nothing matches**. |
