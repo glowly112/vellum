@@ -421,6 +421,13 @@ enum LinuxHammer {
         expect(DeleteDecision.undoAction == "Undo", "delete undo action")
         expect(DeleteDecision.animationKind == "spring", "delete animates out")
         expect(DeleteDecision.reduceMotionIsInstant, "delete reduce-motion is instant")
+        expect(DeskMotion.kind == "spring" && DeskMotion.insertionMoves, "desk motion is a spring and insertion moves")
+        expect(DeskMotion.pinUsesMotion && DeskMotion.focusUsesMotion, "pin and focus use desk motion")
+        expect(DeskMotion.reduceMotionIsInstant, "desk reduce-motion is instant")
+        expect(!DeskMotion.focusHidesNavBar && !DeskMotion.focusRestylesPaper, "focus keeps the nav bar and the paper")
+        expect(DeleteDecision.animationKind == DeskMotion.kind, "delete shares desk motion")
+        expect(!EditorLook.focusHidesNavBar && EditorLook.focusEyeStays, "focus eye stays on the system toolbar")
+        expect(LibraryEmpty.markKind == "paper-stamp", "empty stamp stays after motion")
         let undone = DeletedPage(
             pageID: UUID(uuidString: "A11CE001-0000-4000-8000-00000000DE01")!,
             title: "River",

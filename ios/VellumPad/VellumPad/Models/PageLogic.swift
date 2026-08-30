@@ -39,10 +39,24 @@ enum DeleteDecision {
     static let undoKind = "snackbar"
     static let undoCopy = "Removed page"
     static let undoAction = "Undo"
-    static let animationKind = "spring"
-    static let reduceMotionIsInstant = true
+    static let animationKind = DeskMotion.kind
+    static let reduceMotionIsInstant = DeskMotion.reduceMotionIsInstant
 
     static func shouldDelete(confirmed: Bool) -> Bool { true }
+}
+
+/// Shared spring for desk sheet mutations and focus chrome.
+/// Reduce Motion is instant. Insertion moves, not only removal.
+enum DeskMotion {
+    static let kind = "spring"
+    static let response: Double = 0.42
+    static let damping: Double = 0.84
+    static let reduceMotionIsInstant = true
+    static let insertionMoves = true
+    static let pinUsesMotion = true
+    static let focusUsesMotion = true
+    static let focusHidesNavBar = false
+    static let focusRestylesPaper = false
 }
 
 /// Snapshot so Undo can put the page back. Not a confirm payload.

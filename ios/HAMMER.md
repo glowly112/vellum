@@ -12,7 +12,7 @@ This Linux worker cannot run that. Logic cases are `VellumPadTests/HammerTests.s
 | 4 | First-run samples | Empty store + first launch seeds three sample pages. Later empty desk is empty. |
 | 5 | Empty search | “Nothing matches” + Clear search. Empty mark is a paper sheet, not SF. Compose stays in chrome. |
 | 6 | Keyboard cover | Editor uses `TextEditor` (not a nested `ScrollView`). Word-count is a `safeAreaInset` (no guessed 34pt/120pt). Opening Page dismisses the keyboard. Style sheet last row is **Size**. Fail if `KB_COVER`. Fail `TEXT_OVERLAP`: wrapping lines with the keyboard open must sit below the previous line — dismiss-keyboard cleaning the page is the tell. Keyboard-open pixels are still undone. System editor scrolls — no per-keystroke park. |
-| 7 | Delete | Press / swipe and the page is gone. No confirm. Spring out; Reduce Motion is instant. Undo snackbar. |
+| 7 | Delete | Press / swipe and the page is gone. No confirm. Spring out; Reduce Motion is instant. Undo snackbar. Pin / unpin, compose insert, grouping, and focus chrome share the same spring (`DeskMotion`). Insertion moves, not only removal. |
 | 8 | Share `.txt` | System share sheet. Empty title → `Untitled page.txt`. |
 
 ## Library sheets (this turn, 7)

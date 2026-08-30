@@ -23,6 +23,7 @@ struct LibraryView: View {
                     pageList
                 }
             }
+            .animation(deskMotion, value: groups.isEmpty)
             .background {
                 DeskBackdrop()
                     .ignoresSafeArea(.container)
@@ -67,6 +68,7 @@ struct LibraryView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
+            .animation(deskMotion, value: trash.last?.pageID)
             .onAppear {
                 discardBlankDrafts(except: Set(path))
             }
@@ -117,7 +119,7 @@ struct LibraryView: View {
                             PaperSheet(page: page)
                         }
                         .buttonStyle(PaperSheetButtonStyle())
-                        .transition(sheetRemoval)
+                        .transition(sheetMotion)
                         .swipeActions(edge: .trailing, allowsFullSwipe: LibraryLook.deleteAllowsFullSwipe) {
                             Button("Delete", systemImage: "trash", role: .destructive) {
                                 removePage(page)
@@ -156,6 +158,15 @@ struct LibraryView: View {
         .scrollContentBackground(.hidden)
         .listSectionSpacing(22)
         .safeAreaPadding(.top)
+        .animation(deskMotion, value: deskSignature)
+    }
+
+    /// Pin, grouping, undo, and compose-return all share this identity.
+    private var deskSignature: String {
+        groups.map { group in
+            let ids = group.pages.map { "\($0.pageID.uuidString):\($0.pinOn)" }.joined(separator: ",")
+            return "\(group.section.rawValue):\(ids)"
+        }.joined(separator: "|")
     }
 
     /// WWDC25: large titles live at the top of the content scroll view.
@@ -233,16 +244,20 @@ struct LibraryView: View {
         .accessibilityAddTraits(.isButton)
     }
 
-    private var sheetRemoval: AnyTransition {
+    /// Insertion moves too — pin into Pinned was a fade-only snap.
+    private var sheetMotion: AnyTransition {
         if reduceMotion { return .opacity }
         return .asymmetric(
-            insertion: .opacity,
+            insertion: .move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 0.96)),
             removal: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.94))
         )
     }
 
-    private var deleteMotion: Animation? {
-        reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.84)
+    private var deskMotion: Animation? {
+        reduceMotion ? nil : .spring(
+            response: DeskMotion.response,
+            dampingFraction: DeskMotion.damping
+        )
     }
 
     private func startPage() {
@@ -271,8 +286,10 @@ struct LibraryView: View {
             inkId: style.resolvedInk.rawValue,
             sizeId: style.size.rawValue
         )
-        modelContext.insert(page)
-        try? modelContext.save()
+        withAnimation(deskMotion) {
+            modelContext.insert(page)
+            try? modelContext.save()
+        }
         path.append(page.pageID)
     }
 
@@ -284,15 +301,19 @@ struct LibraryView: View {
                 && !LibraryListing.hasInk(title: page.title, body: page.body)
         }
         guard !blanks.isEmpty else { return }
-        for page in blanks {
-            modelContext.delete(page)
+        withAnimation(deskMotion) {
+            for page in blanks {
+                modelContext.delete(page)
+            }
+            try? modelContext.save()
         }
-        try? modelContext.save()
     }
 
     private func togglePin(_ page: Page) {
-        page.pinOn.toggle()
-        try? modelContext.save()
+        withAnimation(deskMotion) {
+            page.pinOn.toggle()
+            try? modelContext.save()
+        }
     }
 
     private func removePage(_ page: Page) {
@@ -300,7 +321,7 @@ struct LibraryView: View {
         if path.last == page.pageID {
             path.removeLast()
         }
-        withAnimation(deleteMotion) {
+        withAnimation(deskMotion) {
             modelContext.delete(page)
             try? modelContext.save()
         }
@@ -309,7 +330,7 @@ struct LibraryView: View {
     private func undoLast() {
         guard let deleted = trash.take() else { return }
         let page = Page.restored(from: deleted)
-        withAnimation(deleteMotion) {
+        withAnimation(deskMotion) {
             modelContext.insert(page)
             try? modelContext.save()
         }

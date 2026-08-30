@@ -7,6 +7,7 @@ struct EditorView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(PageTrash.self) private var trash
     @Query private var pages: [Page]
 
@@ -29,6 +30,13 @@ struct EditorView: View {
     }
 
     private var page: Page? { pages.first }
+
+    private var deskMotion: Animation? {
+        reduceMotion ? nil : .spring(
+            response: DeskMotion.response,
+            dampingFraction: DeskMotion.damping
+        )
+    }
 
     var body: some View {
         Group {
@@ -118,15 +126,18 @@ struct EditorView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(focusMode ? "Exit Focus" : "Focus", systemImage: focusMode ? "eye.slash" : "eye") {
-                    if focusMode {
-                        focusMode = false
-                    } else {
-                        field = nil
-                        focusMode = true
+                    withAnimation(deskMotion) {
+                        if focusMode {
+                            focusMode = false
+                        } else {
+                            field = nil
+                            focusMode = true
+                        }
                     }
                 }
             }
         }
+        .animation(deskMotion, value: focusMode)
         .sheet(isPresented: $showStyles) {
             StyleSheetView(
                 style: Binding(
@@ -238,6 +249,7 @@ struct EditorView: View {
                     .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
                     .padding(.trailing, CGFloat(EditorLook.typeTrailing))
                     .padding(.bottom, CGFloat(KeyboardAvoidance.wordCountBottomPad(keyboardLift: lift)))
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(

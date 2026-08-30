@@ -460,6 +460,19 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(DeleteDecision.undoAction, "Undo")
         XCTAssertEqual(DeleteDecision.animationKind, "spring")
         XCTAssertTrue(DeleteDecision.reduceMotionIsInstant)
+        XCTAssertEqual(DeskMotion.kind, "spring")
+        XCTAssertEqual(DeskMotion.response, 0.42)
+        XCTAssertEqual(DeskMotion.damping, 0.84)
+        XCTAssertTrue(DeskMotion.reduceMotionIsInstant)
+        XCTAssertTrue(DeskMotion.insertionMoves)
+        XCTAssertTrue(DeskMotion.pinUsesMotion)
+        XCTAssertTrue(DeskMotion.focusUsesMotion)
+        XCTAssertFalse(DeskMotion.focusHidesNavBar)
+        XCTAssertFalse(DeskMotion.focusRestylesPaper)
+        XCTAssertEqual(DeleteDecision.animationKind, DeskMotion.kind)
+        XCTAssertFalse(EditorLook.focusHidesNavBar)
+        XCTAssertTrue(EditorLook.focusEyeStays)
+        XCTAssertEqual(LibraryEmpty.markKind, "paper-stamp")
     }
 
     func testPrePinStoreOpensWithoutCrashing() throws {
