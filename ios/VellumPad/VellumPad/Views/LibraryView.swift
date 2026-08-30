@@ -138,11 +138,13 @@ struct LibraryView: View {
                         .listRowSeparator(.hidden)
                     }
                 } header: {
-                    Text(group.section.title)
-                        .font(VellumFonts.ui(.caption, weight: .semibold))
-                        .tracking(1.4)
-                        .foregroundStyle(VellumPalette.inkSoft)
-                        .textCase(.uppercase)
+                    if group.section.showsHeader {
+                        Text(group.section.title)
+                            .font(VellumFonts.ui(.caption, weight: .semibold))
+                            .tracking(1.4)
+                            .foregroundStyle(VellumPalette.inkSoft)
+                            .textCase(.uppercase)
+                    }
                 }
             }
         }
@@ -165,11 +167,11 @@ struct LibraryView: View {
         .safeAreaPadding(.top)
     }
 
-    /// Journal composition: mark, title, one line. Compose stays in chrome.
-    /// Grab: paper is the object. Craft: the empty is paper, not an SF icon.
+    /// Mark + headline. No second poetic line. Compose stays in chrome.
     @ViewBuilder
     private var emptyState: some View {
         let searching = !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let detail = LibraryEmpty.detail(searching: searching)
         VStack(spacing: 0) {
             Spacer(minLength: 20)
             EmptyDeskMark()
@@ -178,12 +180,14 @@ struct LibraryView: View {
                 .font(VellumFonts.display(size: 28))
                 .foregroundStyle(VellumPalette.ink)
                 .multilineTextAlignment(.center)
-            Text(LibraryEmpty.detail(searching: searching))
-                .font(VellumFonts.ui(.subheadline))
-                .foregroundStyle(VellumPalette.inkSoft)
-                .multilineTextAlignment(.center)
-                .padding(.top, 8)
-                .padding(.horizontal, 36)
+            if !detail.isEmpty {
+                Text(detail)
+                    .font(VellumFonts.ui(.subheadline))
+                    .foregroundStyle(VellumPalette.inkSoft)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+                    .padding(.horizontal, 36)
+            }
             if LibraryEmpty.showsClearSearch(searching: searching) {
                 Button("Clear search") { query = "" }
                     .font(VellumFonts.ui(.body, weight: .medium))
@@ -194,7 +198,11 @@ struct LibraryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(LibraryEmpty.headline(searching: searching)). \(LibraryEmpty.detail(searching: searching))")
+        .accessibilityLabel(
+            detail.isEmpty
+                ? LibraryEmpty.headline(searching: searching)
+                : "\(LibraryEmpty.headline(searching: searching)). \(detail)"
+        )
     }
 
     private var undoBar: some View {

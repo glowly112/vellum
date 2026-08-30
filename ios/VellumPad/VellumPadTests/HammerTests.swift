@@ -41,7 +41,23 @@ final class HammerTests: XCTestCase {
         XCTAssertFalse(SeedPolicy.shouldSeed(storeIsEmpty: false, didLaunch: false))
         let samples = SamplePages.makeSamples(now: now)
         XCTAssertEqual(samples.count, 3)
-        XCTAssertEqual(samples[0].title, "Late light on the river")
+        XCTAssertEqual(samples[0].title, SampleDeskCopy.bookTitle)
+        XCTAssertEqual(samples[0].body, SampleDeskCopy.bookBody)
+        XCTAssertEqual(samples[0].typeface, .book)
+        XCTAssertEqual(samples[0].paper, .cream)
+        XCTAssertEqual(samples[1].title, SampleDeskCopy.handTitle)
+        XCTAssertEqual(samples[1].typeface, .hand)
+        XCTAssertEqual(samples[1].paper, .sage)
+        XCTAssertEqual(samples[2].title, SampleDeskCopy.typeTitle)
+        XCTAssertEqual(samples[2].typeface, .typewriter)
+        XCTAssertEqual(samples[2].paper, .ruled)
+        for sample in samples {
+            XCTAssertFalse(SampleDeskCopy.containsForbiddenPhrase(sample.title))
+            XCTAssertFalse(SampleDeskCopy.containsForbiddenPhrase(sample.body))
+        }
+        for body in SampleDeskCopy.allBodies {
+            XCTAssertFalse(SampleDeskCopy.containsForbiddenPhrase(body))
+        }
     }
 
     func testEmptySearchReturnsNoGroups() {
@@ -316,7 +332,7 @@ final class HammerTests: XCTestCase {
         XCTAssertTrue(LibraryListing.hasInk(title: "Kept", body: ""))
         XCTAssertTrue(LibraryListing.hasInk(title: "", body: "a line"))
         XCTAssertEqual(LibraryEmpty.headline(searching: false), "The desk is clear")
-        XCTAssertEqual(LibraryEmpty.detail(searching: false), "A blank sheet, waiting. Start whenever you like.")
+        XCTAssertTrue(LibraryEmpty.detail(searching: false).isEmpty, "no second poetic line on the empty desk")
         XCTAssertEqual(LibraryEmpty.markKind, "paper-sheet")
         XCTAssertNil(LibraryEmpty.markSystemImage)
         XCTAssertFalse(LibraryEmpty.forbiddenMarks.contains(LibraryEmpty.markKind))
@@ -333,8 +349,8 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(sheets.count, 1)
         XCTAssertEqual(sheets[0].kind, "paper-sheet")
         XCTAssertNotEqual(sheets[0].kind, "notes-row")
-        XCTAssertNotEqual(sheets[0].face, "Aa")
-        XCTAssertEqual(sheets[0].face, "Book")
+        XCTAssertTrue(sheets[0].face.isEmpty, "no BOOK/HAND/TYPEWRITER chip")
+        XCTAssertFalse(LibraryLook.showsFaceChip)
         XCTAssertEqual(sheets[0].title, "Late light on the river")
         XCTAssertGreaterThanOrEqual(LibraryLook.sheetMinHeight, 160)
     }
@@ -398,6 +414,11 @@ final class HammerTests: XCTestCase {
         XCTAssertFalse(LibraryLook.deleteConfirms)
         XCTAssertTrue(LibraryLook.deleteAllowsFullSwipe)
         XCTAssertEqual(LibraryLook.pinKind, "swipe-and-menu")
+        XCTAssertFalse(LibraryLook.showsFaceChip)
+        XCTAssertFalse(LibraryLook.showsRecencyHeaders)
+        XCTAssertFalse(LibrarySection.today.showsHeader)
+        XCTAssertFalse(LibrarySection.yesterday.showsHeader)
+        XCTAssertTrue(LibrarySection.pinned.showsHeader)
     }
 
     func testLibraryPinLeadsAndDeleteHasNoConfirm() {
@@ -457,8 +478,15 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(sheet.kind, "paper-sheet")
         XCTAssertEqual(sheet.paper, .sage)
         XCTAssertEqual(sheet.typeface, .hand)
-        XCTAssertEqual(sheet.face, "Hand")
-        XCTAssertEqual(sheet.footer, "7 words  ·  Sage")
+        XCTAssertTrue(sheet.face.isEmpty, "typeface is the writing face, not a Hand chip")
+        XCTAssertFalse(LibraryLook.showsFaceChip)
+        XCTAssertEqual(sheet.footer, "Yesterday  ·  Sage")
+        XCTAssertFalse(sheet.footer.localizedCaseInsensitiveContains("Hand"))
+        XCTAssertFalse(sheet.footer.localizedCaseInsensitiveContains("word"))
+        for chip in LibraryLook.forbiddenFaceChips {
+            XCTAssertFalse(sheet.face.localizedCaseInsensitiveContains(chip))
+            XCTAssertFalse(sheet.footer.localizedCaseInsensitiveContains(chip))
+        }
         XCTAssertEqual(sheet.typeface.familyName, "Caveat")
         XCTAssertEqual(Typeface.book.familyName, "Literata")
     }

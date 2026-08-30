@@ -10,6 +10,8 @@ enum LibrarySection: String, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
     var title: String { rawValue }
+    /// Pinned is a place. Recency stamps duplicate the card’s quiet when.
+    var showsHeader: Bool { self == .pinned || LibraryLook.showsRecencyHeaders }
 }
 
 protocol RecencyPage {

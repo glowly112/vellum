@@ -65,6 +65,35 @@ enum SeedPolicy {
     }
 }
 
+/// First-launch desk notes. Sound like something left on the table, not a journal.
+enum SampleDeskCopy {
+    static let bookTitle = "Sam"
+    static let bookBody = "Ring back after six — number is on the fridge."
+
+    static let handTitle = "call mum"
+    static let handBody = "Sunday, if I remember. Keys are in the blue bowl."
+
+    static let typeTitle = "list"
+    static let typeBody = """
+    - oat milk, lemons, too many lemons
+    - send the draft before Monday
+    - no email after nine
+    """
+
+    static let forbiddenPhrases = [
+        "pewter Thames",
+        "a blank page is never actually blank",
+        "the way a good sentence feels",
+        "I keep meaning to write more, and then the day is gone.",
+    ]
+
+    static var allBodies: [String] { [bookBody, handBody, typeBody] }
+
+    static func containsForbiddenPhrase(_ text: String) -> Bool {
+        forbiddenPhrases.contains { text.localizedCaseInsensitiveContains($0) }
+    }
+}
+
 /// Style sheet order. Size is last so it stays reachable when the keyboard is up.
 enum StyleSheetLayout {
     static let sections: [String] = ["Paper", "Type", "Ink", "Size"]
@@ -289,6 +318,11 @@ enum LibraryLook {
     static let deleteConfirms = false
     static let deleteAllowsFullSwipe = true
     static let pinKind = "swipe-and-menu"
+    /// Typeface lives on the sheet as the writing face, not a BOOK/HAND chip.
+    static let showsFaceChip = false
+    /// Card already carries a quiet when. Do not also stamp TODAY/YESTERDAY.
+    static let showsRecencyHeaders = false
+    static let forbiddenFaceChips = ["BOOK", "HAND", "TYPEWRITER"]
 }
 
 enum LibraryPin {
@@ -390,15 +424,14 @@ enum LibrarySheetCopy {
         let display = PageCopy.displayTitle(title: title, body: body)
         let preview = PageCopy.preview(body)
         let showPreview = !preview.isEmpty && preview != display
-        let words = PageCopy.wordCount(title, body)
-        let noun = words == 1 ? "word" : "words"
+        let when = PageCopy.whenLabel(updatedAt, now: now)
         return LibrarySheet(
             kind: LibraryLook.cellKind,
-            when: PageCopy.whenLabel(updatedAt, now: now),
-            face: typeface.name,
+            when: when,
+            face: "",
             title: display,
             snippet: showPreview ? preview : nil,
-            footer: "\(words) \(noun)  ·  \(paper.name)",
+            footer: "\(when)  ·  \(paper.name)",
             paper: paper,
             typeface: typeface
         )
@@ -432,9 +465,7 @@ enum LibraryEmpty {
     }
 
     static func detail(searching: Bool) -> String {
-        searching
-            ? "Try a different word, or start a new page."
-            : "A blank sheet, waiting. Start whenever you like."
+        searching ? "Try a different word." : ""
     }
 
     static func showsClearSearch(searching: Bool) -> Bool { searching }

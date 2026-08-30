@@ -17,26 +17,11 @@ struct PaperSheet: View {
         let snippetSize: CGFloat = sheet.typeface == .hand ? 17 : 15
 
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(sheet.when)
-                Spacer(minLength: 8)
-                if page.pinOn {
-                    Image(systemName: "pin.fill")
-                        .font(.caption2)
-                }
-                Text(sheet.face)
-            }
-            .font(VellumFonts.ui(.caption2, weight: .medium))
-            .tracking(1.4)
-            .textCase(.uppercase)
-            .foregroundStyle(ink.color.opacity(0.45))
-
             Text(sheet.title)
                 .font(VellumFonts.page(sheet.typeface, size: titleSize, relativeTo: .title3))
                 .foregroundStyle(ink.color)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
-                .padding(.top, 12)
 
             if let snippet = sheet.snippet {
                 Text(snippet)
@@ -49,10 +34,17 @@ struct PaperSheet: View {
 
             Spacer(minLength: 10)
 
-            Text(sheet.footer)
-                .font(VellumFonts.ui(.caption2, weight: .medium))
-                .tracking(0.4)
-                .foregroundStyle(ink.color.opacity(0.40))
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                if page.pinOn {
+                    Image(systemName: "pin.fill")
+                        .font(.caption2)
+                }
+                Text(sheet.footer)
+                    .font(VellumFonts.ui(.caption2, weight: .medium))
+                    .tracking(0.4)
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(ink.color.opacity(0.40))
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -68,7 +60,7 @@ struct PaperSheet: View {
         .shadow(color: VellumPalette.ink.opacity(0.12), radius: 8, y: 3)
         .contentShape(RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(sheet.title), \(sheet.paper.name), \(sheet.typeface.name)")
+        .accessibilityLabel("\(sheet.title), \(sheet.footer)")
     }
 }
 
@@ -126,8 +118,8 @@ struct PaperSheetButtonStyle: ButtonStyle {
 #Preview {
     PaperSheet(
         page: Page(
-            title: "Late light on the river",
-            body: "The Thames is the colour of pewter this evening.",
+            title: SampleDeskCopy.bookTitle,
+            body: SampleDeskCopy.bookBody,
             fontId: Typeface.book.rawValue,
             paperId: Paper.cream.rawValue
         )

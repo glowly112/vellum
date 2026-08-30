@@ -44,8 +44,8 @@ function sampleStamp(hoursAgo: number) {
 const SAMPLE_PAGES: Page[] = [
   {
     id: "sample-river",
-    title: "Late light on the river",
-    body: "The Thames is the colour of pewter this evening. I walked home with my headphones in but nothing playing — I just wanted the city a little quieter than it is.\n\nI keep meaning to write more, and then the day is gone. So here: the light on the water, the smell of rain that never quite arrived, the page waiting.",
+    title: "Sam",
+    body: "Ring back after six — number is on the fridge.",
     createdAt: sampleStamp(2),
     updatedAt: sampleStamp(2),
     fontId: "book",
@@ -55,8 +55,8 @@ const SAMPLE_PAGES: Page[] = [
   },
   {
     id: "sample-margin",
-    title: "things I noticed",
-    body: "rain on warm pavement\na blank page is never actually blank\nthe way a good sentence feels before it is written\ncall mum\nleave the phone in the other room",
+    title: "call mum",
+    body: "Sunday, if I remember. Keys are in the blue bowl.",
     createdAt: sampleStamp(26),
     updatedAt: sampleStamp(26),
     fontId: "hand",
@@ -66,8 +66,8 @@ const SAMPLE_PAGES: Page[] = [
   },
   {
     id: "sample-notes",
-    title: "Notes",
-    body: "- send the draft before Monday\n- oat milk, lemons, too many lemons\n- do not open email after nine\n- the opening line is still wrong\n- walk at lunch",
+    title: "list",
+    body: "- oat milk, lemons, too many lemons\n- send the draft before Monday\n- no email after nine",
     createdAt: sampleStamp(90),
     updatedAt: sampleStamp(90),
     fontId: "typewriter",

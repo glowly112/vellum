@@ -25,8 +25,8 @@ enum SamplePages {
         [
             Page(
                 pageID: UUID(uuidString: "A11CE001-0000-4000-8000-000000000001")!,
-                title: "Late light on the river",
-                body: "The Thames is the colour of pewter this evening. I walked home with my headphones in but nothing playing — I just wanted the city a little quieter than it is.\n\nI keep meaning to write more, and then the day is gone. So here: the light on the water, the smell of rain that never quite arrived, the page waiting.",
+                title: SampleDeskCopy.bookTitle,
+                body: SampleDeskCopy.bookBody,
                 createdAt: stamp(hoursAgo: 2, now: now),
                 updatedAt: stamp(hoursAgo: 2, now: now),
                 fontId: Typeface.book.rawValue,
@@ -36,8 +36,8 @@ enum SamplePages {
             ),
             Page(
                 pageID: UUID(uuidString: "A11CE001-0000-4000-8000-000000000002")!,
-                title: "things I noticed",
-                body: "rain on warm pavement\na blank page is never actually blank\nthe way a good sentence feels before it is written\ncall mum\nleave the phone in the other room",
+                title: SampleDeskCopy.handTitle,
+                body: SampleDeskCopy.handBody,
                 createdAt: stamp(hoursAgo: 26, now: now),
                 updatedAt: stamp(hoursAgo: 26, now: now),
                 fontId: Typeface.hand.rawValue,
@@ -47,8 +47,8 @@ enum SamplePages {
             ),
             Page(
                 pageID: UUID(uuidString: "A11CE001-0000-4000-8000-000000000003")!,
-                title: "Notes",
-                body: "- send the draft before Monday\n- oat milk, lemons, too many lemons\n- do not open email after nine\n- the opening line is still wrong\n- walk at lunch",
+                title: SampleDeskCopy.typeTitle,
+                body: SampleDeskCopy.typeBody,
                 createdAt: stamp(hoursAgo: 90, now: now),
                 updatedAt: stamp(hoursAgo: 90, now: now),
                 fontId: Typeface.typewriter.rawValue,
