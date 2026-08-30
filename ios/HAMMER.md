@@ -28,11 +28,11 @@ Logic in `ImportLogic` / `LibraryGrouping`. Recency uses **`updatedAt`**. Import
 
 ## Settings + welcome (this turn)
 
-Logic in `SettingsLogic` / `WelcomeGate`. Build stays 27.
+Logic in `SettingsLogic` / `WelcomeGate`. Build is 28.
 
 | # | Case | What must happen |
 | --- | --- | --- |
-| 1 | Welcome | First launch shows welcome. Skip or Done sets `vellum.welcome.seen`. Second launch does not show it. |
+| 1 | Welcome | First launch shows welcome when seen is missing. Desk **Welcome** toggle (off by default) presents the same sheets again. Skip or Done clears the toggle and sets `vellum.welcome.seen`. |
 | 2 | Face ID | Lock the desk is **off** by default. Local only. |
 | 3 | Import | Bring in lives in Settings → Connections. Backdate still writes both dates. |
 

@@ -14,13 +14,15 @@ enum SettingsLook {
     static let lockRow = "Lock the desk"
     static let awakeRow = "Keep screen awake"
     static let hapticsRow = "Haptics"
+    static let welcomeRow = "Welcome"
     static let aboutCopy = "Pages stay on this iPhone."
     static let marketingVersion = "1.0.0"
-    static let buildNumber = "27"
-    static let versionLabel = "1.0.0 (27)"
+    static let buildNumber = "28"
+    static let versionLabel = "1.0.0 (28)"
     static let lockDefault = false
     static let awakeDefault = false
     static let hapticsDefault = true
+    static let welcomeDefault = false
     static let hasAccounts = false
     static let hasICloud = false
     static let hasFolders = false
@@ -37,6 +39,7 @@ enum DeskSettings {
     static let lockKey = "vellum.settings.lockDesk"
     static let awakeKey = "vellum.settings.keepAwake"
     static let hapticsKey = "vellum.settings.haptics"
+    static let welcomeKey = "vellum.settings.replayWelcome"
 
     static func lockDesk(in defaults: UserDefaults = .standard) -> Bool {
         defaults.bool(forKey: lockKey)
@@ -51,6 +54,10 @@ enum DeskSettings {
         return defaults.bool(forKey: hapticsKey)
     }
 
+    static func replayWelcome(in defaults: UserDefaults = .standard) -> Bool {
+        defaults.bool(forKey: welcomeKey)
+    }
+
     static func setLockDesk(_ on: Bool, in defaults: UserDefaults = .standard) {
         defaults.set(on, forKey: lockKey)
     }
@@ -61,6 +68,10 @@ enum DeskSettings {
 
     static func setHaptics(_ on: Bool, in defaults: UserDefaults = .standard) {
         defaults.set(on, forKey: hapticsKey)
+    }
+
+    static func setReplayWelcome(_ on: Bool, in defaults: UserDefaults = .standard) {
+        defaults.set(on, forKey: welcomeKey)
     }
 }
 
@@ -98,8 +109,14 @@ enum WelcomeGate {
         !defaults.bool(forKey: defaultsKey)
     }
 
+    /// First-open, or the Desk Welcome toggle.
+    static func shouldPresent(in defaults: UserDefaults = .standard) -> Bool {
+        shouldShow(in: defaults) || DeskSettings.replayWelcome(in: defaults)
+    }
+
     static func finish(in defaults: UserDefaults = .standard) {
         defaults.set(true, forKey: defaultsKey)
+        defaults.set(false, forKey: DeskSettings.welcomeKey)
     }
 
     static func skip(in defaults: UserDefaults = .standard) {

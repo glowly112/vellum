@@ -16,8 +16,9 @@ struct LibraryView: View {
     @State private var pickingFiles = false
     @State private var bringInMessage = ""
     @State private var bringInIsError = false
+    @AppStorage(DeskSettings.welcomeKey) private var replayWelcome = SettingsLook.welcomeDefault
     @State private var deskUnlocked = !DeskSettings.lockDesk()
-    @State private var showWelcome = WelcomeGate.shouldShow()
+    @State private var showWelcome = WelcomeGate.shouldPresent()
 
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
@@ -143,6 +144,12 @@ struct LibraryView: View {
             }
             .onChange(of: settingsOpen) { _, on in
                 if !on { openConnections = false }
+            }
+            .onChange(of: replayWelcome) { _, on in
+                if on {
+                    settingsOpen = false
+                    withAnimation(deskMotion) { showWelcome = true }
+                }
             }
             .onChange(of: scenePhase) { _, phase in
                 guard DeskSettings.lockDesk(), !showWelcome else { return }

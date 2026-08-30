@@ -16,6 +16,7 @@ struct SettingsSheet: View {
     @AppStorage(DeskSettings.lockKey) private var lockDesk = SettingsLook.lockDefault
     @AppStorage(DeskSettings.awakeKey) private var keepAwake = SettingsLook.awakeDefault
     @AppStorage(DeskSettings.hapticsKey) private var haptics = SettingsLook.hapticsDefault
+    @AppStorage(DeskSettings.welcomeKey) private var replayWelcome = SettingsLook.welcomeDefault
     @State private var path = NavigationPath()
 
     var body: some View {
@@ -32,6 +33,8 @@ struct SettingsSheet: View {
                     Toggle(SettingsLook.awakeRow, isOn: $keepAwake)
                         .listRowBackground(VellumPalette.ivory)
                     Toggle(SettingsLook.hapticsRow, isOn: $haptics)
+                        .listRowBackground(VellumPalette.ivory)
+                    Toggle(SettingsLook.welcomeRow, isOn: $replayWelcome)
                         .listRowBackground(VellumPalette.ivory)
                 }
 
@@ -71,6 +74,9 @@ struct SettingsSheet: View {
                 if on {
                     Task { await confirmLock() }
                 }
+            }
+            .onChange(of: replayWelcome) { _, on in
+                if on { dismiss() }
             }
             .onAppear {
                 if openConnections, path.isEmpty {
