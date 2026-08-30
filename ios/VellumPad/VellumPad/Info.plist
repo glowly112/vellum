@@ -2,6 +2,38 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.jamiematheson.vellumpad</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>velin</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Text</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.plain-text</string>
+				<string>public.text</string>
+				<string>public.html</string>
+				<string>public.comma-separated-values-text</string>
+				<string>net.daringfireball.markdown</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Velin can lock the desk on this iPhone.</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/Literata-Regular.ttf</string>

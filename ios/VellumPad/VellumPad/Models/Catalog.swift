@@ -168,8 +168,44 @@ enum TypeSize: String, CaseIterable, Identifiable, Codable, Sendable {
         }
     }
 
-    var ruleHeight: CGFloat {
-        bodyPoints * (self == .s ? 1.85 : self == .m ? 2.05 : 2.25)
+    /// Editor line box matches `PaperRuling.pitch`, not a size-specific leading.
+    var ruleHeight: CGFloat { CGFloat(PaperRuling.pitch) }
+}
+
+/// Shared grid for `PaperBackdrop` rules/dots and title/body leading.
+/// Editor pitch is 32. Compact (library swatches) stays 22 / 16 so library cards do not change.
+enum PaperRuling {
+    static let pitch: Double = 32
+    static let compactPitch: Double = 22
+    static let compactDotPitch: Double = 16
+    static let titlePitches: Double = 2
+    /// First rule Y in the writing column so title + body sit on the grid.
+    static let firstRuleOffset: Double = 64
+
+    static func step(ruling: Paper.Ruling, compact: Bool) -> Double {
+        switch ruling {
+        case .lines: compact ? compactPitch : pitch
+        case .dots: compact ? compactDotPitch : pitch
+        case .none: compact ? compactPitch : pitch
+        }
+    }
+
+    /// `TextEditor` / `TextField` `lineSpacing` is extra gap, not the full line box.
+    static func lineSpacing(fontPoints: Double, pitches: Double = 1) -> Double {
+        max(0, pitch * pitches - fontPoints)
+    }
+
+    static func bodyLineHeight(bodyPoints: Double) -> Double {
+        bodyPoints + lineSpacing(fontPoints: bodyPoints)
+    }
+
+    static func titleLineHeight(titlePoints: Double) -> Double {
+        titlePoints + lineSpacing(fontPoints: titlePoints, pitches: titlePitches)
+    }
+
+    static func sitsOnRule(_ lineHeight: Double) -> Bool {
+        let remainder = lineHeight.truncatingRemainder(dividingBy: pitch)
+        return remainder < 0.05 || abs(remainder - pitch) < 0.05
     }
 }
 

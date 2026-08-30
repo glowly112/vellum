@@ -1,16 +1,22 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct EditorView: View {
     let pageID: UUID
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(PageTrash.self) private var trash
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
     @Query private var pages: [Page]
 
     @State private var focusMode = false
     @State private var showStyles = false
-    @State private var confirmDelete = false
+    @State private var styleDetent: PresentationDetent = .medium
+    @State private var keyboardPad: CGFloat = 0
+    @State private var restingPad: CGFloat = 0
     @FocusState private var field: Field?
 
     private enum Field: Hashable {
@@ -26,6 +32,13 @@ struct EditorView: View {
 
     private var page: Page? { pages.first }
 
+    private var deskMotion: Animation? {
+        reduceMotion ? nil : .spring(
+            response: DeskMotion.response,
+            dampingFraction: DeskMotion.damping
+        )
+    }
+
     var body: some View {
         Group {
             if let page {
@@ -34,6 +47,7 @@ struct EditorView: View {
                 missing
             }
         }
+        .velinAppearance(appearanceRaw)
     }
 
     private func editor(_ page: Page) -> some View {
@@ -42,78 +56,40 @@ struct EditorView: View {
         let typeface = page.typeface
         let size = page.typeSize
         let editing = field != nil
+        let footer = EditorSheetCopy.footer(
+            wordCount: page.words,
+            paper: paper,
+            typeface: typeface
+        )
 
-        return VStack(alignment: .leading, spacing: 0) {
-            if focusMode {
-                Color.clear
-                    .frame(height: 28)
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture { focusMode = false }
-                    .accessibilityLabel("Exit focus")
-                    .accessibilityAddTraits(.isButton)
-            }
-
-            Text(PageCopy.longDate(page.createdAt))
-                .font(VellumFonts.ui(.caption2, weight: .medium))
-                .tracking(1.6)
-                .foregroundStyle(ink.color.opacity(0.40))
-                .padding(.top, focusMode ? 4 : 8)
-
-            TextField(
-                "Title",
-                text: titleBinding(page),
-                prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
-                axis: .vertical
-            )
-            .font(VellumFonts.title(typeface, size: size))
-            .foregroundStyle(ink.color)
-            .tint(ink.color)
-            .textInputAutocapitalization(.sentences)
-            .submitLabel(.next)
-            .focused($field, equals: .title)
-            .onSubmit { field = .body }
-            .padding(.top, 12)
-
-            TextEditor(text: bodyBinding(page))
-                .font(VellumFonts.body(typeface, size: size))
-                .foregroundStyle(ink.color)
-                .tint(ink.color)
-                .scrollContentBackground(.hidden)
-                .lineSpacing(CGFloat(size.bodyPoints * (size.bodyLeading - 1)))
-                .textInputAutocapitalization(.sentences)
-                .focused($field, equals: .body)
-                .padding(.top, 8)
-                .padding(.bottom, 8)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .overlay(alignment: .topLeading) {
-                    if page.body.isEmpty && field != .body {
-                        Text("Begin writing…")
-                            .font(VellumFonts.body(typeface, size: size))
-                            .foregroundStyle(ink.color.opacity(0.38))
-                            .padding(.top, 16)
-                            .allowsHitTesting(false)
-                    }
-                }
-        }
-        .padding(.leading, paper.ruling == .lines ? 56 : 24)
-        .padding(.trailing, 24)
-        .scrollDismissesKeyboard(.interactively)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        return writingColumn(
+            page: page,
+            paper: paper,
+            ink: ink,
+            typeface: typeface,
+            size: size,
+            footer: footer
+        )
         .background {
-            PaperBackdrop(paper: paper, ruleOffset: 118)
-                .ignoresSafeArea(.container)
+            PaperBackdrop(paper: paper, drawsRuling: false)
+                .ignoresSafeArea()
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !focusMode {
-                wordCountBar(page)
+        .background {
+            paper.fill.ignoresSafeArea()
+        }
+        .background {
+            KeyboardPadReader { pad in
+                keyboardPad = pad
+                restingPad = CGFloat(
+                    KeyboardChrome.restingPad(current: Double(restingPad), reported: Double(pad))
+                )
             }
+            .ignoresSafeArea()
         }
+        .ignoresSafeArea(.keyboard)
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(focusMode)
-        .toolbar(focusMode ? .hidden : .automatic, for: .navigationBar)
-        .toolbar(focusMode ? .hidden : .automatic, for: .bottomBar)
         .toolbarColorScheme(paper.isDark ? .dark : .light, for: .navigationBar)
         .tint(paper.isDark ? VellumPalette.creamInk : nil)
         .toolbar {
@@ -124,20 +100,17 @@ struct EditorView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    Button("Page style", systemImage: EditorLook.stylesSystemImage) {
+                        openStyles()
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("Focus", systemImage: "eye") {
-                            field = nil
-                            focusMode = true
-                        }
-                        Button("Page style", systemImage: "textformat") {
-                            openStyles()
-                        }
                         ShareLink(item: PageExport(page: page), preview: SharePreview(page.displayTitle)) {
                             Label("Share as Text", systemImage: "square.and.arrow.up")
                         }
-                        Divider()
                         Button("Delete page", systemImage: "trash", role: .destructive) {
-                            confirmDelete = true
+                            deletePage(page)
                         }
                     } label: {
                         Label("More", systemImage: "ellipsis")
@@ -153,7 +126,20 @@ struct EditorView: View {
                     }
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(focusMode ? "Exit Focus" : "Focus", systemImage: focusMode ? "eye.slash" : "eye") {
+                    withAnimation(deskMotion) {
+                        if focusMode {
+                            focusMode = false
+                        } else {
+                            field = nil
+                            focusMode = true
+                        }
+                    }
+                }
+            }
         }
+        .animation(deskMotion, value: focusMode)
         .sheet(isPresented: $showStyles) {
             StyleSheetView(
                 style: Binding(
@@ -162,38 +148,152 @@ struct EditorView: View {
                 ),
                 onDelete: { deletePage(page) }
             )
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.medium, .large], selection: $styleDetent)
             .presentationDragIndicator(.visible)
             .presentationContentInteraction(.scrolls)
             .presentationBackground(paper.isDark ? VellumPalette.night : VellumPalette.paper)
         }
-        .alert("Delete this page?", isPresented: $confirmDelete) {
-            Button("Delete page", role: .destructive) { deletePage(page) }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This page will be removed from this device. It cannot be undone.")
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = DeskSettings.keepAwake()
+            #if DEBUG
+            focusBodyIfRequested()
+            #endif
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
         }
     }
 
-    private func wordCountBar(_ page: Page) -> some View {
-        Button {
-            openStyles()
-        } label: {
-            HStack {
-                Text("\(page.words) \(page.words == 1 ? "word" : "words")")
-                    .monospacedDigit()
-                Spacer()
-                Text("\(page.paper.name)  ·  \(page.typeface.name)")
-            }
-            .font(VellumFonts.ui(.caption, weight: .medium))
-            .tracking(0.4)
-            .foregroundStyle(page.ink.color.opacity(0.55))
-            .padding(.horizontal, 16)
-            .frame(minHeight: HitTarget.minimum)
+    #if DEBUG
+    private func focusBodyIfRequested() {
+        guard DebugFocusBody.shouldFocusBody() else { return }
+        field = .body
+    }
+    #endif
+
+    /// The whole editor is paper: under back / share / Focus / Aa, out to the
+    /// screen edges, and behind / beside the keys. No desk-grain frame. Type
+    /// origin stays (leading 24 / 56 lined, trailing 24, date top 8).
+    /// The system TextEditor fills the field and scrolls. A lagged measure
+    /// height plus scrollTo / caret-rect park stacked glyphs above the
+    /// word-count (phone 20). Not pinned at rest.
+    private func writingColumn(
+        page: Page,
+        paper: Paper,
+        ink: Ink,
+        typeface: Typeface,
+        size: TypeSize,
+        footer: EditorFooter
+    ) -> some View {
+        let lift = KeyboardChrome.keyboardOnlyLift(
+            guidePad: Double(keyboardPad),
+            restingPad: Double(restingPad)
+        )
+
+        return VStack(alignment: .leading, spacing: 0) {
+            Text(PageCopy.longDate(page.createdAt))
+                .font(VellumFonts.ui(.caption2, weight: .medium))
+                .tracking(1.6)
+                .foregroundStyle(ink.color.opacity(0.40))
+                .padding(.top, focusMode ? 4 : CGFloat(EditorLook.dateTop))
+
+            TextField(
+                "Title",
+                text: titleBinding(page),
+                prompt: Text("Title").foregroundStyle(ink.color.opacity(0.38)),
+                axis: .vertical
+            )
+            .font(VellumFonts.title(typeface, size: size))
+            .foregroundStyle(ink.color)
+            .tint(ink.color)
+            .lineSpacing(rulingSpacing(typeface: typeface, points: size.titlePoints, pitches: PaperRuling.titlePitches))
+            .textInputAutocapitalization(.sentences)
+            .submitLabel(.next)
+            .focused($field, equals: .title)
+            .onSubmit { field = .body }
+            .padding(.top, 12)
+
+            TextEditor(text: bodyBinding(page))
+                .font(VellumFonts.body(typeface, size: size))
+                .foregroundStyle(ink.color)
+                .tint(ink.color)
+                .scrollContentBackground(.hidden)
+                .scrollIndicators(.hidden)
+                .scrollDismissesKeyboard(.interactively)
+                .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
+                .contentMargins(.top, 0, for: .scrollContent)
+                .contentMargins(.bottom, 0, for: .scrollContent)
+                .textInputAutocapitalization(.sentences)
+                .focused($field, equals: .body)
+                .padding(.top, 8)
+                .padding(.bottom, CGFloat(EditorLook.bodyBottomPad))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .overlay(alignment: .topLeading) {
+                    if page.body.isEmpty && field != .body {
+                        Text("Begin writing…")
+                            .font(VellumFonts.body(typeface, size: size))
+                            .foregroundStyle(ink.color.opacity(0.38))
+                            .padding(.top, 16)
+                            .allowsHitTesting(false)
+                    }
+                }
         }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 16)
-        .accessibilityLabel("Page style, \(page.words) words, \(page.paper.name), \(page.typeface.name)")
+        .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
+        .padding(.trailing, CGFloat(EditorLook.typeTrailing))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background {
+            if paper.ruling != .none {
+                PaperBackdrop(
+                    paper: paper,
+                    ruleOffset: CGFloat(PaperRuling.firstRuleOffset),
+                    drawsFill: false
+                )
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if EditorSheetCopy.showsFooter(focus: focusMode) {
+                wordCountInset(footer: footer, ink: ink)
+                    .padding(.leading, CGFloat(EditorLook.typeLeading(for: paper)))
+                    .padding(.trailing, CGFloat(EditorLook.typeTrailing))
+                    .padding(.bottom, CGFloat(KeyboardAvoidance.wordCountBottomPad(keyboardLift: lift)))
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .overlay(alignment: .trailing) {
+            BoundEdgeRail()
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+        }
+        .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(
+            guidePad: Double(keyboardPad),
+            restingPad: Double(restingPad)
+        )))
+        .ignoresSafeArea(.keyboard)
+        .ignoresSafeArea(.container, edges: .bottom)
+    }
+
+    /// Extra `lineSpacing` so the line box equals `pitch * pitches` (UIFont when we have it).
+    private func rulingSpacing(typeface: Typeface, points: Double, pitches: Double) -> CGFloat {
+        let target = CGFloat(PaperRuling.pitch * pitches)
+        let font = UIFont(name: typeface.familyName, size: points) ?? .systemFont(ofSize: points)
+        return max(0, target - font.lineHeight)
+    }
+
+    /// Apple `safeAreaInset`: content sits beside the column and grows the safe
+    /// area. Bottom pad is the keyboard layout guide, not a jumped safe area.
+    private func wordCountInset(footer: EditorFooter, ink: Ink) -> some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(ink.color.opacity(0.12))
+                .frame(height: 0.5)
+            Text(footer.words)
+                .monospacedDigit()
+                .font(VellumFonts.ui(.caption, weight: .medium))
+                .tracking(0.4)
+                .foregroundStyle(ink.color.opacity(0.55))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityLabel(footer.words)
     }
 
     private var missing: some View {
@@ -225,13 +325,123 @@ struct EditorView: View {
 
     private func openStyles() {
         field = nil
+        styleDetent = .medium
         showStyles = true
     }
 
     private func deletePage(_ page: Page) {
         showStyles = false
+        trash.remember(page.trashSnapshot)
         modelContext.delete(page)
         try? modelContext.save()
         dismiss()
+    }
+}
+
+/// Bottom pad from `keyboardLayoutGuide`, which travels with the system
+/// keyboard (including interactive dismiss). A GeometryReader on
+/// `safeAreaInsets` jumps to the end frame when the animation starts — that
+/// was the jank. Not a guessed 34 / 120.
+private struct KeyboardPadReader: UIViewRepresentable {
+    var onPad: (CGFloat) -> Void
+
+    func makeUIView(context: Context) -> KeyboardPadUIView {
+        let view = KeyboardPadUIView()
+        view.onPad = onPad
+        view.isUserInteractionEnabled = false
+        view.backgroundColor = .clear
+        return view
+    }
+
+    func updateUIView(_ uiView: KeyboardPadUIView, context: Context) {
+        uiView.onPad = onPad
+    }
+}
+
+private final class KeyboardPadUIView: UIView {
+    var onPad: ((CGFloat) -> Void)?
+
+    private let probe = UIView()
+    private var installed = false
+    private var last: CGFloat = .nan
+    private var observers: [NSObjectProtocol] = []
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        probe.translatesAutoresizingMaskIntoConstraints = false
+        probe.isUserInteractionEnabled = false
+        probe.backgroundColor = .clear
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    deinit {
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        installIfNeeded()
+        report()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        report()
+    }
+
+    private func installIfNeeded() {
+        guard window != nil, !installed else { return }
+        installed = true
+        addSubview(probe)
+        NSLayoutConstraint.activate([
+            probe.leadingAnchor.constraint(equalTo: leadingAnchor),
+            probe.trailingAnchor.constraint(equalTo: trailingAnchor),
+            probe.bottomAnchor.constraint(equalTo: bottomAnchor),
+            probe.topAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor),
+        ])
+        let names: [Notification.Name] = [
+            UIResponder.keyboardWillChangeFrameNotification,
+            UIResponder.keyboardDidChangeFrameNotification,
+        ]
+        for name in names {
+            observers.append(
+                NotificationCenter.default.addObserver(
+                    forName: name,
+                    object: nil,
+                    queue: .main
+                ) { [weak self] note in
+                    self?.trackKeyboard(note)
+                }
+            )
+        }
+    }
+
+    private func trackKeyboard(_ note: Notification) {
+        let duration = (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?
+            .doubleValue ?? 0
+        let curveRaw = (note.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?
+            .uintValue ?? 7
+        let options = UIView.AnimationOptions(rawValue: curveRaw << 16)
+        setNeedsLayout()
+        if duration > 0 {
+            UIView.animate(
+                withDuration: duration,
+                delay: 0,
+                options: [options, .beginFromCurrentState]
+            ) {
+                self.layoutIfNeeded()
+            }
+        } else {
+            layoutIfNeeded()
+        }
+    }
+
+    private func report() {
+        let pad = probe.bounds.height
+        guard pad.isFinite else { return }
+        if last.isFinite, abs(pad - last) < 0.25 { return }
+        last = pad
+        onPad?(pad)
     }
 }

@@ -12,6 +12,9 @@ final class Page: RecencyPage {
     var paperId: String
     var inkId: String
     var sizeId: String
+    /// Optional so a build-7 `vellum-pages` store (no column) can open.
+    /// Required `Bool` is what `fatalError`'d ModelContainer on 1.0.0 (8).
+    var isPinned: Bool?
 
     init(
         pageID: UUID = UUID(),
@@ -22,7 +25,8 @@ final class Page: RecencyPage {
         fontId: String = Typeface.book.rawValue,
         paperId: String = Paper.cream.rawValue,
         inkId: String = Ink.charcoal.rawValue,
-        sizeId: String = TypeSize.m.rawValue
+        sizeId: String = TypeSize.m.rawValue,
+        isPinned: Bool = false
     ) {
         self.pageID = pageID
         self.title = title
@@ -33,6 +37,13 @@ final class Page: RecencyPage {
         self.paperId = paperId
         self.inkId = inkId
         self.sizeId = sizeId
+        self.isPinned = isPinned
+    }
+
+    /// Missing column (build 7) and nil both read as unpinned.
+    var pinOn: Bool {
+        get { isPinned ?? false }
+        set { isPinned = newValue }
     }
 
     var typeface: Typeface { Catalog.typeface(fontId) }
@@ -52,6 +63,36 @@ final class Page: RecencyPage {
 
     func snapshot() -> EditorSnapshot {
         EditorSnapshot(pageID: pageID, title: title, body: body, updatedAt: updatedAt)
+    }
+
+    var trashSnapshot: DeletedPage {
+        DeletedPage(
+            pageID: pageID,
+            title: title,
+            body: body,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            fontId: fontId,
+            paperId: paperId,
+            inkId: inkId,
+            sizeId: sizeId,
+            isPinned: isPinned
+        )
+    }
+
+    static func restored(from deleted: DeletedPage) -> Page {
+        Page(
+            pageID: deleted.pageID,
+            title: deleted.title,
+            body: deleted.body,
+            createdAt: deleted.createdAt,
+            updatedAt: deleted.updatedAt,
+            fontId: deleted.fontId,
+            paperId: deleted.paperId,
+            inkId: deleted.inkId,
+            sizeId: deleted.sizeId,
+            isPinned: deleted.isPinned ?? false
+        )
     }
 
     func apply(style: PageStyle) {

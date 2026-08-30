@@ -2,6 +2,7 @@ import Foundation
 
 /// Recency buckets from `src/lib/library.ts`. The only organisation.
 enum LibrarySection: String, CaseIterable, Identifiable, Sendable {
+    case pinned = "Pinned"
     case today = "Today"
     case yesterday = "Yesterday"
     case thisWeek = "This week"
@@ -9,18 +10,23 @@ enum LibrarySection: String, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
     var title: String { rawValue }
+    /// Pinned is a place. Recency stamps duplicate the card’s quiet when.
+    var showsHeader: Bool { self == .pinned || LibraryLook.showsRecencyHeaders }
 }
 
 protocol RecencyPage {
     var title: String { get }
     var body: String { get }
     var updatedAt: Date { get }
+    var pinOn: Bool { get }
 }
 
 struct PageRecord: RecencyPage, Equatable {
     var title: String
     var body: String
     var updatedAt: Date
+    var isPinned: Bool = false
+    var pinOn: Bool { isPinned }
 }
 
 enum LibraryGrouping {
@@ -47,17 +53,32 @@ enum LibraryGrouping {
         now: Date = .now
     ) -> [(section: LibrarySection, pages: [P])] {
         let filtered = pages
+            .filter { LibraryListing.hasInk(title: $0.title, body: $0.body) }
             .filter { matchesQuery(title: $0.title, body: $0.body, query: query) }
             .sorted { $0.updatedAt > $1.updatedAt }
 
         var map: [LibrarySection: [P]] = [:]
         for page in filtered {
-            map[section(for: page.updatedAt, now: now), default: []].append(page)
+            let key = page.pinOn ? LibrarySection.pinned : section(for: page.updatedAt, now: now)
+            map[key, default: []].append(page)
         }
         return LibrarySection.allCases.compactMap { key in
             guard let list = map[key], !list.isEmpty else { return nil }
             return (key, list)
         }
+    }
+}
+
+/// A page is not a library card until there is ink (a title or any words).
+/// Blank Untitled / 0 words is the empty desk, not a postcard.
+enum LibraryListing {
+    static func hasInk(title: String, body: String) -> Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || PageCopy.wordCount(title, body) > 0
+    }
+
+    static func showsInLibrary(title: String, body: String) -> Bool {
+        hasInk(title: title, body: body)
     }
 }
 
@@ -84,10 +105,11 @@ enum PageCopy {
 
     static func whenLabel(_ date: Date, now: Date = .now) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(date) {
+        if cal.isDate(date, inSameDayAs: now) {
             return date.formatted(date: .omitted, time: .shortened)
         }
-        if cal.isDateInYesterday(date) {
+        if let yesterday = cal.date(byAdding: .day, value: -1, to: now),
+           cal.isDate(date, inSameDayAs: yesterday) {
             return "Yesterday"
         }
         return date.formatted(.dateTime.day().month(.abbreviated))

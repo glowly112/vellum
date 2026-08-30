@@ -3,7 +3,6 @@ import SwiftUI
 struct StyleSheetView: View {
     @Binding var style: PageStyle
     var onDelete: () -> Void
-    @State private var confirmDelete = false
 
     var body: some View {
         NavigationStack {
@@ -18,17 +17,12 @@ struct StyleSheetView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
+                .padding(.bottom, CGFloat(StyleSheetLayout.scrollBottomPad))
             }
             .safeAreaPadding(.bottom)
             .background((style.paper.isDark ? VellumPalette.night : VellumPalette.paper).ignoresSafeArea(.container))
             .navigationTitle("Page")
             .navigationBarTitleDisplayMode(.inline)
-            .alert("Delete this page?", isPresented: $confirmDelete) {
-                Button("Delete page", role: .destructive, action: onDelete)
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("This page will be removed from this device. It cannot be undone.")
-            }
         }
         .tint(style.paper.isDark ? VellumPalette.creamInk : VellumPalette.ink)
     }
@@ -170,7 +164,7 @@ struct StyleSheetView: View {
 
     private var deleteSection: some View {
         Button("Delete page", role: .destructive) {
-            confirmDelete = true
+            onDelete()
         }
         .frame(maxWidth: .infinity, minHeight: HitTarget.minimum)
         .padding(.top, 8)
