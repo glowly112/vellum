@@ -331,7 +331,7 @@ final class HammerTests: XCTestCase {
         )
         XCTAssertTrue(LibraryListing.hasInk(title: "Kept", body: ""))
         XCTAssertTrue(LibraryListing.hasInk(title: "", body: "a line"))
-        XCTAssertEqual(LibraryEmpty.headline(searching: false), "The desk is clear")
+        XCTAssertEqual(LibraryEmpty.headline(searching: false), "Empty")
         XCTAssertTrue(LibraryEmpty.detail(searching: false).isEmpty, "no second poetic line on the empty desk")
         XCTAssertEqual(LibraryEmpty.markKind, "paper-sheet")
         XCTAssertNil(LibraryEmpty.markSystemImage)

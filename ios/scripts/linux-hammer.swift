@@ -66,7 +66,7 @@ enum LinuxHammer {
         )
         expect(LibraryListing.hasInk(title: "Kept", body: ""), "1 a title is ink")
         expect(LibraryListing.hasInk(title: "", body: "a line"), "1 a body is ink")
-        expect(LibraryEmpty.headline(searching: false) == "The desk is clear", "1 empty desk copy")
+        expect(LibraryEmpty.headline(searching: false) == "Empty", "1 empty desk copy")
         expect(LibraryEmpty.detail(searching: false).isEmpty, "1 empty desk detail omitted")
         expect(LibraryEmpty.markKind == "paper-sheet", "1 empty mark is a paper sheet")
         expect(LibraryEmpty.markSystemImage == nil, "1 empty is not an SF symbol")

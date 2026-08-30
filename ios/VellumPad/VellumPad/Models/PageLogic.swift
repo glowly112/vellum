@@ -461,7 +461,7 @@ enum LibraryEmpty {
     static let composeStaysInChrome = true
 
     static func headline(searching: Bool) -> String {
-        searching ? "Nothing matches" : "The desk is clear"
+        searching ? "Nothing matches" : "Empty"
     }
 
     static func detail(searching: Bool) -> String {
