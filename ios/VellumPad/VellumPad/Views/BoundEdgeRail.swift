@@ -6,9 +6,13 @@ import UIKit
 /// Observe offset; only write contentOffset while the thumb is scrubbing.
 /// Do not park the caret.
 struct BoundEdgeRail: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var progress: CGFloat = 0
     @State private var isLong = false
     @State private var scrubbing = false
+    @State private var revealed = false
+    @State private var hideTask: Task<Void, Never>?
+    @State private var lastOffset: Double?
     @State private var box = TextViewBox()
 
     private let thumbHeight: CGFloat = 22
@@ -20,7 +24,7 @@ struct BoundEdgeRail: View {
             ZStack(alignment: .top) {
                 if isLong {
                     Capsule()
-                        .fill(VellumPalette.rust)
+                        .fill(VellumPalette.rust.opacity(BoundEdgeRailLook.shownHairlineOpacity))
                         .frame(width: 1.25)
                         .frame(maxHeight: .infinity)
                     BoundEdgeThumb()
@@ -29,6 +33,8 @@ struct BoundEdgeRail: View {
                         .gesture(scrub(in: height))
                 }
             }
+            .opacity(markOpacity)
+            .animation(revealMotion, value: revealed)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: railWidth)
@@ -37,6 +43,17 @@ struct BoundEdgeRail: View {
         .background {
             BoundEdgeProbe(box: box, scrubbing: scrubbing, onMetrics: apply)
         }
+        .onDisappear { hideTask?.cancel() }
+    }
+
+    private var markOpacity: Double {
+        if !isLong { return BoundEdgeRailLook.restOpacity }
+        return revealed ? 1 : BoundEdgeRailLook.restOpacity
+    }
+
+    /// Fade when motion is allowed. Reduce Motion is a cut, not a tween.
+    private var revealMotion: Animation? {
+        reduceMotion ? nil : .easeOut(duration: 0.28)
     }
 
     private func thumbY(in height: CGFloat) -> CGFloat {
@@ -48,6 +65,7 @@ struct BoundEdgeRail: View {
         DragGesture(minimumDistance: 1)
             .onChanged { value in
                 scrubbing = true
+                reveal()
                 let travel = max(1, height - thumbHeight)
                 let next = min(1, max(0, (value.location.y - thumbHeight / 2) / travel))
                 progress = next
@@ -55,6 +73,7 @@ struct BoundEdgeRail: View {
             }
             .onEnded { _ in
                 scrubbing = false
+                scheduleHide()
             }
     }
 
@@ -66,6 +85,33 @@ struct BoundEdgeRail: View {
         if abs(next - progress) > 0.002 {
             progress = next
         }
+        if long, let prior = lastOffset, abs(offset - prior) > 1 {
+            reveal()
+        }
+        lastOffset = offset
+        if !long {
+            revealed = false
+            hideTask?.cancel()
+        }
+    }
+
+    private func reveal() {
+        revealed = true
+        hideTask?.cancel()
+        if !scrubbing { scheduleHide() }
+    }
+
+    private func scheduleHide() {
+        guard BoundEdgeRailLook.hidesWhenIdle else { return }
+        hideTask?.cancel()
+        hideTask = Task {
+            let ns = UInt64(BoundEdgeRailLook.idleHideSeconds * 1_000_000_000)
+            try? await Task.sleep(nanoseconds: ns)
+            if Task.isCancelled { return }
+            await MainActor.run {
+                if !scrubbing { revealed = false }
+            }
+        }
     }
 }
 
@@ -73,12 +119,12 @@ struct BoundEdgeRail: View {
 private struct BoundEdgeThumb: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 3, style: .continuous)
-            .fill(VellumPalette.paper)
+            .fill(VellumPalette.paper.opacity(BoundEdgeRailLook.shownThumbFillOpacity))
             .overlay {
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .strokeBorder(VellumPalette.ink.opacity(0.12), lineWidth: 0.8)
+                    .strokeBorder(VellumPalette.ink.opacity(0.08), lineWidth: 0.7)
             }
-            .shadow(color: VellumPalette.lift.opacity(0.55), radius: 1.5, y: 0.5)
+            .shadow(color: VellumPalette.lift.opacity(0.28), radius: 1, y: 0.4)
     }
 }
 

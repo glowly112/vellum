@@ -684,6 +684,13 @@ enum BoundEdgeRailLook {
     static let reduceMotionThumbIsInstant = true
     /// Short pages stay quiet. A few points of overflow is not a long page.
     static let quietSlop: Double = 12
+    /// At rest the rail is gone. A wash at rest is still “always visible.”
+    static let restOpacity: Double = 0
+    static let shownHairlineOpacity: Double = 0.38
+    static let shownThumbFillOpacity: Double = 0.92
+    static let idleHideSeconds: Double = 1
+    static let hidesWhenIdle = true
+    static let reduceMotionFades = false
 
     static func isLongPage(content: Double, bounds: Double) -> Bool {
         content - bounds > quietSlop
