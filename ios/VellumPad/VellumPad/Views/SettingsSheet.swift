@@ -21,43 +21,57 @@ struct SettingsSheet: View {
     @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
     @State private var path = NavigationPath()
 
+    /// Dark / Light from AppStorage this tap. Do not trust UIColor traits in a sheet.
+    private var chromeScheme: ColorScheme {
+        switch appearanceRaw {
+        case AppearanceLook.lightRaw: return .light
+        case AppearanceLook.darkRaw: return .dark
+        default: return colorScheme
+        }
+    }
+
+    private var chromeFill: Color { VellumPalette.chrome(for: chromeScheme) }
+    private var chromeRow: Color { VellumPalette.chromeRow(for: chromeScheme) }
+    private var chromeInk: Color { VellumPalette.onDesk(for: chromeScheme) }
+    private var chromeInkSoft: Color { VellumPalette.onDeskSoft(for: chromeScheme) }
+
     var body: some View {
         NavigationStack(path: $path) {
             Form {
                 Section {
                     NavigationLink(SettingsLook.connectionsTitle, value: SettingsRoute.connections)
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                 }
 
                 Section(SettingsLook.deskTitle) {
                     appearanceTiles
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                     Toggle(SettingsLook.lockRow, isOn: $lockDesk)
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                     Toggle(SettingsLook.awakeRow, isOn: $keepAwake)
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                     Toggle(SettingsLook.hapticsRow, isOn: $haptics)
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                     Toggle(SettingsLook.welcomeRow, isOn: $replayWelcome)
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                 }
 
                 Section(SettingsLook.aboutTitle) {
                     Text(SettingsLook.aboutCopy)
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                     LabeledContent("Version", value: SettingsLook.versionLabel)
-                        .listRowBackground(VellumPalette.chromeRow)
+                        .listRowBackground(chromeRow)
                 }
             }
             .font(VellumFonts.page(.book, size: 17, relativeTo: .body))
-            .foregroundStyle(VellumPalette.onDesk)
+            .foregroundStyle(chromeInk)
             .scrollContentBackground(.hidden)
-            .background(VellumPalette.chrome.ignoresSafeArea(.container))
+            .background(chromeFill.ignoresSafeArea(.container))
             .navigationTitle(SettingsLook.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(VellumPalette.chrome, for: .navigationBar)
+            .toolbarBackground(chromeFill, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarColorScheme(colorScheme, for: .navigationBar)
+            .toolbarColorScheme(chromeScheme, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Close", systemImage: "xmark") {
@@ -93,14 +107,24 @@ struct SettingsSheet: View {
         .tint(VellumPalette.rust)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(VellumPalette.chrome)
+        .presentationBackground(chromeFill)
+        .preferredColorScheme(forcedScheme)
+    }
+
+    /// Force the sheet’s SwiftUI scheme so Dark restyles this tap.
+    private var forcedScheme: ColorScheme? {
+        switch appearanceRaw {
+        case AppearanceLook.lightRaw: return .light
+        case AppearanceLook.darkRaw: return .dark
+        default: return nil
+        }
     }
 
     private var appearanceTiles: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Appearance")
                 .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
-                .foregroundStyle(VellumPalette.onDeskSoft)
+                .foregroundStyle(chromeInkSoft)
             HStack(spacing: 10) {
                 appearanceTile(AppearanceLook.systemRaw, title: "System")
                 appearanceTile(AppearanceLook.lightRaw, title: "Light")
@@ -123,13 +147,13 @@ struct SettingsSheet: View {
                     .overlay {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .strokeBorder(
-                                selected ? VellumPalette.rust : VellumPalette.onDesk.opacity(0.18),
+                                selected ? VellumPalette.rust : chromeInk.opacity(0.18),
                                 lineWidth: selected ? 2 : 0.8
                             )
                     }
                 Text(title)
                     .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
-                    .foregroundStyle(selected ? VellumPalette.rust : VellumPalette.onDesk)
+                    .foregroundStyle(selected ? VellumPalette.rust : chromeInk)
             }
             .frame(maxWidth: .infinity)
         }
@@ -185,10 +209,24 @@ private struct AppearanceDeskPreview: View {
 struct ConnectionsPage: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
     @Query(sort: \Page.updatedAt, order: .reverse) private var pages: [Page]
 
     var incomingMessage: String
     var incomingIsError: Bool
+
+    private var chromeScheme: ColorScheme {
+        switch appearanceRaw {
+        case AppearanceLook.lightRaw: return .light
+        case AppearanceLook.darkRaw: return .dark
+        default: return colorScheme
+        }
+    }
+
+    private var chromeFill: Color { VellumPalette.chrome(for: chromeScheme) }
+    private var chromeRow: Color { VellumPalette.chromeRow(for: chromeScheme) }
+    private var chromeInk: Color { VellumPalette.onDesk(for: chromeScheme) }
+    private var chromeInkSoft: Color { VellumPalette.onDeskSoft(for: chromeScheme) }
 
     @State private var pickingFiles = false
     @State private var activeSource: ImportSource = .notes
@@ -209,10 +247,10 @@ struct ConnectionsPage: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(source.title)
                                     .font(VellumFonts.page(.editorial, size: 20, relativeTo: .title3))
-                                    .foregroundStyle(VellumPalette.onDesk)
+                                    .foregroundStyle(chromeInk)
                                 Text(source.hint)
                                     .font(VellumFonts.page(.book, size: 14, relativeTo: .subheadline))
-                                    .foregroundStyle(VellumPalette.onDeskSoft)
+                                    .foregroundStyle(chromeInkSoft)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer(minLength: 8)
@@ -221,13 +259,13 @@ struct ConnectionsPage: View {
                                 .foregroundStyle(VellumPalette.rust)
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(VellumPalette.onDeskSoft)
+                                .foregroundStyle(chromeInkSoft)
                         }
                         .padding(.vertical, 6)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(LibraryLook.bringInTitle) \(source.title). \(source.hint)")
-                    .listRowBackground(VellumPalette.chromeRow)
+                    .listRowBackground(chromeRow)
                 }
             } footer: {
                 VStack(alignment: .leading, spacing: 8) {
@@ -235,23 +273,24 @@ struct ConnectionsPage: View {
                     Text(ImportCopy.keepsDate)
                     if !message.isEmpty {
                         Text(message)
-                            .foregroundStyle(isError ? VellumPalette.rust : VellumPalette.onDesk)
+                            .foregroundStyle(isError ? VellumPalette.rust : chromeInk)
                     }
                     if ImportLook.hasShareExtension {
                         Text(ImportCopy.shareHint)
                     }
                 }
                 .font(VellumFonts.page(.book, size: 14, relativeTo: .footnote))
-                .foregroundStyle(VellumPalette.onDeskSoft)
+                .foregroundStyle(chromeInkSoft)
             }
         }
+        .foregroundStyle(chromeInk)
         .scrollContentBackground(.hidden)
-        .background(VellumPalette.chrome.ignoresSafeArea(.container))
+        .background(chromeFill.ignoresSafeArea(.container))
         .navigationTitle(SettingsLook.connectionsTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(VellumPalette.chrome, for: .navigationBar)
+        .toolbarBackground(chromeFill, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(colorScheme, for: .navigationBar)
+        .toolbarColorScheme(chromeScheme, for: .navigationBar)
         .fileImporter(
             isPresented: $pickingFiles,
             allowedContentTypes: ImportPicker.types(for: activeSource),

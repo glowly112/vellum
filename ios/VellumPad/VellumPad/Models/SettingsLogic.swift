@@ -44,10 +44,16 @@ enum SettingsChromeLook {
     static let usesCatalogIvory = false
     static let usesCatalogInk = false
     static let remapsCatalogPaper = false
+    /// Form/sheet UIColor traits stay light. Resolve from SwiftUI ColorScheme.
+    static let usesUIColorTraitCallback = false
+    static let resolver = "swiftui-colorScheme"
     static let darkFill = "night"
     static let darkFillHex = "1C1915"
+    static let darkRowHex = "27231E"
     static let darkType = "onDesk"
+    static let darkTypeHex = "F3EBDD"
     static let lightFill = "cream"
+    static let lightRowHex = "F7F1E6"
     static let lightType = "onDesk"
 
     static func fillKind(scheme: String) -> String {
@@ -62,6 +68,15 @@ enum SettingsChromeLook {
 
     static func isDay(scheme: String) -> Bool {
         fillKind(scheme: scheme) == lightFill && typeKind(scheme: scheme) == lightType
+    }
+
+    /// Dark / Light override wins even if the sheet’s UIKit traits stayed light.
+    static func resolvedScheme(appearanceRaw: String, system: String) -> String {
+        switch appearanceRaw {
+        case AppearanceLook.lightRaw: return "light"
+        case AppearanceLook.darkRaw: return "dark"
+        default: return system
+        }
     }
 }
 

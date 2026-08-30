@@ -770,6 +770,19 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(SettingsChromeLook.darkFillHex, "1C1915")
         XCTAssertTrue(SettingsChromeLook.isNight(scheme: "dark"), "Dark appearance → settings chrome is night")
         XCTAssertTrue(SettingsChromeLook.isDay(scheme: "light"), "Light appearance → settings chrome is day desk")
+        XCTAssertFalse(SettingsChromeLook.usesUIColorTraitCallback)
+        XCTAssertEqual(SettingsChromeLook.resolver, "swiftui-colorScheme")
+        XCTAssertEqual(SettingsChromeLook.darkRowHex, "27231E")
+        XCTAssertEqual(SettingsChromeLook.darkTypeHex, "F3EBDD")
+        XCTAssertEqual(
+            SettingsChromeLook.resolvedScheme(appearanceRaw: "dark", system: "light"),
+            "dark",
+            "Dark override restyles chrome even if sheet UIKit traits stayed light"
+        )
+        XCTAssertEqual(
+            SettingsChromeLook.resolvedScheme(appearanceRaw: "light", system: "dark"),
+            "light"
+        )
         XCTAssertFalse(DeskLook.remapsCatalogPaper, "catalog paper/ivory stay cream")
         XCTAssertEqual(SettingsLook.welcomeRow, "Welcome")
         XCTAssertFalse(SettingsLook.welcomeDefault)
