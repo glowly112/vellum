@@ -32,5 +32,6 @@ These still need a phone-width watch:
 15. **Fibre / pinstripe.** EmptyDeskMark and desk have no near-vertical fibre strokes. Compact empty mark is not lined. Ruled sheets keep horizontal rules. Not watched.
 16. **Dark desk.** System colorScheme: night desk (warm wood, not system gray). Greeting / Empty / meta invert. Cream/ivory/kraft/sage sheets stay those fills on the night desk. Empty mark stays a light sheet. Editor is still the page’s paper. Not watched.
 17. **Light desk surface.** Library field (behind cards and empty) should read as a desk — tooth + quiet vignette — not a painted cream wall. Cards rest on it. Not Notes gray / starfield / wellness. Not watched.
+18. **Bound-edge rail.** Long editor page: rust hairline on the right + cream paper thumb. No system chevron-pill. Dragging the page should not glitch. Short page stays quiet. TextEditor still owns scrolling. Not watched.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**. Phone 22 / 23 do not replace Mini pixels.

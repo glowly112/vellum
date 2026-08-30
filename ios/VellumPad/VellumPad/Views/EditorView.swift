@@ -212,6 +212,7 @@ struct EditorView: View {
                 .foregroundStyle(ink.color)
                 .tint(ink.color)
                 .scrollContentBackground(.hidden)
+                .scrollIndicators(.hidden)
                 .scrollDismissesKeyboard(.interactively)
                 .lineSpacing(rulingSpacing(typeface: typeface, points: size.bodyPoints, pitches: 1))
                 .contentMargins(.top, 0, for: .scrollContent)
@@ -251,6 +252,11 @@ struct EditorView: View {
                     .padding(.bottom, CGFloat(KeyboardAvoidance.wordCountBottomPad(keyboardLift: lift)))
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
+        }
+        .overlay(alignment: .trailing) {
+            BoundEdgeRail()
+                .padding(.top, 8)
+                .padding(.bottom, 4)
         }
         .padding(.bottom, CGFloat(KeyboardChrome.writingBottomPad(
             guidePad: Double(keyboardPad),

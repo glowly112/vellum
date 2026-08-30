@@ -659,6 +659,46 @@ enum EditorLook {
     static func typeLeading(for paper: Paper) -> Double {
         paper.ruling == .lines ? typeLeadingLined : typeLeading
     }
+
+    /// System chevron-pill is the miss. TextEditor still owns scrolling.
+    static let hidesSystemScrollIndicator = true
+    static let boundEdgeKind = "path-ink"
+}
+
+/// Right-edge bound rail. Rust hairline + cream paper thumb.
+/// Placement from Books; charm is Velin paper. Not SF. Not caret-park.
+enum BoundEdgeRailLook {
+    static let kind = "path-ink"
+    static let placement = "trailing-edge"
+    static let hidesSystemIndicator = true
+    static let usesSystemFace = false
+    static let forbiddenFaces = ["SF Pro", "Inter"]
+    static let hairlineInk = "rust"
+    static let thumbKind = "paper"
+    static let shortPageIsQuiet = true
+    static let ownsScrolling = false
+    static let parksCaret = false
+    static let usesScrollTo = false
+    static let usesCaretRect = false
+    static let capsBodyHeight = false
+    static let reduceMotionThumbIsInstant = true
+    /// Short pages stay quiet. A few points of overflow is not a long page.
+    static let quietSlop: Double = 12
+
+    static func isLongPage(content: Double, bounds: Double) -> Bool {
+        content - bounds > quietSlop
+    }
+
+    static func progress(offset: Double, content: Double, bounds: Double) -> Double {
+        let maxY = content - bounds
+        guard maxY > quietSlop else { return 0 }
+        return min(1, max(0, offset / maxY))
+    }
+
+    static func contentOffset(progress: Double, content: Double, bounds: Double) -> Double {
+        let maxY = max(0, content - bounds)
+        return min(1, max(0, progress)) * maxY
+    }
 }
 
 struct EditorFooter: Equatable, Sendable {
