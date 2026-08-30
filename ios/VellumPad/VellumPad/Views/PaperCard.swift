@@ -125,5 +125,5 @@ struct PaperSheetButtonStyle: ButtonStyle {
         )
     )
     .padding()
-    .background(VellumPalette.desk)
+    .background { DeskBackdrop() }
 }

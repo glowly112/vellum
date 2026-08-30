@@ -214,6 +214,10 @@ enum LinuxHammer {
         expect(DeskLook.emptyMarkStaysLight && DeskLook.emptyMarkPaper == "cream", "7 empty mark stays a cream sheet")
         expect(DeskLook.editorSurface == "page-paper", "7 editor is the page paper, not a desk frame")
         expect(DeskLook.preferredColorScheme == nil, "7 no forced preferredColorScheme")
+        expect(DeskLook.usesBackdrop && DeskLook.hasTooth && DeskLook.hasVignette, "7 desk is a surface, not a flat fill")
+        expect(DeskLook.vignetteKind == "edge-darken", "7 vignette is edge-darken")
+        expect(!DeskLook.forbiddenVignettes.contains(DeskLook.vignetteKind), "7 no starfield / wellness / copilot")
+        expect(!DeskLook.drawsFibreStrokes, "7 desk has no fibre strokes")
         expect(LibraryEmpty.markPaper == "cream" && !LibraryEmpty.markDrawsRuling, "7 empty mark is unruled cream")
 
         expect(EditorLook.surfaceKind == "paper-full", "E1 whole editor is paper")

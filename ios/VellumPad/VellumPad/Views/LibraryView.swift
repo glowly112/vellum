@@ -23,7 +23,10 @@ struct LibraryView: View {
                     pageList
                 }
             }
-            .background(VellumPalette.desk.ignoresSafeArea(.container))
+            .background {
+                DeskBackdrop()
+                    .ignoresSafeArea(.container)
+            }
             .navigationTitle(PageCopy.greeting())
             .navigationSubtitle(subtitle)
             .navigationBarTitleDisplayMode(.large)

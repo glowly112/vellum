@@ -73,7 +73,8 @@ struct PaperBackdrop: View {
 }
 
 /// Grain desk behind library chrome. Not a paper fill; not `UInt64(hashValue)`.
-/// Fill follows system appearance (cream / night). No vertical fibre.
+/// Fill follows system appearance (cream / night). Tooth + quiet vignette.
+/// No vertical fibre — those read as pinstripe ruling.
 struct DeskBackdrop: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -81,22 +82,58 @@ struct DeskBackdrop: View {
         Canvas { context, size in
             context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(VellumPalette.desk))
 
-            if size.width > 0, size.height > 0 {
-                var rng = SeededRandom(seed: PaperGrain.seed(forToken: "desk"))
-                let count = Int((size.width * size.height) / 110)
-                let speck = colorScheme == .dark ? Color.white : VellumPalette.ink
-                for _ in 0..<min(count, 900) {
-                    let px = CGFloat(rng.next()) * size.width
-                    let py = CGFloat(rng.next()) * size.height
-                    let rect = CGRect(x: px, y: py, width: 1.1, height: 1.1)
-                    context.fill(
-                        Path(ellipseIn: rect),
-                        with: .color(speck.opacity(0.055 * rng.next()))
-                    )
-                }
-            }
+            guard size.width > 0, size.height > 0 else { return }
+            let dark = colorScheme == .dark
+            drawTooth(context: context, size: size, dark: dark)
+            drawVignette(context: context, size: size, dark: dark)
         }
         .allowsHitTesting(false)
+    }
+
+    /// Paper/wood tooth. Denser and a bit louder on cream so it is not a wall.
+    /// Night already has contrast; keep that quieter. No lined rhythm.
+    private func drawTooth(context: GraphicsContext, size: CGSize, dark: Bool) {
+        var rng = SeededRandom(seed: PaperGrain.seed(forToken: "desk"))
+        let area = size.width * size.height
+        let spacing = dark ? 70.0 : 42.0
+        let count = min(Int(area / spacing), dark ? 1400 : 2800)
+        let ink = dark ? Color.white : VellumPalette.ink
+        let lift = dark ? Color.white : VellumPalette.paper
+        let inkCap = dark ? 0.08 : 0.16
+        let liftCap = dark ? 0.05 : 0.22
+
+        for i in 0..<count {
+            let px = CGFloat(rng.next()) * size.width
+            let py = CGFloat(rng.next()) * size.height
+            let tooth = i.isMultiple(of: 7)
+            let side = tooth ? CGFloat(1.6 + rng.next() * 1.4) : CGFloat(1.0 + rng.next() * 0.6)
+            let rect = CGRect(x: px, y: py, width: side, height: side * (0.7 + rng.next() * 0.5))
+            let highlight = rng.next() > 0.55
+            let color = highlight
+                ? lift.opacity(liftCap * rng.next())
+                : ink.opacity(inkCap * rng.next())
+            context.fill(Path(ellipseIn: rect), with: .color(color))
+        }
+    }
+
+    /// Edge darken only. Not a color wash, starfield, or wellness gradient.
+    private func drawVignette(context: GraphicsContext, size: CGSize, dark: Bool) {
+        let edge = dark
+            ? Color.black.opacity(0.42)
+            : VellumPalette.ink.opacity(0.14)
+        let radius = hypot(size.width, size.height) * 0.58
+        context.fill(
+            Path(CGRect(origin: .zero, size: size)),
+            with: .radialGradient(
+                Gradient(stops: [
+                    .init(color: .clear, location: 0.38),
+                    .init(color: edge, location: 1),
+                ]),
+                center: CGPoint(x: size.width * 0.5, y: size.height * 0.42),
+                startRadius: min(size.width, size.height) * 0.22,
+                endRadius: radius
+            )
+        )
     }
 }
 

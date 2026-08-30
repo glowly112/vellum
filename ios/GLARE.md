@@ -29,7 +29,8 @@ These still need a phone-width watch:
 
 13. **GREETING_CLIP.** First paint of the library (empty and with pages): the full Fraunces italic greeting is visible — no slice by the status bar / Dynamic Island (phone 23). Stock large title; not a homemade draw; not a guessed 34pt pad. Extra air is `safeAreaPadding(.top)` (system default) so it does not hug the island (phone 24). Not watched.
 14. **Blank Untitled.** A page with no title and 0 words is the empty desk, not an Ivory / 0-word postcard. Not watched.
-15. **Fibre / pinstripe.** EmptyDeskMark and desk have no near-vertical fibre strokes. Compact empty mark is not lined. Ruled sheets keep horizontal rules. Grain speckle may stay. Not watched.
+15. **Fibre / pinstripe.** EmptyDeskMark and desk have no near-vertical fibre strokes. Compact empty mark is not lined. Ruled sheets keep horizontal rules. Not watched.
 16. **Dark desk.** System colorScheme: night desk (warm wood, not system gray). Greeting / Empty / meta invert. Cream/ivory/kraft/sage sheets stay those fills on the night desk. Empty mark stays a light sheet. Editor is still the page’s paper. Not watched.
+17. **Light desk surface.** Library field (behind cards and empty) should read as a desk — tooth + quiet vignette — not a painted cream wall. Cards rest on it. Not Notes gray / starfield / wellness. Not watched.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**. Phone 22 / 23 do not replace Mini pixels.

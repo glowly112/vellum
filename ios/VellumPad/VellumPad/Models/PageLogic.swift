@@ -344,6 +344,13 @@ enum DeskLook {
     static let emptyMarkStaysLight = true
     static let editorSurface = "page-paper"
     static let preferredColorScheme: String? = nil
+    /// Library field is a surface (tooth + vignette), not a flat fill.
+    static let usesBackdrop = true
+    static let hasTooth = true
+    static let hasVignette = true
+    static let vignetteKind = "edge-darken"
+    static let forbiddenVignettes = ["starfield", "wellness", "copilot"]
+    static let drawsFibreStrokes = false
 }
 
 enum LibraryPin {
