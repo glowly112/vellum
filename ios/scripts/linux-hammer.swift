@@ -236,7 +236,7 @@ enum LinuxHammer {
         expect(PaperLook.keepsGrainSpeckle, "7 grain speckle stays")
         expect(PaperLook.keepsHorizontalRules, "7 ruled paper keeps horizontal rules")
         expect(DeskLook.followsSystemColorScheme, "7 desk follows system colorScheme")
-        expect(!DeskLook.hasSettingsToggle, "7 no appearance settings toggle")
+        expect(DeskLook.hasSettingsToggle, "7 appearance tiles live on Desk")
         expect(!DeskLook.remapsCatalogPaper, "7 cream sheets stay cream on a night desk")
         expect(DeskLook.darkDesk == "night", "7 dark desk is night, not system gray")
         expect(DeskLook.emptyMarkStaysLight && DeskLook.emptyMarkPaper == "cream", "7 empty mark stays a cream sheet")
