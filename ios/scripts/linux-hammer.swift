@@ -497,6 +497,30 @@ enum LinuxHammer {
         )
         expect(DebugOpenFirst.pageToOpen(from: [1, 2]) == 1, "debug open-first takes the first page")
         expect(DebugOpenFirst.pageToOpen(from: [Int]()) == nil, "debug open-first no-ops on empty desk")
+        expect(DebugForceWelcome.environmentKey == "VELLUM_FORCE_WELCOME", "debug force-welcome env key")
+        expect(!DebugForceWelcome.shouldForce(environment: [:], debugBuild: true), "debug does not force welcome by default")
+        expect(DebugForceWelcome.shouldForce(environment: ["VELLUM_FORCE_WELCOME": "1"], debugBuild: true), "FORCE_WELCOME on when env is 1")
+        expect(!DebugForceWelcome.shouldForce(environment: ["VELLUM_FORCE_WELCOME": "1"], debugBuild: false), "release ignores VELLUM_FORCE_WELCOME")
+        let forceSuite = "vellum.hammer.force-welcome"
+        let forceDefaults = UserDefaults(suiteName: forceSuite)!
+        forceDefaults.removePersistentDomain(forName: forceSuite)
+        WelcomeGate.finish(in: forceDefaults)
+        expect(
+            WelcomeGate.shouldPresent(in: forceDefaults, environment: ["VELLUM_FORCE_WELCOME": "1"], debugBuild: true),
+            "FORCE_WELCOME roots welcome after seen"
+        )
+        expect(
+            !WelcomeGate.shouldPresent(in: forceDefaults, environment: ["VELLUM_OPEN_FIRST": "1"], debugBuild: true),
+            "OPEN_FIRST hides welcome only when Mini asked for the editor"
+        )
+        expect(
+            WelcomeGate.shouldPresent(
+                in: forceDefaults,
+                environment: ["VELLUM_FORCE_WELCOME": "1", "VELLUM_OPEN_FIRST": "1"],
+                debugBuild: true
+            ),
+            "FORCE_WELCOME wins over OPEN_FIRST"
+        )
 
         expect(DebugFocusBody.environmentKey == "VELLUM_FOCUS_BODY", "debug focus-body env key")
         expect(DebugFocusBody.field == "body", "debug focus-body targets the body")
@@ -585,21 +609,25 @@ enum LinuxHammer {
         expect(!DeskSettings.keepAwake(in: defaults), "keep awake off by default")
         expect(DeskSettings.haptics(in: defaults), "haptics on when unset")
         expect(!DeskSettings.replayWelcome(in: defaults), "Welcome replay off by default")
+        expect(defaults.object(forKey: WelcomeLook.defaultsKey) == nil, "first-open key is absent")
         expect(WelcomeGate.shouldShow(in: defaults), "first launch shows welcome")
-        expect(WelcomeGate.shouldPresent(in: defaults), "unseen key presents welcome")
+        expect(WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true), "unseen key presents welcome")
+        expect(WelcomeGate.rootUsesShouldPresent && !WelcomeGate.usesAppStorageCopies, "root uses WelcomeGate.shouldPresent, not AppStorage copies")
+        expect(!WelcomeLook.stampCallsFinish && !WelcomeGate.stampCallsFinish, "stamp bounce does not finish welcome")
         WelcomeGate.skip(in: defaults)
         expect(!WelcomeGate.shouldShow(in: defaults), "skip sets the seen flag")
         expect(!WelcomeGate.shouldShow(in: defaults), "second launch does not show welcome")
-        expect(!WelcomeGate.shouldPresent(in: defaults), "seen and toggle off does not present")
-        DeskSettings.setReplayWelcome(true, in: defaults)
-        expect(WelcomeGate.shouldPresent(in: defaults), "toggle on presents welcome")
+        expect(!WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true), "seen and toggle off does not present")
+        WelcomeGate.startReplay(in: defaults)
+        expect(DeskSettings.replayWelcome(in: defaults), "replay persists before dismiss")
+        expect(WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true), "toggle on presents welcome")
         expect(!WelcomeGate.shouldShow(in: defaults), "replay does not clear first-open seen")
         WelcomeGate.skip(in: defaults)
         expect(!DeskSettings.replayWelcome(in: defaults), "skip/done clears the Welcome toggle")
         expect(defaults.bool(forKey: WelcomeLook.defaultsKey), "skip/done sets seen true again")
-        expect(!WelcomeGate.shouldPresent(in: defaults), "after skip, welcome is away")
-        DeskSettings.setReplayWelcome(true, in: defaults)
-        expect(WelcomeGate.shouldPresent(in: defaults), "they can turn Welcome on again")
+        expect(!WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true), "after skip, welcome is away")
+        WelcomeGate.startReplay(in: defaults)
+        expect(WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true), "they can turn Welcome on again")
         expect(WelcomeCopy.pages.count == 3, "welcome is three pages")
         expect(WelcomeCopy.kicker.isEmpty && !WelcomeLook.showsAppName, "welcome has no app name")
         expect(WelcomeCopy.pages[0] == ("Pages you keep.", ""), "welcome page 1")

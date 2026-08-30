@@ -685,6 +685,40 @@ final class HammerTests: XCTestCase {
         let id = UUID(uuidString: "A11CE001-0000-4000-8000-000000000001")!
         XCTAssertEqual(DebugOpenFirst.pageToOpen(from: [id]), id)
         XCTAssertNil(DebugOpenFirst.pageToOpen(from: [UUID]()))
+        XCTAssertEqual(DebugForceWelcome.environmentKey, "VELLUM_FORCE_WELCOME")
+        XCTAssertFalse(DebugForceWelcome.shouldForce(environment: [:], debugBuild: true))
+        XCTAssertTrue(DebugForceWelcome.shouldForce(environment: ["VELLUM_FORCE_WELCOME": "1"], debugBuild: true))
+        XCTAssertFalse(
+            DebugForceWelcome.shouldForce(environment: ["VELLUM_FORCE_WELCOME": "1"], debugBuild: false),
+            "Release must ignore VELLUM_FORCE_WELCOME"
+        )
+        let forceSuite = UserDefaults(suiteName: "vellum.hammer.force-welcome")!
+        forceSuite.removePersistentDomain(forName: "vellum.hammer.force-welcome")
+        WelcomeGate.finish(in: forceSuite)
+        XCTAssertTrue(
+            WelcomeGate.shouldPresent(
+                in: forceSuite,
+                environment: ["VELLUM_FORCE_WELCOME": "1"],
+                debugBuild: true
+            ),
+            "FORCE_WELCOME roots welcome even after seen"
+        )
+        XCTAssertFalse(
+            WelcomeGate.shouldPresent(
+                in: forceSuite,
+                environment: ["VELLUM_OPEN_FIRST": "1"],
+                debugBuild: true
+            ),
+            "OPEN_FIRST hides welcome only when Mini asked for the editor"
+        )
+        XCTAssertTrue(
+            WelcomeGate.shouldPresent(
+                in: forceSuite,
+                environment: ["VELLUM_FORCE_WELCOME": "1", "VELLUM_OPEN_FIRST": "1"],
+                debugBuild: true
+            ),
+            "FORCE_WELCOME wins over OPEN_FIRST"
+        )
     }
 
     func testDebugFocusBodyIsDebugOnlyAndFocusesBody() {
@@ -801,17 +835,34 @@ final class HammerTests: XCTestCase {
         let suite = "vellum.hammer.welcome"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
+        XCTAssertNil(defaults.object(forKey: WelcomeLook.defaultsKey), "first-open key is absent")
         XCTAssertTrue(WelcomeGate.shouldShow(in: defaults), "first launch shows welcome")
-        XCTAssertTrue(WelcomeGate.shouldPresent(in: defaults), "unseen key presents welcome")
+        XCTAssertTrue(
+            WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true),
+            "unseen key presents welcome — Debug does not skip by default"
+        )
+        XCTAssertTrue(WelcomeGate.rootUsesShouldPresent)
+        XCTAssertFalse(WelcomeGate.usesAppStorageCopies)
+        XCTAssertFalse(WelcomeLook.stampCallsFinish)
+        XCTAssertFalse(WelcomeGate.stampCallsFinish)
         WelcomeGate.skip(in: defaults)
         XCTAssertFalse(WelcomeGate.shouldShow(in: defaults), "skip sets the flag")
         XCTAssertFalse(WelcomeGate.shouldShow(in: defaults), "second launch does not show welcome")
         XCTAssertFalse(DeskSettings.replayWelcome(in: defaults))
-        DeskSettings.setReplayWelcome(true, in: defaults)
-        XCTAssertTrue(WelcomeGate.shouldPresent(in: defaults), "toggle on presents welcome")
+        WelcomeGate.startReplay(in: defaults)
+        XCTAssertTrue(DeskSettings.replayWelcome(in: defaults), "replay persists before dismiss")
+        XCTAssertTrue(
+            WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true),
+            "toggle on presents welcome when seen is already true"
+        )
         WelcomeGate.skip(in: defaults)
         XCTAssertFalse(DeskSettings.replayWelcome(in: defaults), "skip/done clears the toggle")
         XCTAssertTrue(defaults.bool(forKey: WelcomeLook.defaultsKey), "skip/done sets seen")
+        WelcomeGate.startReplay(in: defaults)
+        XCTAssertTrue(
+            WelcomeGate.shouldPresent(in: defaults, environment: [:], debugBuild: true),
+            "replay still works after seen is true"
+        )
         XCTAssertEqual(WelcomeCopy.pages.count, 3)
         XCTAssertTrue(WelcomeCopy.kicker.isEmpty)
         XCTAssertEqual(WelcomeCopy.pages[0].title, "Pages you keep.")
@@ -882,6 +933,7 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(WelcomeLook.motionKind, "page-turn")
         XCTAssertTrue(WelcomeLook.reduceMotionIsInstant)
         XCTAssertTrue(WelcomeLook.skipOnEveryPage)
+        XCTAssertFalse(WelcomeLook.stampCallsFinish)
         XCTAssertTrue(AppearanceLook.retintsWholeApp)
         XCTAssertTrue(AppearanceLook.appliesPreferredColorSchemeAtRoot)
         XCTAssertTrue(AppearanceLook.appliesPreferredColorSchemeOnSheets)

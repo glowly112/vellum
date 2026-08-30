@@ -203,6 +203,8 @@ enum WelcomeLook {
     static let teachesProduct = true
     /// WelcomeMiniCard page text. Must not be `body` — that is View.body.
     static let miniCardTextProperty = "snippet"
+    /// Stamp bounce advances to Pages you keep. It must not call finish().
+    static let stampCallsFinish = false
 }
 
 /// Prefix reveal. No cursor. Reduce Motion shows the full string.
@@ -278,14 +280,35 @@ enum AppearanceLook {
 
 enum WelcomeGate {
     static let defaultsKey = WelcomeLook.defaultsKey
+    /// App root reads this helper, not a pair of @AppStorage copies.
+    static let rootUsesShouldPresent = true
+    static let usesAppStorageCopies = false
+    static let stampCallsFinish = false
 
+    /// Absent key or explicit false → first-open. Only `true` is seen.
     static func shouldShow(in defaults: UserDefaults = .standard) -> Bool {
-        !defaults.bool(forKey: defaultsKey)
+        defaults.object(forKey: defaultsKey) as? Bool != true
     }
 
-    /// First-open, or the Desk Welcome toggle.
-    static func shouldPresent(in defaults: UserDefaults = .standard) -> Bool {
-        shouldShow(in: defaults) || DeskSettings.replayWelcome(in: defaults)
+    /// First-open, replay toggle, or Debug `VELLUM_FORCE_WELCOME=1`.
+    /// `VELLUM_OPEN_FIRST` hides welcome only when Mini asked for the editor.
+    static func shouldPresent(
+        in defaults: UserDefaults = .standard,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        debugBuild: Bool = DebugForceWelcome.compileGateEnabled
+    ) -> Bool {
+        if DebugForceWelcome.shouldForce(environment: environment, debugBuild: debugBuild) {
+            return true
+        }
+        if DebugOpenFirst.shouldOpenFirstPage(environment: environment, debugBuild: debugBuild) {
+            return false
+        }
+        return shouldShow(in: defaults) || DeskSettings.replayWelcome(in: defaults)
+    }
+
+    /// Persist replay before any sheet dismiss so the root can see it.
+    static func startReplay(in defaults: UserDefaults = .standard) {
+        defaults.set(true, forKey: DeskSettings.welcomeKey)
     }
 
     static func finish(in defaults: UserDefaults = .standard) {

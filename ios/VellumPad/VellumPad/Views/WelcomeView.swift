@@ -281,6 +281,7 @@ struct WelcomeView: View {
             try? await Task.sleep(for: .seconds(WelcomeLook.bounceSettle))
             guard showingStamp else { return }
             showingStamp = false
+            // Advance to Pages you keep. Do not finish() — that skipped Mini.
         }
     }
 
@@ -293,6 +294,7 @@ struct WelcomeView: View {
         page += 1
     }
 
+    /// Skip / Done only. Stamp bounce must not call this.
     private func finish() {
         WelcomeGate.finish()
         onFinished()

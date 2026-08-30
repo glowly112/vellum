@@ -5,9 +5,6 @@ import SwiftUI
 struct VellumPadApp: App {
     private let container: ModelContainer
     @State private var trash = PageTrash()
-    @AppStorage(WelcomeLook.defaultsKey) private var welcomeSeen = false
-    @AppStorage(DeskSettings.welcomeKey) private var replayWelcome = SettingsLook.welcomeDefault
-    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
 
     init() {
         TypefaceRegistry.register()
@@ -24,27 +21,34 @@ struct VellumPadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if showsWelcome {
-                    WelcomeView {
-                        WelcomeGate.finish()
-                    }
-                } else {
-                    LibraryView()
-                }
-            }
-            .environment(trash)
-            .velinAppearance(appearanceRaw)
+            DeskRoot()
+                .environment(trash)
         }
         .modelContainer(container)
     }
+}
 
-    /// Welcome is the root until Skip / Done. Library is not underneath.
-    private var showsWelcome: Bool {
-        #if DEBUG
-        if DebugOpenFirst.shouldOpenFirstPage() { return false }
-        #endif
-        return !welcomeSeen || replayWelcome
+/// One gate. UserDefaults via `WelcomeGate.shouldPresent` — not drifted AppStorage copies.
+private struct DeskRoot: View {
+    @AppStorage(WelcomeLook.defaultsKey) private var welcomeSeen = false
+    @AppStorage(DeskSettings.welcomeKey) private var replayWelcome = SettingsLook.welcomeDefault
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+
+    var body: some View {
+        Group {
+            if WelcomeGate.shouldPresent() {
+                WelcomeView(onFinished: dismissWelcome)
+            } else {
+                LibraryView()
+            }
+        }
+        .velinAppearance(appearanceRaw)
     }
 
+    /// Sync the AppStorage observers after the UserDefaults write so the root retints.
+    private func dismissWelcome() {
+        WelcomeGate.finish()
+        welcomeSeen = true
+        replayWelcome = false
+    }
 }

@@ -48,7 +48,7 @@ struct SettingsSheet: View {
                         .listRowBackground(chromeRow)
                     Toggle(SettingsLook.hapticsRow, isOn: $haptics)
                         .listRowBackground(chromeRow)
-                    Toggle(SettingsLook.welcomeRow, isOn: $replayWelcome)
+                    Toggle(SettingsLook.welcomeRow, isOn: welcomeReplayBinding)
                         .listRowBackground(chromeRow)
                 }
 
@@ -91,9 +91,6 @@ struct SettingsSheet: View {
                     Task { await confirmLock() }
                 }
             }
-            .onChange(of: replayWelcome) { _, on in
-                if on { dismiss() }
-            }
             .onAppear {
                 if openConnections, path.isEmpty {
                     path.append(SettingsRoute.connections)
@@ -105,6 +102,23 @@ struct SettingsSheet: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(chromeFill)
         .velinAppearance(appearanceRaw)
+    }
+
+    /// Write UserDefaults first, then dismiss. AppStorage-only + onChange raced.
+    private var welcomeReplayBinding: Binding<Bool> {
+        Binding(
+            get: { replayWelcome || DeskSettings.replayWelcome() },
+            set: { on in
+                if on {
+                    WelcomeGate.startReplay()
+                    replayWelcome = true
+                    dismiss()
+                } else {
+                    DeskSettings.setReplayWelcome(false)
+                    replayWelcome = false
+                }
+            }
+        )
     }
 
     private var appearanceTiles: some View {

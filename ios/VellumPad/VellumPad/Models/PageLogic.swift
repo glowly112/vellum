@@ -743,8 +743,28 @@ struct EditorFooter: Equatable, Sendable {
     var placement: String
 }
 
+/// Debug-only: `VELLUM_FORCE_WELCOME=1` roots Welcome even if seen is true.
+/// Release always returns false. Debug does not force welcome by default.
+enum DebugForceWelcome {
+    static let environmentKey = "VELLUM_FORCE_WELCOME"
+
+    #if DEBUG
+    static let compileGateEnabled = true
+    #else
+    static let compileGateEnabled = false
+    #endif
+
+    static func shouldForce(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        debugBuild: Bool = compileGateEnabled
+    ) -> Bool {
+        debugBuild && environment[environmentKey] == "1"
+    }
+}
+
 /// Debug-only launch: `VELLUM_OPEN_FIRST=1` pushes the first page so Mini
 /// can photograph the editor without a tap. Release always returns false.
+/// Does not hide welcome unless Mini set this flag (editor photos).
 enum DebugOpenFirst {
     static let environmentKey = "VELLUM_OPEN_FIRST"
 
