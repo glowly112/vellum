@@ -328,12 +328,49 @@ enum LibraryGreeting {
     static let subtitleUsesStockSlot = true
     static let subtitleIsItalic = false
     static let subtitleForbiddenFamily = "SF Pro"
+    static let subtitleMarkKind = "path-lockup"
 
     /// Extra top air so italic Fraunces ascenders clear the system line box.
     /// Unmeasured → 0. Not a guessed 34.
     static func italicOvershoot(systemAscender: Double, faceAscender: Double) -> Double {
         guard systemAscender > 0, faceAscender > 0 else { return 0 }
         return max(0, faceAscender - systemAscender)
+    }
+}
+
+/// Date · pages and PINNED are desk-drawn marks. Same craft as the paper stamp:
+/// Path / ink, catalog serif lettering. Not SF, not Inter, not a frozen bitmap.
+enum DeskMarks {
+    static let kind = "path-ink"
+    static let usesSystemFace = false
+    static let forbiddenFaces = ["SF Pro", "Inter"]
+    static let dateIsLive = true
+    static let dateFrozenBitmap = false
+    static let dateLettering = Typeface.editorial.familyName
+    static let middotKind = "path"
+    static let pageMarkKind = "paper-stamp"
+    static let pageMarkHasRustMargin = true
+    static let pinnedKind = "path-wordmark"
+    static let pinnedLettering = Typeface.editorial.familyName
+    static let pinnedVoiceOver = "Pinned"
+    static let pinnedUsesSFCaps = false
+    static let drawsFibre = false
+    static let greetingHomemade = false
+}
+
+/// Live date · pages copy. Not a frozen Sunday August 30.
+enum DeskMetaCopy {
+    static func dateLabel(now: Date = .now) -> String {
+        now.formatted(.dateTime.weekday(.wide).day().month(.wide))
+    }
+
+    static func spoken(count: Int, now: Date = .now) -> String {
+        let noun = count == 1 ? "page" : "pages"
+        return "\(dateLabel(now: now))  ·  \(count) \(noun)"
+    }
+
+    static func isLive(label: String, now: Date) -> Bool {
+        label == dateLabel(now: now)
     }
 }
 
@@ -349,6 +386,8 @@ enum LibraryLook {
     static let deleteConfirms = false
     static let deleteAllowsFullSwipe = true
     static let pinKind = "swipe-and-menu"
+    /// Only Pinned stamps a header. That header is a desk mark, not SF caps.
+    static let pinnedHeaderKind = "path-wordmark"
     /// Typeface lives on the sheet as the writing face, not a BOOK/HAND chip.
     static let showsFaceChip = false
     /// Card already carries a quiet when. Do not also stamp TODAY/YESTERDAY.

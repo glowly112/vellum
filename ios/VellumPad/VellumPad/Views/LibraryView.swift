@@ -51,9 +51,8 @@ struct LibraryView: View {
                         .greetingLeading()
                         .accessibilityHidden(true)
                 }
-                // Date · pages: stock subtitle slots, Fraunces roman.
-                // `.navigationSubtitle` stays for VoiceOver; these take
-                // the draw so the line is not SF under the greeting.
+                // Date · pages: stock subtitle slots, Path lockup.
+                // `.navigationSubtitle` stays for VoiceOver. Live date.
                 ToolbarItem(placement: .largeSubtitle) {
                     deskSubtitle
                 }
@@ -110,20 +109,18 @@ struct LibraryView: View {
     }
     #endif
 
-    private var subtitle: String {
-        let count = pages.filter { LibraryListing.hasInk(title: $0.title, body: $0.body) }.count
-        let date = Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
-        let noun = count == 1 ? "page" : "pages"
-        return "\(date)  ·  \(count) \(noun)"
+    private var pageCount: Int {
+        pages.filter { LibraryListing.hasInk(title: $0.title, body: $0.body) }.count
     }
 
-    /// Quiet catalog meta. Roman, subheadline, on-desk soft. Not a headline.
+    private var subtitle: String {
+        DeskMetaCopy.spoken(count: pageCount)
+    }
+
+    /// Path lockup in the stock subtitle slot. Live date + count.
     private var deskSubtitle: some View {
-        Text(subtitle)
-            .font(VellumFonts.deskMeta())
-            .foregroundStyle(VellumPalette.onDeskSoft)
+        DeskMetaLockup(date: DeskMetaCopy.dateLabel(), count: pageCount)
             .greetingLeading()
-            .accessibilityHidden(true)
     }
 
     private var pageList: some View {
@@ -163,11 +160,7 @@ struct LibraryView: View {
                     }
                 } header: {
                     if group.section.showsHeader {
-                        Text(group.section.title)
-                            .font(VellumFonts.ui(.caption, weight: .semibold))
-                            .tracking(1.4)
-                            .foregroundStyle(VellumPalette.onDeskSoft)
-                            .textCase(.uppercase)
+                        PinnedSectionMark()
                     }
                 }
             }
