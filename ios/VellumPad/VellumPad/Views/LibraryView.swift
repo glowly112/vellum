@@ -48,7 +48,7 @@ struct LibraryView: View {
                         .padding(.top, VellumFonts.greetingTopAir())
                         .padding(.bottom, CGFloat(LibraryGreeting.belowGreeting))
                         .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .greetingLeading()
                         .accessibilityHidden(true)
                 }
                 // Date · pages: stock subtitle slots, Fraunces roman.
@@ -122,7 +122,7 @@ struct LibraryView: View {
         Text(subtitle)
             .font(VellumFonts.deskMeta())
             .foregroundStyle(VellumPalette.onDeskSoft)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .greetingLeading()
             .accessibilityHidden(true)
     }
 
@@ -352,6 +352,16 @@ struct LibraryView: View {
             modelContext.insert(page)
             try? modelContext.save()
         }
+    }
+}
+
+/// Same origin as the greeting so the date line shares its leading.
+private extension View {
+    func greetingLeading() -> some View {
+        self
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, CGFloat(LibraryGreeting.titleLeading))
     }
 }
 

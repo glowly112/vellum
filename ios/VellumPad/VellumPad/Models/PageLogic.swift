@@ -300,7 +300,8 @@ enum LibraryGreeting {
     static let family = Typeface.editorial.familyName
     static let sizeKind = "largeTitle"
     static let guessedPoints: Double? = nil
-    static let forbiddenGuessedPads: [Double] = [34]
+    /// 34 was an island guess. 16 was a full extra line under the greeting.
+    static let forbiddenGuessedPads: [Double] = [34, 16]
     static let firstPaintVisible = true
     static let emptyUsesScrollView = true
     static let greetingIgnoresSafeArea = false
@@ -311,10 +312,14 @@ enum LibraryGreeting {
     static let airKind = "safeAreaPadding"
     static let airUsesSystemDefault = true
     static let hugsIsland = false
-    /// Air under the serif greeting so the date line is not glued.
-    /// Title-to-subtitle, not island air. Not a guessed 34.
-    static let belowGreeting: Double = 16
-    static let belowGreetingKind = "title-to-subtitle"
+    /// No extra line under the greeting. The title line box already
+    /// includes italic descenders; 16 sat the date a line away.
+    /// Title-to-subtitle is the stock slots, not island air, not 34.
+    static let belowGreeting: Double = 0
+    static let belowGreetingKind = "tight-title-to-subtitle"
+    /// Shared origin with the greeting so Sunday sits under Good.
+    static let titleLeading: Double = 0
+    static let subtitleSharesLeading = true
     /// Stock `ToolbarItem(.largeSubtitle)` / `.subtitle`. Not a homemade draw.
     /// Fraunces roman at subheadline — quiet meta, not a second greeting.
     static let subtitleFamily = Typeface.editorial.familyName
