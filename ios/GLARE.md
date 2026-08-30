@@ -33,6 +33,8 @@ These still need a phone-width watch:
 16. **Dark desk.** System colorScheme: night desk (warm wood, not system gray). Greeting / Empty / meta invert. Cream/ivory/kraft/sage sheets stay those fills on the night desk. Empty mark stays a light sheet. Editor is still the page’s paper. Not watched.
 17. **Light desk surface.** Library field (behind cards and empty) should read as a desk — tooth + quiet vignette — not a painted cream wall. Cards rest on it. Not Notes gray / starfield / wellness. Not watched.
 18. **Bound-edge rail.** Long editor page: rust wash + cream paper thumb only while scrolling or the thumb is held; gone at rest. No system chevron-pill. Dragging the page should not glitch. Short page stays quiet. TextEditor still owns scrolling. Not watched.
-19. **Bring in.** Library `square.and.arrow.down` opens a paper sheet (Notes / Journal / Notion). Picked files land with source dates. Share to Velin writes the inbox. Not watched. Do not claim Mini pixels.
+19. **Bring in.** Settings → Connections (Notes / Journal / Notion). Picked files land with source dates. Share to Velin writes the inbox. Not watched.
+20. **Settings gear.** Trailing system gear. Paper Form. Face ID / awake / haptics. Not watched.
+21. **Welcome.** First launch only: three paper sheets, page-turn, Skip on every page. Reduce Motion appear. Not watched. Do not claim Mini pixels.
 
 Until 1–2 are watched on a phone, the production pass bar stays **false**. Phone 22 / 23 do not replace Mini pixels.

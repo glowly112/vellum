@@ -6,6 +6,7 @@ enum ImportLook {
     static let isLiveSync = false
     static let hasAccounts = false
     static let hasSettingsScreen = false
+    static let livesInConnections = true
     static let usesPrivateNotesKit = false
     static let usesNotionOAuth = false
     static let sources = ["Notes", "Journal", "Notion"]

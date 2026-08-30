@@ -151,11 +151,15 @@ struct EditorView: View {
             .presentationContentInteraction(.scrolls)
             .presentationBackground(paper.isDark ? VellumPalette.night : VellumPalette.paper)
         }
-        #if DEBUG
         .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = DeskSettings.keepAwake()
+            #if DEBUG
             focusBodyIfRequested()
+            #endif
         }
-        #endif
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
     }
 
     #if DEBUG

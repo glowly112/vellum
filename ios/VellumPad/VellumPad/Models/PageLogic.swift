@@ -379,9 +379,13 @@ enum LibraryLook {
     static let greetingFamily = Typeface.editorial.familyName
     static let composeKind = "system"
     static let composeSystemImage = "square.and.pencil"
-    static let bringInKind = "system"
+    static let bringInKind = "connections"
+    static let bringInPlacement = "settings"
     static let bringInSystemImage = "square.and.arrow.down"
     static let bringInTitle = "Bring in"
+    static let settingsKind = "system"
+    static let settingsSystemImage = "gearshape"
+    static let settingsPlacement = "topBarTrailing"
     static let searchablePrompt = "Search pages"
     static let sheetMinHeight: Double = 176
     static let sheetCornerRadius: Double = 12

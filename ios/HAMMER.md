@@ -26,6 +26,16 @@ Logic in `ImportLogic` / `LibraryGrouping`. Recency uses **`updatedAt`**. Import
 | 3 | Duplicates | Same title + body is skipped, not stacked. |
 | 4 | Empty | Empty file is **Nothing to bring in.** — a real error, not a crash. No invented date. |
 
+## Settings + welcome (this turn)
+
+Logic in `SettingsLogic` / `WelcomeGate`. Build stays 27.
+
+| # | Case | What must happen |
+| --- | --- | --- |
+| 1 | Welcome | First launch shows welcome. Skip or Done sets `vellum.welcome.seen`. Second launch does not show it. |
+| 2 | Face ID | Lock the desk is **off** by default. Local only. |
+| 3 | Import | Bring in lives in Settings → Connections. Backdate still writes both dates. |
+
 ## Library sheets (this turn, 7)
 
 Logic in `LibrarySheetCopy` / `LibraryEmpty` / `PaperGrain`. Run: `ios/scripts/prove.sh` (linux-hammer is the test target on this VM).

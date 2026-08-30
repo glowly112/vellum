@@ -25,6 +25,7 @@ if command -v swiftc >/dev/null 2>&1; then
     "$ROOT/ios/VellumPad/VellumPad/Models/LibraryGrouping.swift" \
     "$ROOT/ios/VellumPad/VellumPad/Models/PageLogic.swift" \
     "$ROOT/ios/VellumPad/VellumPad/Models/ImportLogic.swift" \
+    "$ROOT/ios/VellumPad/VellumPad/Models/SettingsLogic.swift" \
     "$ROOT/ios/scripts/linux-hammer.swift" \
     -o "$OUT"
   SWIFT_EXIT=$?

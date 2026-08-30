@@ -4,16 +4,20 @@ import SwiftUI
 struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(PageTrash.self) private var trash
     @Query(sort: \Page.updatedAt, order: .reverse) private var pages: [Page]
     @State private var query = ""
     @State private var path: [UUID] = []
     @State private var composeLock = false
-    @State private var bringInOpen = false
+    @State private var settingsOpen = false
+    @State private var openConnections = false
     @State private var bringInSource: ImportSource = .notes
     @State private var pickingFiles = false
     @State private var bringInMessage = ""
     @State private var bringInIsError = false
+    @State private var deskUnlocked = !DeskSettings.lockDesk()
+    @State private var showWelcome = WelcomeGate.shouldShow()
 
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
@@ -64,25 +68,26 @@ struct LibraryView: View {
                 ToolbarItem(placement: .subtitle) {
                     deskSubtitle
                 }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(LibraryLook.bringInTitle, systemImage: LibraryLook.bringInSystemImage) {
-                        bringInMessage = ""
-                        bringInIsError = false
-                        withAnimation(deskMotion) { bringInOpen = true }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(SettingsLook.title, systemImage: LibraryLook.settingsSystemImage) {
+                        openConnections = false
+                        withAnimation(deskMotion) { settingsOpen = true }
                     }
-                    .accessibilityLabel(LibraryLook.bringInTitle)
+                    .accessibilityLabel(SettingsLook.title)
                 }
                 DefaultToolbarItem(kind: .search, placement: .bottomBar)
                 ToolbarSpacer(.flexible, placement: .bottomBar)
                 ToolbarItem(placement: .bottomBar) {
                     Button("New page", systemImage: LibraryLook.composeSystemImage) {
+                        DeskHapticsPlay.tick()
                         startPage()
                     }
                     .accessibilityLabel("New page")
                 }
             }
-            .sheet(isPresented: $bringInOpen) {
-                BringInSheet(
+            .sheet(isPresented: $settingsOpen) {
+                SettingsSheet(
+                    openConnections: $openConnections,
                     onPick: { source in
                         bringInSource = source
                         pickingFiles = true
@@ -90,6 +95,17 @@ struct LibraryView: View {
                     message: bringInMessage,
                     isError: bringInIsError
                 )
+            }
+            .overlay {
+                if showWelcome {
+                    WelcomeView {
+                        withAnimation(deskMotion) { showWelcome = false }
+                    }
+                } else if DeskSettings.lockDesk() && !deskUnlocked {
+                    DeskLockCover {
+                        deskUnlocked = true
+                    }
+                }
             }
             .fileImporter(
                 isPresented: $pickingFiles,
@@ -118,6 +134,24 @@ struct LibraryView: View {
             .onAppear {
                 discardBlankDrafts(except: Set(path))
                 drainInbox()
+                #if DEBUG
+                if DebugOpenFirst.shouldOpenFirstPage() {
+                    WelcomeGate.finish()
+                    showWelcome = false
+                }
+                #endif
+            }
+            .onChange(of: settingsOpen) { _, on in
+                if !on { openConnections = false }
+            }
+            .onChange(of: scenePhase) { _, phase in
+                guard DeskSettings.lockDesk(), !showWelcome else { return }
+                if phase == .background {
+                    deskUnlocked = false
+                }
+                if phase == .active, !deskUnlocked {
+                    Task { deskUnlocked = await DeskLock.evaluate() }
+                }
             }
             .onChange(of: path) { _, newPath in
                 composeLock = false
@@ -360,6 +394,7 @@ struct LibraryView: View {
     }
 
     private func togglePin(_ page: Page) {
+        DeskHapticsPlay.tick()
         withAnimation(deskMotion) {
             page.pinOn.toggle()
             try? modelContext.save()
@@ -367,6 +402,7 @@ struct LibraryView: View {
     }
 
     private func removePage(_ page: Page) {
+        DeskHapticsPlay.tick()
         trash.remember(page.trashSnapshot)
         if path.last == page.pageID {
             path.removeLast()
@@ -404,7 +440,8 @@ struct LibraryView: View {
 
     private func applyImport(_ result: Result<[ImportDraft], ImportError>, reveal: Bool = false) {
         if reveal {
-            withAnimation(deskMotion) { bringInOpen = true }
+            openConnections = true
+            withAnimation(deskMotion) { settingsOpen = true }
         }
         switch result {
         case .failure(let error):
@@ -441,8 +478,9 @@ struct LibraryView: View {
     private func showBringIn(_ message: String, error: Bool) {
         bringInMessage = message
         bringInIsError = error
-        if !bringInOpen {
-            withAnimation(deskMotion) { bringInOpen = true }
+        openConnections = true
+        if !settingsOpen {
+            withAnimation(deskMotion) { settingsOpen = true }
         }
     }
 }
