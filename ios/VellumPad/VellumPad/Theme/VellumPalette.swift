@@ -37,6 +37,15 @@ enum VellumPalette {
 
     static let paper = Color(red: 0xF3 / 255, green: 0xEB / 255, blue: 0xDD / 255)
     static let ivory = Color(red: 0xF7 / 255, green: 0xF1 / 255, blue: 0xE6 / 255)
+
+    /// Settings / Connections chrome. Follows appearance. Not catalog ivory.
+    static let chrome = desk
+    static let chromeRow = Color(uiColor: UIColor { traits in
+        if traits.userInterfaceStyle == .dark {
+            return UIColor(red: 0x27 / 255, green: 0x23 / 255, blue: 0x1E / 255, alpha: 1)
+        }
+        return UIColor(red: 0xF7 / 255, green: 0xF1 / 255, blue: 0xE6 / 255, alpha: 1)
+    })
     static let ruled = Color(red: 0xF4 / 255, green: 0xEC / 255, blue: 0xDC / 255)
     static let kraft = Color(red: 0xC4 / 255, green: 0xA5 / 255, blue: 0x74 / 255)
     static let sage = Color(red: 0xD5 / 255, green: 0xDF / 255, blue: 0xD0 / 255)

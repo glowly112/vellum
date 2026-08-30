@@ -9,6 +9,7 @@ private enum SettingsRoute: Hashable {
 /// Paper Settings. Inset grouped chrome on Velin paper — not Notes gray.
 struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var openConnections: Bool
     var message: String
     var isError: Bool
@@ -25,35 +26,38 @@ struct SettingsSheet: View {
             Form {
                 Section {
                     NavigationLink(SettingsLook.connectionsTitle, value: SettingsRoute.connections)
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                 }
 
                 Section(SettingsLook.deskTitle) {
                     appearanceTiles
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                     Toggle(SettingsLook.lockRow, isOn: $lockDesk)
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                     Toggle(SettingsLook.awakeRow, isOn: $keepAwake)
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                     Toggle(SettingsLook.hapticsRow, isOn: $haptics)
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                     Toggle(SettingsLook.welcomeRow, isOn: $replayWelcome)
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                 }
 
                 Section(SettingsLook.aboutTitle) {
                     Text(SettingsLook.aboutCopy)
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                     LabeledContent("Version", value: SettingsLook.versionLabel)
-                        .listRowBackground(VellumPalette.ivory)
+                        .listRowBackground(VellumPalette.chromeRow)
                 }
             }
             .font(VellumFonts.page(.book, size: 17, relativeTo: .body))
-            .foregroundStyle(VellumPalette.ink)
+            .foregroundStyle(VellumPalette.onDesk)
             .scrollContentBackground(.hidden)
-            .background(VellumPalette.paper.ignoresSafeArea(.container))
+            .background(VellumPalette.chrome.ignoresSafeArea(.container))
             .navigationTitle(SettingsLook.title)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(VellumPalette.chrome, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(colorScheme, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Close", systemImage: "xmark") {
@@ -86,17 +90,17 @@ struct SettingsSheet: View {
                 }
             }
         }
-        .tint(VellumPalette.ink)
+        .tint(VellumPalette.rust)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(VellumPalette.paper)
+        .presentationBackground(VellumPalette.chrome)
     }
 
     private var appearanceTiles: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Appearance")
                 .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
-                .foregroundStyle(VellumPalette.inkSoft)
+                .foregroundStyle(VellumPalette.onDeskSoft)
             HStack(spacing: 10) {
                 appearanceTile(AppearanceLook.systemRaw, title: "System")
                 appearanceTile(AppearanceLook.lightRaw, title: "Light")
@@ -119,13 +123,13 @@ struct SettingsSheet: View {
                     .overlay {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .strokeBorder(
-                                selected ? VellumPalette.rust : VellumPalette.ink.opacity(0.12),
+                                selected ? VellumPalette.rust : VellumPalette.onDesk.opacity(0.18),
                                 lineWidth: selected ? 2 : 0.8
                             )
                     }
                 Text(title)
                     .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
-                    .foregroundStyle(selected ? VellumPalette.rust : VellumPalette.ink)
+                    .foregroundStyle(selected ? VellumPalette.rust : VellumPalette.onDesk)
             }
             .frame(maxWidth: .infinity)
         }
@@ -180,6 +184,7 @@ private struct AppearanceDeskPreview: View {
 /// Named sources on paper. Logo, name, Import. File picker lives here so it presents.
 struct ConnectionsPage: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
     @Query(sort: \Page.updatedAt, order: .reverse) private var pages: [Page]
 
     var incomingMessage: String
@@ -204,10 +209,10 @@ struct ConnectionsPage: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(source.title)
                                     .font(VellumFonts.page(.editorial, size: 20, relativeTo: .title3))
-                                    .foregroundStyle(VellumPalette.ink)
+                                    .foregroundStyle(VellumPalette.onDesk)
                                 Text(source.hint)
                                     .font(VellumFonts.page(.book, size: 14, relativeTo: .subheadline))
-                                    .foregroundStyle(VellumPalette.inkSoft)
+                                    .foregroundStyle(VellumPalette.onDeskSoft)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer(minLength: 8)
@@ -216,13 +221,13 @@ struct ConnectionsPage: View {
                                 .foregroundStyle(VellumPalette.rust)
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(VellumPalette.inkFaint)
+                                .foregroundStyle(VellumPalette.onDeskSoft)
                         }
                         .padding(.vertical, 6)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(LibraryLook.bringInTitle) \(source.title). \(source.hint)")
-                    .listRowBackground(VellumPalette.ivory)
+                    .listRowBackground(VellumPalette.chromeRow)
                 }
             } footer: {
                 VStack(alignment: .leading, spacing: 8) {
@@ -230,20 +235,23 @@ struct ConnectionsPage: View {
                     Text(ImportCopy.keepsDate)
                     if !message.isEmpty {
                         Text(message)
-                            .foregroundStyle(isError ? VellumPalette.rust : VellumPalette.ink)
+                            .foregroundStyle(isError ? VellumPalette.rust : VellumPalette.onDesk)
                     }
                     if ImportLook.hasShareExtension {
                         Text(ImportCopy.shareHint)
                     }
                 }
                 .font(VellumFonts.page(.book, size: 14, relativeTo: .footnote))
-                .foregroundStyle(VellumPalette.inkSoft)
+                .foregroundStyle(VellumPalette.onDeskSoft)
             }
         }
         .scrollContentBackground(.hidden)
-        .background(VellumPalette.paper.ignoresSafeArea(.container))
+        .background(VellumPalette.chrome.ignoresSafeArea(.container))
         .navigationTitle(SettingsLook.connectionsTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(VellumPalette.chrome, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(colorScheme, for: .navigationBar)
         .fileImporter(
             isPresented: $pickingFiles,
             allowedContentTypes: ImportPicker.types(for: activeSource),

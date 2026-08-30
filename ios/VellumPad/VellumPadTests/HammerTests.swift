@@ -759,8 +759,18 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(AppearanceLook.tiles, ["System", "Light", "Dark"])
         XCTAssertEqual(AppearanceLook.key, "vellum.settings.appearance")
         XCTAssertEqual(SettingsLook.aboutCopy, "Pages stay on this iPhone.")
-        XCTAssertEqual(SettingsLook.versionLabel, "1.0.0 (29)")
-        XCTAssertEqual(SettingsLook.buildNumber, "29")
+        XCTAssertEqual(SettingsLook.versionLabel, "1.0.0 (30)")
+        XCTAssertEqual(SettingsLook.buildNumber, "30")
+        XCTAssertTrue(SettingsLook.chromeFollowsColorScheme)
+        XCTAssertTrue(SettingsChromeLook.followsColorScheme)
+        XCTAssertFalse(SettingsChromeLook.usesCatalogIvory)
+        XCTAssertFalse(SettingsChromeLook.usesCatalogInk)
+        XCTAssertFalse(SettingsChromeLook.remapsCatalogPaper)
+        XCTAssertEqual(SettingsChromeLook.darkFill, "night")
+        XCTAssertEqual(SettingsChromeLook.darkFillHex, "1C1915")
+        XCTAssertTrue(SettingsChromeLook.isNight(scheme: "dark"), "Dark appearance → settings chrome is night")
+        XCTAssertTrue(SettingsChromeLook.isDay(scheme: "light"), "Light appearance → settings chrome is day desk")
+        XCTAssertFalse(DeskLook.remapsCatalogPaper, "catalog paper/ivory stay cream")
         XCTAssertEqual(SettingsLook.welcomeRow, "Welcome")
         XCTAssertFalse(SettingsLook.welcomeDefault)
         XCTAssertFalse(SettingsLook.lockDefault)
@@ -786,8 +796,31 @@ final class HammerTests: XCTestCase {
         XCTAssertEqual(WelcomeCopy.pages[0].title, "A desk.")
         XCTAssertEqual(WelcomeCopy.pages[0].line, "Pages you keep.")
         XCTAssertEqual(WelcomeCopy.pages[1].title, "Write on paper.")
+        XCTAssertEqual(WelcomeCopy.pages[1].line, "Type and ink live on the page.")
         XCTAssertEqual(WelcomeCopy.pages[2].title, "Import.")
         XCTAssertEqual(WelcomeCopy.pages[2].line, "They keep their date.")
+        XCTAssertFalse(WelcomeLook.blankSheets)
+        XCTAssertTrue(WelcomeLook.teachesProduct)
+        XCTAssertTrue(WelcomePreview.teachesProduct)
+        XCTAssertFalse(WelcomePreview.blankSheets)
+        XCTAssertTrue(WelcomePreview.usesSampleCopy)
+        XCTAssertEqual(WelcomePreview.libraryTitles, [
+            SampleDeskCopy.typeTitle,
+            SampleDeskCopy.bookTitle,
+            SampleDeskCopy.handTitle,
+        ])
+        XCTAssertEqual(WelcomePreview.libraryBodies, [
+            SampleDeskCopy.typeBody,
+            SampleDeskCopy.bookBody,
+            SampleDeskCopy.handBody,
+        ])
+        XCTAssertEqual(WelcomePreview.editorTitle, SampleDeskCopy.bookTitle)
+        XCTAssertTrue(WelcomePreview.editorBody.contains(SampleDeskCopy.bookBody))
+        XCTAssertTrue(WelcomePreview.editorBody.contains(SampleDeskCopy.handBody))
+        XCTAssertTrue(WelcomePreview.editorBody.contains("\n\n"))
+        XCTAssertEqual(WelcomePreview.importSources, ["Notes", "Journal", "Notion"])
+        XCTAssertEqual(WelcomePreview.importKeepsDate, "A page keeps the date it was written.")
+        XCTAssertEqual(WelcomePreview.staysLocal, "Pages stay on this iPhone.")
         XCTAssertEqual(WelcomeLook.defaultsKey, "vellum.welcome.seen")
         XCTAssertEqual(WelcomeLook.kind, "brand-root")
         XCTAssertTrue(WelcomeLook.isRoot)

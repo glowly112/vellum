@@ -17,8 +17,8 @@ enum SettingsLook {
     static let welcomeRow = "Welcome"
     static let aboutCopy = "Pages stay on this iPhone."
     static let marketingVersion = "1.0.0"
-    static let buildNumber = "29"
-    static let versionLabel = "1.0.0 (29)"
+    static let buildNumber = "30"
+    static let versionLabel = "1.0.0 (30)"
     static let lockDefault = false
     static let awakeDefault = false
     static let hapticsDefault = true
@@ -35,6 +35,34 @@ enum SettingsLook {
     /// Default tile is System. Light / Dark persist an override.
     static let followsSystemAppearance = true
     static let appearanceKey = AppearanceLook.key
+    static let chromeFollowsColorScheme = true
+}
+
+/// Settings / Connections chrome. Night desk in Dark. Not catalog ivory/ink.
+enum SettingsChromeLook {
+    static let followsColorScheme = true
+    static let usesCatalogIvory = false
+    static let usesCatalogInk = false
+    static let remapsCatalogPaper = false
+    static let darkFill = "night"
+    static let darkFillHex = "1C1915"
+    static let darkType = "onDesk"
+    static let lightFill = "cream"
+    static let lightType = "onDesk"
+
+    static func fillKind(scheme: String) -> String {
+        scheme == "dark" ? darkFill : lightFill
+    }
+
+    static func typeKind(scheme: String) -> String { "onDesk" }
+
+    static func isNight(scheme: String) -> Bool {
+        fillKind(scheme: scheme) == darkFill && typeKind(scheme: scheme) == darkType
+    }
+
+    static func isDay(scheme: String) -> Bool {
+        fillKind(scheme: scheme) == lightFill && typeKind(scheme: scheme) == lightType
+    }
 }
 
 enum DeskSettings {
@@ -88,12 +116,33 @@ enum WelcomeCopy {
     static let kicker = "Velin"
     static let pages: [(title: String, line: String)] = [
         ("A desk.", "Pages you keep."),
-        ("Write on paper.", ""),
+        ("Write on paper.", "Type and ink live on the page."),
         ("Import.", "They keep their date."),
     ]
     static let skip = "Skip"
     static let turn = "Turn page"
     static let done = "Done"
+}
+
+enum WelcomePreview {
+    static let teachesProduct = true
+    static let blankSheets = false
+    static let usesSampleCopy = true
+    static let libraryTitles = [
+        SampleDeskCopy.typeTitle,
+        SampleDeskCopy.bookTitle,
+        SampleDeskCopy.handTitle,
+    ]
+    static let libraryBodies = [
+        SampleDeskCopy.typeBody,
+        SampleDeskCopy.bookBody,
+        SampleDeskCopy.handBody,
+    ]
+    static let editorTitle = SampleDeskCopy.bookTitle
+    static let editorBody = SampleDeskCopy.bookBody + "\n\n" + SampleDeskCopy.handBody
+    static let importSources = ImportLook.sources
+    static let importKeepsDate = ImportCopy.keepsDate
+    static let staysLocal = SettingsLook.aboutCopy
 }
 
 enum WelcomeLook {
@@ -109,6 +158,8 @@ enum WelcomeLook {
     static let libraryBehind = false
     static let hasStamp = true
     static let stampLetter = "V"
+    static let blankSheets = false
+    static let teachesProduct = true
 }
 
 enum AppearanceLook {
