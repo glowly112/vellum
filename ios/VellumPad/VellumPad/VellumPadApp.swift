@@ -34,7 +34,7 @@ struct VellumPadApp: App {
                 }
             }
             .environment(trash)
-            .preferredColorScheme(preferredScheme)
+            .velinAppearance(appearanceRaw)
         }
         .modelContainer(container)
     }
@@ -47,11 +47,4 @@ struct VellumPadApp: App {
         return !welcomeSeen || replayWelcome
     }
 
-    private var preferredScheme: ColorScheme? {
-        switch appearanceRaw {
-        case AppearanceLook.lightRaw: return .light
-        case AppearanceLook.darkRaw: return .dark
-        default: return nil
-        }
-    }
 }

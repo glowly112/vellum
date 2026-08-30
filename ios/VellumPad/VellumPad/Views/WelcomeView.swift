@@ -1,12 +1,25 @@
 import SwiftUI
 
 /// Full-screen product intro. Not a sheet over the library.
-/// Each page teaches with real writing — not an empty cream card. Not a name mark.
+/// Stamp bounce, then the three lessons. Writing on cream sheets stays charcoal.
 struct WelcomeView: View {
     var onFinished: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+    @State private var showingStamp = WelcomeLook.hasStamp
+    @State private var stampLanded = false
     @State private var page = 0
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
+
+    private var deskInk: Color { VellumPalette.onDesk(for: scheme) }
+    private var deskInkSoft: Color { VellumPalette.onDeskSoft(for: scheme) }
+    private var sheetInk: Color { VellumPalette.ink }
+    private var lift: Color { VellumPalette.lift(for: scheme) }
 
     var body: some View {
         GeometryReader { geo in
@@ -16,9 +29,14 @@ struct WelcomeView: View {
 
                 VStack(spacing: 0) {
                     Spacer(minLength: max(16, geo.size.height * 0.05))
-                    pageBody(in: geo.size)
-                        .id(page)
-                        .transition(turn)
+                    if showingStamp {
+                        stampBeat
+                            .frame(maxWidth: .infinity, maxHeight: min(geo.size.height * 0.72, 560))
+                    } else {
+                        pageBody(in: geo.size)
+                            .id(page)
+                            .transition(turn)
+                    }
                     Spacer(minLength: 12)
                     chrome
                         .padding(.horizontal, 28)
@@ -27,7 +45,10 @@ struct WelcomeView: View {
             }
         }
         .ignoresSafeArea(.container, edges: .bottom)
+        .velinAppearance(appearanceRaw)
         .animation(turnMotion, value: page)
+        .animation(turnMotion, value: showingStamp)
+        .onAppear { runOpeningBeat() }
     }
 
     private var current: (title: String, line: String) {
@@ -35,7 +56,16 @@ struct WelcomeView: View {
     }
 
     private var isLast: Bool {
-        page >= WelcomeCopy.pages.count - 1
+        !showingStamp && page >= WelcomeCopy.pages.count - 1
+    }
+
+    private var stampBeat: some View {
+        EmptyDeskMark()
+            .scaleEffect(stampLanded || reduceMotion ? 1 : WelcomeLook.bounceStartScale)
+            .offset(y: stampLanded || reduceMotion ? 0 : 22)
+            .opacity(stampLanded || reduceMotion ? 1 : 0.4)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .accessibilityHidden(true)
     }
 
     @ViewBuilder
@@ -58,19 +88,25 @@ struct WelcomeView: View {
                     title: SampleDeskCopy.typeTitle,
                     snippet: SampleDeskCopy.typeBody,
                     typeface: .typewriter,
-                    paper: .ruled
+                    paper: .ruled,
+                    appearDelay: 0,
+                    scheme: scheme
                 )
                 WelcomeMiniCard(
                     title: SampleDeskCopy.bookTitle,
                     snippet: SampleDeskCopy.bookBody,
                     typeface: .book,
-                    paper: .cream
+                    paper: .cream,
+                    appearDelay: WelcomeLook.staggerStep,
+                    scheme: scheme
                 )
                 WelcomeMiniCard(
                     title: SampleDeskCopy.handTitle,
                     snippet: SampleDeskCopy.handBody,
                     typeface: .hand,
-                    paper: .sage
+                    paper: .sage,
+                    appearDelay: WelcomeLook.staggerStep * 2,
+                    scheme: scheme
                 )
             }
         }
@@ -86,11 +122,12 @@ struct WelcomeView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text(WelcomePreview.editorTitle)
                     .font(VellumFonts.page(.editorial, size: 28, relativeTo: .title))
-                    .foregroundStyle(VellumPalette.ink)
-                Text(WelcomePreview.editorBody)
-                    .font(VellumFonts.page(.editorial, size: 18, relativeTo: .body))
-                    .foregroundStyle(VellumPalette.ink)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(sheetInk)
+                WelcomeTypedText(
+                    full: WelcomePreview.editorBody,
+                    font: VellumFonts.page(.editorial, size: 18, relativeTo: .body),
+                    ink: sheetInk
+                )
                 Spacer(minLength: 0)
             }
             .padding(24)
@@ -103,7 +140,8 @@ struct WelcomeView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .strokeBorder(VellumPalette.ink.opacity(0.08), lineWidth: 1)
             }
-            .shadow(color: VellumPalette.lift, radius: 16, y: 8)
+            .shadow(color: lift, radius: 16, y: 8)
+            .modifier(WelcomeArrive(delay: 0.04))
         }
         .padding(.horizontal, 22)
         .frame(maxWidth: .infinity, maxHeight: min(size.height * 0.72, 560), alignment: .topLeading)
@@ -115,24 +153,25 @@ struct WelcomeView: View {
         VStack(alignment: .leading, spacing: 16) {
             headline
             HStack(spacing: 14) {
-                ForEach([ImportSource.notes, .journal, .notion], id: \.self) { source in
+                ForEach(Array([ImportSource.notes, .journal, .notion].enumerated()), id: \.element) { index, source in
                     VStack(spacing: 8) {
                         ImportSourceMark(source: source)
                         Text(source.title)
                             .font(VellumFonts.page(.book, size: 13, relativeTo: .caption))
-                            .foregroundStyle(VellumPalette.onDesk)
+                            .foregroundStyle(deskInk)
                     }
                     .frame(maxWidth: .infinity)
+                    .modifier(WelcomeArrive(delay: Double(index) * WelcomeLook.staggerStep))
                 }
             }
             .padding(18)
-            .background(VellumPalette.chromeRow, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(VellumPalette.chromeRow(for: scheme), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             Text(WelcomePreview.importKeepsDate)
                 .font(VellumFonts.page(.book, size: 16, relativeTo: .body))
-                .foregroundStyle(VellumPalette.onDesk)
+                .foregroundStyle(deskInk)
             Text(WelcomePreview.staysLocal)
                 .font(VellumFonts.page(.book, size: 16, relativeTo: .body))
-                .foregroundStyle(VellumPalette.onDeskSoft)
+                .foregroundStyle(deskInkSoft)
         }
         .padding(.horizontal, 22)
         .frame(maxWidth: .infinity, maxHeight: min(size.height * 0.72, 560), alignment: .topLeading)
@@ -145,11 +184,11 @@ struct WelcomeView: View {
             Text(current.title)
                 .font(VellumFonts.page(.editorial, size: 32, relativeTo: .title))
                 .italic()
-                .foregroundStyle(VellumPalette.onDesk)
+                .foregroundStyle(deskInk)
             if !current.line.isEmpty {
                 Text(current.line)
                     .font(VellumFonts.page(.book, size: 17, relativeTo: .title3))
-                    .foregroundStyle(VellumPalette.onDeskSoft)
+                    .foregroundStyle(deskInkSoft)
             }
         }
     }
@@ -177,22 +216,31 @@ struct WelcomeView: View {
                 finish()
             }
             .font(VellumFonts.page(.book, size: 16, relativeTo: .body))
-            .foregroundStyle(VellumPalette.onDesk)
+            .foregroundStyle(deskInk)
             .frame(minHeight: CGFloat(HitTarget.minimum))
             .accessibilityLabel(WelcomeCopy.skip)
 
             Spacer()
 
-            Button(isLast ? WelcomeCopy.done : WelcomeCopy.turn) {
-                advance()
+            if !showingStamp {
+                Button(isLast ? WelcomeCopy.done : WelcomeCopy.turn) {
+                    advance()
+                }
+                .font(VellumFonts.page(.book, size: 16, relativeTo: .body))
+                .foregroundStyle(VellumPalette.paper)
+                .padding(.horizontal, 18)
+                .frame(minHeight: CGFloat(HitTarget.minimum))
+                .background(deskInk, in: Capsule())
+                .accessibilityLabel(isLast ? WelcomeCopy.done : WelcomeCopy.turn)
             }
-            .font(VellumFonts.page(.book, size: 16, relativeTo: .body))
-            .foregroundStyle(VellumPalette.paper)
-            .padding(.horizontal, 18)
-            .frame(minHeight: CGFloat(HitTarget.minimum))
-            .background(VellumPalette.onDesk, in: Capsule())
-            .accessibilityLabel(isLast ? WelcomeCopy.done : WelcomeCopy.turn)
         }
+    }
+
+    private var bounceMotion: Animation? {
+        reduceMotion ? nil : .spring(
+            response: WelcomeLook.bounceResponse,
+            dampingFraction: WelcomeLook.bounceDamping
+        )
     }
 
     private var turnMotion: Animation? {
@@ -216,6 +264,26 @@ struct WelcomeView: View {
         )
     }
 
+    private func runOpeningBeat() {
+        guard showingStamp else { return }
+        if reduceMotion {
+            stampLanded = true
+            Task { @MainActor in
+                await Task.yield()
+                showingStamp = false
+            }
+            return
+        }
+        stampLanded = false
+        Task { @MainActor in
+            await Task.yield()
+            withAnimation(bounceMotion) { stampLanded = true }
+            try? await Task.sleep(for: .seconds(WelcomeLook.bounceSettle))
+            guard showingStamp else { return }
+            showingStamp = false
+        }
+    }
+
     private func advance() {
         DeskHapticsPlay.tick()
         if isLast {
@@ -231,25 +299,30 @@ struct WelcomeView: View {
     }
 }
 
-/// Compact catalog card for the welcome library. Cream papers stay cream.
+/// Compact catalog card. Cream papers stay cream. Ink is the paper’s ink, not primary.
 private struct WelcomeMiniCard: View {
     let title: String
     let snippet: String
     let typeface: Typeface
     let paper: Paper
+    var appearDelay: Double = 0
+    var scheme: ColorScheme = .light
 
     var body: some View {
         let titleSize: CGFloat = typeface == .hand ? 20 : 17
         let snippetSize: CGFloat = typeface == .hand ? 15 : 13
+        let ink = Ink.resolve(paper.defaultInk, on: paper).color
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(VellumFonts.page(typeface, size: titleSize, relativeTo: .headline))
-                .foregroundStyle(paper.defaultInk.color)
+                .foregroundStyle(ink)
                 .lineLimit(1)
-            Text(snippet)
-                .font(VellumFonts.page(typeface, size: snippetSize, relativeTo: .subheadline))
-                .foregroundStyle(paper.defaultInk.color.opacity(0.85))
-                .lineLimit(2)
+            WelcomeTypedText(
+                full: snippet,
+                font: VellumFonts.page(typeface, size: snippetSize, relativeTo: .subheadline),
+                ink: ink.opacity(0.85),
+                lineLimit: 2
+            )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 14)
@@ -262,7 +335,69 @@ private struct WelcomeMiniCard: View {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .strokeBorder(VellumPalette.ink.opacity(0.10), lineWidth: 1)
         }
-        .shadow(color: VellumPalette.lift, radius: 6, y: 2)
+        .shadow(color: VellumPalette.lift(for: scheme), radius: 6, y: 2)
+        .modifier(WelcomeArrive(delay: appearDelay))
+    }
+}
+
+/// Human-speed prefix. No cursor. Reduce Motion shows the full string at once.
+private struct WelcomeTypedText: View {
+    let full: String
+    let font: Font
+    let ink: Color
+    var lineLimit: Int? = nil
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var revealed = 0
+
+    var body: some View {
+        Text(WelcomeTypewriter.visible(full: full, revealed: revealed))
+            .font(font)
+            .foregroundStyle(ink)
+            .lineLimit(lineLimit)
+            .fixedSize(horizontal: false, vertical: true)
+            .task(id: full) {
+                if reduceMotion || !WelcomeLook.typesWriting {
+                    revealed = full.count
+                    return
+                }
+                revealed = 0
+                while revealed < full.count {
+                    try? await Task.sleep(for: .seconds(WelcomeTypewriter.interval))
+                    if Task.isCancelled { return }
+                    revealed += 1
+                }
+            }
+            .accessibilityLabel(full)
+    }
+}
+
+/// Staggered spring arrival. Snap is a miss. Reduce Motion is instant.
+private struct WelcomeArrive: ViewModifier {
+    var delay: Double
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var arrived = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(arrived ? 1 : 0)
+            .offset(y: arrived ? 0 : 16)
+            .scaleEffect(arrived ? 1 : 0.94)
+            .onAppear {
+                if reduceMotion {
+                    arrived = true
+                    return
+                }
+                withAnimation(
+                    .spring(
+                        response: DeskMotion.response,
+                        dampingFraction: DeskMotion.damping
+                    ).delay(delay)
+                ) {
+                    arrived = true
+                }
+            }
     }
 }
 

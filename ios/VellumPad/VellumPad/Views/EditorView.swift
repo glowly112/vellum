@@ -9,6 +9,7 @@ struct EditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(PageTrash.self) private var trash
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
     @Query private var pages: [Page]
 
     @State private var focusMode = false
@@ -46,6 +47,7 @@ struct EditorView: View {
                 missing
             }
         }
+        .velinAppearance(appearanceRaw)
     }
 
     private func editor(_ page: Page) -> some View {

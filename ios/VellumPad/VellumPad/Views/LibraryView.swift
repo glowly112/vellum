@@ -4,8 +4,10 @@ import SwiftUI
 struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
     @Environment(PageTrash.self) private var trash
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
     @Query(sort: \Page.updatedAt, order: .reverse) private var pages: [Page]
     @State private var query = ""
     @State private var path: [UUID] = []
@@ -21,6 +23,13 @@ struct LibraryView: View {
     private var groups: [(section: LibrarySection, pages: [Page])] {
         LibraryGrouping.group(pages: pages, query: query)
     }
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
+
+    private var deskInk: Color { VellumPalette.onDesk(for: scheme) }
+    private var deskInkSoft: Color { VellumPalette.onDeskSoft(for: scheme) }
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -52,7 +61,7 @@ struct LibraryView: View {
                 ToolbarItem(placement: .largeTitle) {
                     Text(PageCopy.greeting())
                         .font(VellumFonts.display())
-                        .foregroundStyle(VellumPalette.onDesk)
+                        .foregroundStyle(deskInk)
                         .padding(.top, VellumFonts.greetingTopAir())
                         .padding(.bottom, CGFloat(LibraryGreeting.belowGreeting))
                         .fixedSize(horizontal: false, vertical: true)
@@ -156,6 +165,7 @@ struct LibraryView: View {
             }
             #endif
         }
+        .velinAppearance(appearanceRaw)
     }
 
     #if DEBUG
@@ -202,7 +212,7 @@ struct LibraryView: View {
                             Button(page.pinOn ? "Unpin" : "Pin", systemImage: page.pinOn ? "pin.slash" : "pin") {
                                 togglePin(page)
                             }
-                            .tint(VellumPalette.onDeskSoft)
+                            .tint(deskInkSoft)
                         }
                         .contextMenu {
                             Button(page.pinOn ? "Unpin" : "Pin", systemImage: page.pinOn ? "pin.slash" : "pin") {
@@ -262,12 +272,12 @@ struct LibraryView: View {
                 .padding(.bottom, 22)
             Text(LibraryEmpty.headline(searching: searching))
                 .font(VellumFonts.display(size: 28))
-                .foregroundStyle(VellumPalette.onDesk)
+                .foregroundStyle(deskInk)
                 .multilineTextAlignment(.center)
             if !detail.isEmpty {
                 Text(detail)
                     .font(VellumFonts.ui(.subheadline))
-                    .foregroundStyle(VellumPalette.onDeskSoft)
+                    .foregroundStyle(deskInkSoft)
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
                     .padding(.horizontal, 36)
@@ -275,7 +285,7 @@ struct LibraryView: View {
             if LibraryEmpty.showsClearSearch(searching: searching) {
                 Button("Clear search") { query = "" }
                     .font(VellumFonts.ui(.body, weight: .medium))
-                    .foregroundStyle(VellumPalette.onDesk)
+                    .foregroundStyle(deskInk)
                     .frame(minHeight: HitTarget.minimum)
                     .padding(.top, 16)
             }

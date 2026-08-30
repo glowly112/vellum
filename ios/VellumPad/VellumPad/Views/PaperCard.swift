@@ -4,6 +4,13 @@ import SwiftUI
 struct PaperSheet: View {
     let page: Page
 
+    @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
+
     var body: some View {
         let sheet = LibrarySheetCopy.cell(
             title: page.title,
@@ -57,7 +64,7 @@ struct PaperSheet: View {
             RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous)
                 .strokeBorder(VellumPalette.ink.opacity(sheet.paper.isDark ? 0.28 : 0.10), lineWidth: 1)
         }
-        .shadow(color: VellumPalette.lift, radius: 8, y: 3)
+        .shadow(color: VellumPalette.lift(for: scheme), radius: 8, y: 3)
         .contentShape(RoundedRectangle(cornerRadius: CGFloat(LibraryLook.sheetCornerRadius), style: .continuous))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(sheet.title), \(sheet.footer)")
@@ -69,6 +76,13 @@ struct PaperSheet: View {
 /// Not a stacked empty-state card. Not an SF symbol.
 struct EmptyDeskMark: View {
     private let corner: CGFloat = 14
+
+    @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
 
     var body: some View {
         ZStack {
@@ -92,7 +106,7 @@ struct EmptyDeskMark: View {
             RoundedRectangle(cornerRadius: corner, style: .continuous)
                 .strokeBorder(VellumPalette.ink.opacity(0.10), lineWidth: 1)
         }
-        .shadow(color: VellumPalette.lift, radius: 8, y: 3)
+        .shadow(color: VellumPalette.lift(for: scheme), radius: 8, y: 3)
         .rotationEffect(.degrees(-2.5))
         .accessibilityHidden(true)
     }

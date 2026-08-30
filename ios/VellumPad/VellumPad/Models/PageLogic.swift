@@ -421,6 +421,9 @@ enum DeskLook {
     static let emptyMarkStaysLight = true
     static let editorSurface = "page-paper"
     static let preferredColorScheme: String? = nil
+    /// Desk fill / onDesk resolve from SwiftUI scheme + AppStorage. Not UIColor traits.
+    static let usesUIColorTraitCallback = false
+    static let resolver = "swiftui-colorScheme"
     /// Library field is a surface (tooth + vignette), not a flat fill.
     static let usesBackdrop = true
     static let hasTooth = true

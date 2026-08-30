@@ -77,15 +77,23 @@ struct PaperBackdrop: View {
 /// No vertical fibre — those read as pinstripe ruling.
 struct DeskBackdrop: View {
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
 
     var body: some View {
+        let night = scheme == .dark
         Canvas { context, size in
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(VellumPalette.desk))
+            context.fill(
+                Path(CGRect(origin: .zero, size: size)),
+                with: .color(VellumPalette.desk(for: night ? .dark : .light))
+            )
 
             guard size.width > 0, size.height > 0 else { return }
-            let dark = colorScheme == .dark
-            drawTooth(context: context, size: size, dark: dark)
-            drawVignette(context: context, size: size, dark: dark)
+            drawTooth(context: context, size: size, dark: night)
+            drawVignette(context: context, size: size, dark: night)
         }
         .allowsHitTesting(false)
     }

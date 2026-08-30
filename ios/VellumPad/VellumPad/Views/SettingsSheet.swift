@@ -23,11 +23,7 @@ struct SettingsSheet: View {
 
     /// Dark / Light from AppStorage this tap. Do not trust UIColor traits in a sheet.
     private var chromeScheme: ColorScheme {
-        switch appearanceRaw {
-        case AppearanceLook.lightRaw: return .light
-        case AppearanceLook.darkRaw: return .dark
-        default: return colorScheme
-        }
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
     }
 
     private var chromeFill: Color { VellumPalette.chrome(for: chromeScheme) }
@@ -108,16 +104,7 @@ struct SettingsSheet: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(chromeFill)
-        .preferredColorScheme(forcedScheme)
-    }
-
-    /// Force the sheet’s SwiftUI scheme so Dark restyles this tap.
-    private var forcedScheme: ColorScheme? {
-        switch appearanceRaw {
-        case AppearanceLook.lightRaw: return .light
-        case AppearanceLook.darkRaw: return .dark
-        default: return nil
-        }
+        .velinAppearance(appearanceRaw)
     }
 
     private var appearanceTiles: some View {
@@ -216,11 +203,7 @@ struct ConnectionsPage: View {
     var incomingIsError: Bool
 
     private var chromeScheme: ColorScheme {
-        switch appearanceRaw {
-        case AppearanceLook.lightRaw: return .light
-        case AppearanceLook.darkRaw: return .dark
-        default: return colorScheme
-        }
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
     }
 
     private var chromeFill: Color { VellumPalette.chrome(for: chromeScheme) }
@@ -291,6 +274,7 @@ struct ConnectionsPage: View {
         .toolbarBackground(chromeFill, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(chromeScheme, for: .navigationBar)
+        .velinAppearance(appearanceRaw)
         .fileImporter(
             isPresented: $pickingFiles,
             allowedContentTypes: ImportPicker.types(for: activeSource),
@@ -363,12 +347,19 @@ enum DeskHapticsPlay {
 struct DeskLockCover: View {
     var onUnlock: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
+
     var body: some View {
         VStack(spacing: 18) {
             Spacer(minLength: 40)
             Text("Locked")
                 .font(VellumFonts.display(size: 28))
-                .foregroundStyle(VellumPalette.onDesk)
+                .foregroundStyle(VellumPalette.onDesk(for: scheme))
             Button("Unlock") {
                 Task {
                     if await DeskLock.evaluate() {
@@ -377,7 +368,7 @@ struct DeskLockCover: View {
                 }
             }
             .font(VellumFonts.page(.book, size: 17, relativeTo: .body))
-            .foregroundStyle(VellumPalette.onDesk)
+            .foregroundStyle(VellumPalette.onDesk(for: scheme))
             .frame(minHeight: CGFloat(HitTarget.minimum))
             Spacer(minLength: 40)
         }
@@ -386,5 +377,6 @@ struct DeskLockCover: View {
             DeskBackdrop()
                 .ignoresSafeArea(.container)
         }
+        .velinAppearance(appearanceRaw)
     }
 }

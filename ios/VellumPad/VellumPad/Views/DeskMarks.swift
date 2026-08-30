@@ -7,14 +7,21 @@ struct DeskMetaLockup: View {
     let date: String
     let count: Int
 
+    @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             Text(date)
                 .font(VellumFonts.deskMeta())
-                .foregroundStyle(VellumPalette.onDeskSoft)
+                .foregroundStyle(VellumPalette.onDeskSoft(for: scheme))
                 .lineLimit(1)
-            DeskMiddot()
-            DeskPageMark(count: count)
+            DeskMiddot(scheme: scheme)
+            DeskPageMark(count: count, scheme: scheme)
         }
         .accessibilityHidden(true)
     }
@@ -22,10 +29,12 @@ struct DeskMetaLockup: View {
 
 /// Ink disc. Not the system interpunct.
 private struct DeskMiddot: View {
+    var scheme: ColorScheme
+
     var body: some View {
         Canvas { context, size in
             let rect = CGRect(x: 0.5, y: 0.5, width: size.width - 1, height: size.height - 1)
-            context.fill(Path(ellipseIn: rect), with: .color(VellumPalette.onDeskSoft))
+            context.fill(Path(ellipseIn: rect), with: .color(VellumPalette.onDeskSoft(for: scheme)))
         }
         .frame(width: 3.5, height: 3.5)
         .accessibilityHidden(true)
@@ -36,6 +45,7 @@ private struct DeskMiddot: View {
 /// Same objects as EmptyDeskMark. Not the word Vellum. Not SF.
 private struct DeskPageMark: View {
     let count: Int
+    var scheme: ColorScheme = .light
 
     var body: some View {
         ZStack {
@@ -56,7 +66,7 @@ private struct DeskPageMark: View {
             RoundedRectangle(cornerRadius: 3.5, style: .continuous)
                 .strokeBorder(VellumPalette.ink.opacity(0.10), lineWidth: 0.8)
         }
-        .shadow(color: VellumPalette.lift.opacity(0.65), radius: 2, y: 1)
+        .shadow(color: VellumPalette.lift(for: scheme).opacity(0.65), radius: 2, y: 1)
         .rotationEffect(.degrees(-1.5))
         .accessibilityHidden(true)
     }
@@ -64,12 +74,19 @@ private struct DeskPageMark: View {
 
 /// Pinned section mark. Path pin + Fraunces. Not SF caption caps.
 struct PinnedSectionMark: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppearanceLook.key) private var appearanceRaw = AppearanceLook.defaultRaw
+
+    private var scheme: ColorScheme {
+        VellumPalette.resolvedScheme(appearanceRaw: appearanceRaw, system: colorScheme)
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 7) {
             pinChip
             Text(DeskMarks.pinnedVoiceOver)
                 .font(VellumFonts.page(.editorial, size: 13, relativeTo: .caption))
-                .foregroundStyle(VellumPalette.onDeskSoft)
+                .foregroundStyle(VellumPalette.onDeskSoft(for: scheme))
         }
         .textCase(.none)
         .accessibilityElement(children: .ignore)
@@ -87,7 +104,7 @@ struct PinnedSectionMark: View {
             RoundedRectangle(cornerRadius: 4, style: .continuous)
                 .strokeBorder(VellumPalette.ink.opacity(0.10), lineWidth: 0.8)
         }
-        .shadow(color: VellumPalette.lift.opacity(0.55), radius: 2, y: 1)
+        .shadow(color: VellumPalette.lift(for: scheme).opacity(0.55), radius: 2, y: 1)
         .rotationEffect(.degrees(-2))
         .accessibilityHidden(true)
     }

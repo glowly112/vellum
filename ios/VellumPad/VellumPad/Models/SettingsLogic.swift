@@ -17,8 +17,8 @@ enum SettingsLook {
     static let welcomeRow = "Welcome"
     static let aboutCopy = "Pages stay on this iPhone."
     static let marketingVersion = "1.0.0"
-    static let buildNumber = "30"
-    static let versionLabel = "1.0.0 (30)"
+    static let buildNumber = "31"
+    static let versionLabel = "1.0.0 (31)"
     static let lockDefault = false
     static let awakeDefault = false
     static let hapticsDefault = true
@@ -175,6 +175,7 @@ enum WelcomeLook {
     static let kind = "brand-root"
     static let surface = "product-preview"
     static let motionKind = "page-turn"
+    static let openingBeat = "stamp-bounce"
     static let reduceMotionIsInstant = true
     static let skipOnEveryPage = true
     static let pageCount = 3
@@ -182,13 +183,50 @@ enum WelcomeLook {
     static let isRoot = true
     static let coversLibrary = true
     static let libraryBehind = false
-    static let hasStamp = false
+    /// Paper stamp (cream, rust margin, serif V). Not the word Velin.
+    static let hasStamp = true
     static let showsAppName = false
-    static let stampLetter = ""
+    static let stampLetter = "V"
+    static let stampWritesName = false
+    static let bounceResponse = DeskMotion.response
+    static let bounceDamping = DeskMotion.damping
+    /// After the spring settles, auto-advance to Pages you keep.
+    static let bounceSettle = 0.95
+    static let bounceStartScale = 0.78
+    static let autoAdvanceAfterStamp = true
+    static let cardsArrive = true
+    static let staggerStep = 0.08
+    static let typesWriting = true
+    static let typeInterval = 0.045
+    static let typeShowsCursor = false
     static let blankSheets = false
     static let teachesProduct = true
     /// WelcomeMiniCard page text. Must not be `body` — that is View.body.
     static let miniCardTextProperty = "snippet"
+}
+
+/// Prefix reveal. No cursor. Reduce Motion shows the full string.
+enum WelcomeTypewriter {
+    static let interval = WelcomeLook.typeInterval
+    static let showsCursor = WelcomeLook.typeShowsCursor
+    static let reduceMotionShowsFull = true
+
+    static func visible(full: String, revealed: Int) -> String {
+        if revealed <= 0 { return "" }
+        if revealed >= full.count { return full }
+        let end = full.index(full.startIndex, offsetBy: revealed)
+        return String(full[..<end])
+    }
+}
+
+/// Writing on a cream catalog sheet. Never Color.primary / onDesk traits.
+enum WelcomeInkLook {
+    static let sheetInk = "charcoal"
+    static let sheetUsesPrimary = false
+    static let sheetUsesOnDesk = false
+    static let sheetInkFlipsWithScheme = false
+    static let headlineUsesOnDesk = true
+    static let creamSheetsStayCream = true
 }
 
 enum AppearanceLook {
@@ -199,6 +237,12 @@ enum AppearanceLook {
     static let defaultRaw = "system"
     static let tiles = ["System", "Light", "Dark"]
     static let persists = true
+    /// One AppStorage key at the root. Tiles write that key. No local sheet @State.
+    static let retintsWholeApp = true
+    static let appliesPreferredColorSchemeAtRoot = true
+    static let appliesPreferredColorSchemeOnSheets = true
+    static let usesLocalSheetState = false
+    static let catalogSheetsStayCream = true
 
     static func raw(in defaults: UserDefaults = .standard) -> String {
         defaults.string(forKey: key) ?? defaultRaw
@@ -209,12 +253,16 @@ enum AppearanceLook {
     }
 
     /// nil follows the device. `"light"` / `"dark"` force the window.
-    static func preferredColorScheme(in defaults: UserDefaults = .standard) -> String? {
-        switch raw(in: defaults) {
+    static func preferredColorScheme(raw: String) -> String? {
+        switch raw {
         case lightRaw: return "light"
         case darkRaw: return "dark"
         default: return nil
         }
+    }
+
+    static func preferredColorScheme(in defaults: UserDefaults = .standard) -> String? {
+        preferredColorScheme(raw: raw(in: defaults))
     }
 
     static func lightForcesLight(in defaults: UserDefaults = .standard) -> Bool {
